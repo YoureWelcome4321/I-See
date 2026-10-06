@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#00c4bd" />
+    <meta name="description" content="Личная карточка питания: аллергии и продукты, которые вы не едите." />
+    <title>Мед. карточка — Я Вижу!</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a>
+      <nav class="main-nav" aria-label="Основная навигация"><a href="index.html">Главная</a><a aria-current="page" href="medical-card.html">Мед. карточка</a><a href="contacts.html">Контакты</a></nav>
+    </header>
+    <main class="page-width content-page">
+      <section class="medical-card" aria-labelledby="medical-title">
+        <div class="medical-card-heading">
+          <span class="medical-card-icon" aria-hidden="true">+</span>
+          <div><p class="eyebrow">ВАЖНО ДЛЯ ВАС</p><h1 id="medical-title">Моя карточка питания</h1></div>
+        </div>
+        <p class="medical-intro">Запишите продукты, которые вызывают аллергию или которые вы не едите. Мы покажем этот список вам на этом устройстве.</p>
+        <form class="medical-form" id="medical-form">
+          <label for="food-type">Что добавить</label>
+          <select id="food-type" name="type"><option value="allergy">Вызывает аллергию</option><option value="avoid">Не ем этот продукт</option></select>
+          <label for="food-name">Название продукта</label>
+          <input id="food-name" name="food" type="text" maxlength="80" placeholder="Например, арахис" required />
+          <button class="button button-primary medical-add" type="submit">Добавить в карточку</button>
+        </form>
+        <p class="medical-status" id="medical-status" aria-live="polite"></p>
+        <ul class="medical-list" id="medical-list" aria-label="Мои аллергии и продукты, которые я не ем"></ul>
+        <p class="medical-privacy">Список сохраняется только в браузере на этом устройстве и не отправляется на сервер. Если устройством пользуются другие, не указывайте лишние личные сведения.</p>
+        <p class="medical-disclaimer">Карточка помогает не забыть ваши записи и не заменяет медицинские рекомендации.</p>
+      </section>
+    </main>
+    <footer class="site-footer"><p>Я Вижу! — помощник, который объясняет просто.</p><a href="contacts.html">Контакты</a></footer>
+    <script src="./medical-card.js" defer></script>
+  </body>
+</html>

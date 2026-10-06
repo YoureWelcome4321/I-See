@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ru">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="theme-color" content="#00c4bd" /><title>Форма — Я Вижу!</title><link rel="stylesheet" href="./style.css" /></head>
+  <body>
+    <header class="site-header"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a><nav class="main-nav" aria-label="Основная навигация"><a href="index.html">Главная</a><a href="medical-card.html">Мед. карточка</a><a href="contacts.html">Контакты</a></nav></header>
+    <main class="page-width content-page narrow-page">
+      <p class="eyebrow">ВАШЕ МНЕНИЕ ВАЖНО</p><h1>Предложить продукт или сообщить об ошибке</h1><p class="lead">Заполните поля — браузер проверит обязательные данные. Отправка пока демонстрационная: форма не передаёт информацию на сервер.</p>
+      <form class="feedback-form" action="feedback.html#form-note" method="get">
+        <label for="name">Ваше имя <span aria-hidden="true">*</span><input id="name" name="name" autocomplete="name" required minlength="2" /></label>
+        <label for="email">Электронная почта <span aria-hidden="true">*</span><input id="email" name="email" type="email" autocomplete="email" required /></label>
+        <label for="topic">Тема обращения<select id="topic" name="topic"><option>Предложить продукт</option><option>Исправить информацию</option><option>Пожелание по сайту</option></select></label>
+        <label for="barcode">Штрихкод продукта<input id="barcode" name="barcode" inputmode="numeric" pattern="[0-9]{8,14}" aria-describedby="barcode-help" /><small id="barcode-help">От 8 до 14 цифр, если знаете его.</small></label>
+        <label for="message">Сообщение <span aria-hidden="true">*</span><textarea id="message" name="message" rows="5" required minlength="10"></textarea></label>
+        <button class="button button-primary form-submit" type="submit">Проверить форму</button>
+      </form>
+      <p class="form-note" id="form-note" tabindex="-1">Демо: форма проверяет заполнение в браузере, но пока не отправляет сообщение.</p>
+    </main>
+    <footer class="site-footer"><p>Спасибо, что помогаете сделать сайт понятнее.</p><a href="contacts.html">Контакты</a></footer>
+  </body>
+</html>
