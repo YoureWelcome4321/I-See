@@ -1,5 +1,7 @@
 # Я Вижу!
 
+Swagger со всеми маршрутами - /docs
+
 Проект разделён на frontend и backend:
 
 - `frontend/pages/` — HTML-страницы;
