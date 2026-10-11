@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#e8f7f5" />
+    <meta name="description" content="Я Вижу! — помощник для спокойных покупок." />
+    <title>Я Вижу! — главная</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+  <body class="home-body reference-home">
+    <header class="site-header home-header">
+      <a class="profile-link" href="medical-card.html">
+        <span class="profile-icon" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg></span>
+        <span>Профиль</span><span class="profile-chevron" aria-hidden="true">›</span>
+      </a>
+      <nav class="quick-links" aria-label="Полезные истории">
+        <a class="recipe-story" data-story-id="story-01" href="help.html"><span class="story-image"><img src="../assets/images/story-01.jpg" alt="" fetchpriority="high" /></span><span class="story-caption"><b>Новый образ</b><small>Детали и настроение</small></span></a>
+        <a class="recipe-story" data-story-id="story-02" href="help.html"><span class="story-image"><img src="../assets/images/story-02.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Город не спит</b><small>Вечерние огни</small></span></a>
+        <a class="recipe-story" data-story-id="story-03" href="medical-card.html"><span class="story-image"><img src="../assets/images/story-03.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Тёплый вечер</b><small>Моменты на память</small></span></a>
+        <a class="recipe-story" data-story-id="story-04" href="feedback.html"><span class="story-image"><img src="../assets/images/story-04.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Wanna play?</b><small>Новая игра</small></span></a>
+        <a class="recipe-story" data-story-id="story-05" href="help.html"><span class="story-image"><img src="../assets/images/story-05.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Особенный день</b><small>Важные события</small></span></a>
+        <a class="recipe-story" data-story-id="story-06" href="help.html"><span class="story-image"><img src="../assets/images/story-06.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Вечер дома</b><small>Время для себя</small></span></a>
+        <a class="recipe-story" data-story-id="story-07" href="help.html"><span class="story-image"><img src="../assets/images/story-07.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Другой взгляд</b><small>Игра света и тени</small></span></a>
+      </nav>
+    </header>
+
+    <main id="main-content" class="home-main">
+      <section class="reference-content" aria-label="Главная страница">
+        <section class="promo-banner page-width scanner-promo" aria-labelledby="hero-title">
+          <div class="promo-copy">
+            <p class="scanner-promo-eyebrow">ПРОВЕРКА ПРОДУКТОВ</p>
+            <h1 id="hero-title">Сканер<br />продуктов</h1>
+            <p>Наведите камеру на штрихкод. Узнайте состав, аллергены и добавки.</p>
+            <button class="scanner-promo-button" id="start-scan" type="button"><span class="barcode-button-icon" aria-hidden="true"><svg viewBox="0 0 44 32"><path d="M4 4v24M8 4v24M14 4v24M18 4v24M23 4v24M29 4v24M33 4v24M40 4v24" /></svg></span><span>Начать сканирование</span></button>
+          </div>
+          <div class="promo-graphic scanner-product-graphic" aria-hidden="true"><img class="product-mascot" src="../assets/images/babushka-korzina.png" alt="" /></div>
+        </section>
+
+        <section class="home-tiles page-width" aria-label="Разделы сайта">
+          <div class="tile-column">
+            <a class="reference-tile pharmacy-tile" href="catalog.html"><span class="reference-art pharmacy-art" aria-hidden="true"><svg viewBox="0 0 100 80"><path d="M15 31h70l-6 43H21zM11 31l8-17h62l8 17M31 31v43m19-43v43m19-43v43"/><path d="M36 48h28"/></svg></span><span>Товары для вас</span></a>
+            <div class="small-tiles">
+              <a class="reference-tile" href="stores.html"><span class="reference-art map-art" aria-hidden="true"><svg viewBox="0 0 80 90"><path d="M40 82S12 52 12 34a28 28 0 1 1 56 0c0 18-28 48-28 48z"/><circle cx="40" cy="34" r="10"/></svg></span><span>Магазины<br />на карте</span></a>
+            </div>
+          </div>
+          <a class="reference-tile recipes-tile" href="help.html"><span class="reference-art" aria-hidden="true"><svg viewBox="0 0 100 80"><path d="M25 13h50v58H25zM35 27h30M35 39h30M35 51h20"/><path d="m66 57 5 5 11-13"/></svg></span><span>Домашние рецепты</span></a>
+        </section>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Быстрые действия">
+      <button class="bottom-advice" id="open-advice-bottom" type="button"><span class="assistant-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 7h22v16H15l-7 5v-5H5z"/><path d="M11 15h.1m5 0h.1m5 0h.1"/></svg></span><span>Спросить помощника</span></button>
+    </nav>
+
+    <footer class="site-footer"><a href="stores.html">Магазины</a></footer>
+
+    <dialog class="advice-dialog" id="advice-dialog" aria-labelledby="advice-title" aria-describedby="advice-description">
+      <div class="advice-dialog-inner">
+        <header class="advice-dialog-header"><div><p class="eyebrow">Подсказка рядом</p><h2 id="advice-title">О чём хотите узнать?</h2></div><button class="dialog-close" type="button" data-advice-close aria-label="Закрыть окно">×</button></header>
+        <p id="advice-description" class="advice-description">Выберите тему — помощник покажет короткое объяснение. Это справочная информация, а не медицинское заключение.</p>
+        <form id="advice-form" class="advice-form"><label for="advice-topic">Тема</label><select id="advice-topic" name="topic"><option value="general">Не знаю, с чего начать</option><option value="allergens">Аллергены</option><option value="composition">Состав</option><option value="additives">Добавки</option><option value="card">Моя карточка</option><option value="label">Как читать этикетку</option></select><button class="button button-primary" type="submit">Показать совет</button></form>
+        <div class="advice-result" id="advice-result" aria-live="polite" tabindex="-1"></div><p class="advice-footnote">При аллергии всегда сверяйтесь с полной упаковкой и рекомендациями врача.</p>
+      </div>
+    </dialog>
+
+    <section class="scanner" id="scanner" aria-hidden="true" aria-labelledby="scanner-title">
+      <div class="scanner-panel">
+        <header class="scanner-header"><div><p class="eyebrow">СКАНИРОВАНИЕ</p><h2 id="scanner-title">Наведите камеру на штрихкод</h2></div><button class="close-button" id="close-scan" type="button" aria-label="Закрыть сканер">×</button></header>
+        <div class="camera-frame" id="camera-frame"><video id="camera" autoplay muted playsinline></video><div class="camera-placeholder"><p id="camera-message">Готовим камеру…</p></div><div class="scan-window" aria-hidden="true"></div></div>
+        <p class="scanner-hint" id="scanner-hint" aria-live="polite">Покажите штрихкод целиком и держите телефон ровно.</p>
+        <div class="camera-actions"><button class="camera-action torch-action" id="torch-button" type="button" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2h6l-1 7h3l-8 13 1-9H7z" /></svg><span id="torch-label">Включить фонарик</span></button><button class="camera-action" id="switch-camera" type="button" hidden>Переключить камеру</button></div>
+      </div>
+    </section>
+    <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js" defer></script>
+    <script src="../assets/js/api.js" defer></script><script src="../assets/js/app.js" defer></script>
+  </body>
+</html>

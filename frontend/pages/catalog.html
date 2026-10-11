@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b572b" />
+    <meta name="description" content="Подборка продуктов и информация об их составе от Я Вижу!." />
+    <title>Товары для вас — Я Вижу!</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+  <body class="catalog-page">
+    <header class="catalog-header">
+      <a class="catalog-brand" href="index.html" aria-label="Я Вижу! — на главную">
+        <span class="catalog-brand-mark" aria-hidden="true">Я</span>
+        <span>Я Вижу!</span>
+      </a>
+      <a class="catalog-home-button" href="index.html">
+        <span aria-hidden="true">←</span>
+        <span>Вернуться на главную</span>
+      </a>
+      <a class="catalog-profile-link" href="medical-card.html">
+        <span class="catalog-profile-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg>
+        </span>
+        <span>Профиль</span>
+        <span class="catalog-chevron" aria-hidden="true">›</span>
+      </a>
+    </header>
+
+    <main class="catalog-main">
+      <section class="catalog-intro" aria-labelledby="catalog-title">
+        <div class="catalog-intro-copy">
+          <span class="catalog-scan-icon" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M3 3v18M7 3v18m4-18v18m5-18v18m4-18v18m5-18v18" /></svg></span>
+          <div>
+            <h2 id="catalog-title">Проверьте продукт сканером</h2>
+          </div>
+        </div>
+        <a class="catalog-scan-link" href="index.html?scan=1#start-scan">
+          <span>Сканировать</span>
+          <span class="catalog-scan-arrow" aria-hidden="true">↗</span>
+        </a>
+      </section>
+
+      <section class="catalog-products-section" aria-labelledby="products-heading">
+        <div class="catalog-section-heading">
+          <div>
+            <p class="catalog-section-eyebrow">НАША ПОДБОРКА</p>
+            <h1 id="products-heading">Рекомендуем вам попробовать</h1>
+          </div>
+          <span class="catalog-count" id="catalog-count" aria-label="Количество продуктов">…</span>
+        </div>
+        <p class="catalog-status" id="catalog-status" aria-live="polite">Загружаем товары…</p>
+        <section class="catalog-grid" id="catalog-grid" aria-label="Список продуктов"></section>
+      </section>
+
+    </main>
+
+    <script src="../assets/js/api.js" defer></script>
+    <script src="../assets/js/catalog.js" defer></script>
+  </body>
+</html>

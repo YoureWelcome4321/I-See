@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#185e31" />
+    <meta name="description" content="Найдите продуктовые магазины рядом — на карте и в списке." />
+    <title>Магазины рядом — Я Вижу!</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  </head>
+  <body class="stores-page">
+    <header class="stores-header">
+      <a class="stores-brand" href="index.html"><span class="stores-brand-icon" aria-hidden="true">Я</span><span>Я Вижу!</span></a>
+      <a class="stores-home-button" href="index.html"><span aria-hidden="true">←</span><span>Вернуться на главную</span></a>
+      <a class="stores-profile-link" href="medical-card.html"><span class="stores-profile-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="10" r="5.5"/><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3"/></svg></span><span>Профиль</span><span class="stores-profile-chevron" aria-hidden="true">›</span></a>
+    </header>
+    <main class="stores-shell">
+      <div class="stores-content">
+        <section class="stores-layout" aria-label="Карта и список ближайших магазинов">
+          <div class="stores-map-card">
+            <div class="stores-card-heading"><div><p class="stores-section-label">КАРТА</p><h2>Магазины на карте</h2></div><span class="map-live-indicator" aria-hidden="true"></span></div>
+            <div class="stores-map" id="stores-map" role="application" aria-label="Карта ближайших продуктовых магазинов"><div class="stores-map-placeholder" id="stores-map-placeholder"><span aria-hidden="true">⌖</span><strong>Загружаем карту</strong><p>Разрешите доступ к геопозиции, чтобы найти магазины в радиусе 2 км.</p></div></div>
+            <p class="stores-status" id="stores-status" role="status" aria-live="polite">Определяем местоположение и загружаем магазины в радиусе 2 км…</p>
+          </div>
+          <div class="stores-list-card">
+            <div class="stores-card-heading"><div><p class="stores-section-label">СПИСОК</p><h2>Ближайшие</h2></div><div class="stores-list-actions"><span class="stores-count" id="stores-count">—</span><button class="stores-refresh" id="refresh-stores" type="button" aria-label="Обновить список магазинов" title="Обновить список магазинов">↻<span>Обновить список</span></button></div></div>
+            <div class="stores-list" id="stores-list" aria-live="polite"><div class="stores-empty"><span class="stores-empty-icon" aria-hidden="true">⌖</span><p>После поиска здесь появятся магазины, отсортированные по расстоянию.</p></div></div>
+          </div>
+        </section>
+        <p class="stores-footnote">Данные о магазинах предоставлены OpenStreetMap и могут быть неполными. Перед поездкой проверьте часы работы.</p>
+      </div>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+    <script src="../assets/js/stores.js" defer></script>
+  </body>
+</html>

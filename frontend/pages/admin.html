@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#185e31" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Управление товарами, пользователями и историями сайта Я Вижу!." />
+    <title>Панель управления — Я Вижу!</title>
+    <link rel="stylesheet" href="/assets/css/style.css" />
+  </head>
+  <body class="catalog-page admin-route">
+    <header class="catalog-header admin-site-header">
+      <a class="catalog-brand" href="/" aria-label="Я Вижу! — на главную">
+        <span class="catalog-brand-mark" aria-hidden="true">Я</span>
+        <span>Я Вижу!</span>
+      </a>
+      <a class="catalog-home-button" href="/">
+        <span aria-hidden="true">←</span>
+        <span>Вернуться на главную</span>
+      </a>
+      <a class="catalog-profile-link" href="/medical-card.html" aria-label="Открыть профиль">
+        <span class="catalog-profile-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg>
+        </span>
+        <span>Профиль</span>
+        <span class="catalog-chevron" aria-hidden="true">›</span>
+      </a>
+    </header>
+
+    <main class="catalog-main admin-main">
+      <section class="admin-login-card" id="admin-login-panel" aria-labelledby="admin-login-title">
+        <div class="admin-card-heading">
+          <span class="admin-heading-icon" aria-hidden="true">↗</span>
+          <div><p class="catalog-section-eyebrow">ДОСТУП К УПРАВЛЕНИЮ</p><h2 id="admin-login-title">Вход администратора</h2></div>
+        </div>
+        <p class="admin-card-description">Войдите под учётной записью администратора, чтобы продолжить.</p>
+        <form class="admin-login-form" id="admin-login-form">
+          <label for="admin-login">Логин<input id="admin-login" name="login" autocomplete="username" required /></label>
+          <label for="admin-password">Пароль<input id="admin-password" name="password" type="password" autocomplete="current-password" required /></label>
+          <button class="catalog-submit" type="submit">Войти в панель <span aria-hidden="true">→</span></button>
+        </form>
+        <p class="admin-status" id="admin-login-status" aria-live="polite"></p>
+      </section>
+
+      <section class="admin-dashboard" id="admin-dashboard" aria-labelledby="admin-dashboard-title" hidden>
+        <div class="admin-dashboard-top">
+          <div>
+            <p class="catalog-section-eyebrow">АДМИНИСТРАТОР</p>
+            <h2 id="admin-dashboard-title">Управление сайтом</h2>
+          </div>
+          <button class="admin-logout" id="admin-logout" type="button"><span aria-hidden="true">↪</span> Выйти</button>
+        </div>
+
+        <nav class="admin-tabs" aria-label="Разделы панели управления">
+          <button type="button" data-admin-tab="products" aria-pressed="true"><span aria-hidden="true">▦</span> Товары</button>
+          <button type="button" data-admin-tab="users" aria-pressed="false"><span aria-hidden="true">♙</span> Пользователи</button>
+          <button type="button" data-admin-tab="stories" aria-pressed="false"><span aria-hidden="true">▣</span> Истории</button>
+        </nav>
+
+        <section class="admin-section" id="admin-section-products" aria-labelledby="admin-products-title">
+          <div class="admin-section-heading"><div><p class="catalog-section-eyebrow">КАТАЛОГ</p><h3 id="admin-products-title">Товары</h3></div></div>
+          <button class="catalog-submit admin-add-button" id="admin-product-add" type="button">Добавить товар <span aria-hidden="true">+</span></button>
+          <p class="admin-status" id="admin-product-status" aria-live="polite"></p>
+          <div class="admin-product-list" id="admin-product-list" aria-live="polite"></div>
+        </section>
+
+        <section class="admin-section" id="admin-section-users" aria-labelledby="admin-users-title" hidden>
+          <div class="admin-section-heading"><div><p class="catalog-section-eyebrow">АККАУНТЫ</p><h3 id="admin-users-title">Пользователи</h3></div><span class="admin-section-mark" aria-hidden="true">02</span></div>
+          <p class="admin-section-hint">Список зарегистрированных пользователей и их активности. Управление учётными записями здесь недоступно.</p>
+          <p class="admin-status" id="admin-user-status" aria-live="polite"></p>
+          <div class="admin-product-list" id="admin-user-list" aria-live="polite"></div>
+        </section>
+
+        <section class="admin-section" id="admin-section-stories" aria-labelledby="admin-stories-title" hidden>
+          <div class="admin-section-heading"><div><p class="catalog-section-eyebrow">ГЛАВНАЯ СТРАНИЦА</p><h3 id="admin-stories-title">Истории</h3></div><span class="admin-section-mark" aria-hidden="true">03</span></div>
+          <p class="admin-section-hint">Обновляйте подписи, ссылки и изображения историй. Изображения нужно предварительно загрузить в папку сайта.</p>
+          <button class="catalog-submit admin-add-button" id="admin-story-add" type="button">Добавить историю <span aria-hidden="true">+</span></button>
+          <p class="admin-status" id="admin-story-status" aria-live="polite"></p>
+          <div class="admin-product-list" id="admin-story-list" aria-live="polite"></div>
+        </section>
+      </section>
+      <div class="admin-modal" id="admin-product-modal" hidden>
+        <div class="admin-modal-backdrop" data-admin-modal-close></div>
+        <section class="admin-modal-card" role="dialog" aria-modal="true" aria-labelledby="admin-product-modal-title">
+          <div class="admin-modal-heading"><div><p class="catalog-section-eyebrow">КАТАЛОГ</p><h2 id="admin-product-modal-title">Новый товар</h2></div><button class="admin-modal-close" type="button" data-admin-modal-close aria-label="Закрыть">×</button></div>
+          <form class="admin-data-form admin-product-form" id="admin-product-form">
+            <input name="id" type="hidden" />
+            <label>Название<input name="name" maxlength="120" placeholder="Например, йогурт" required /></label>
+            <label>Категория<input name="category" maxlength="80" value="Продукты" /></label>
+            <label>Штрихкод<input name="barcode" maxlength="32" inputmode="numeric" placeholder="Цифры на упаковке" /></label>
+            <label>Аллергены<input name="allergens" maxlength="500" placeholder="Если есть" /></label>
+            <label class="admin-form-wide">Состав<input name="ingredients" maxlength="2000" placeholder="Перечислите ингредиенты" /></label>
+            <label>Цена, ₽<input name="price" type="number" min="0" value="0" /></label>
+            <div class="admin-modal-actions"><button class="admin-cancel" id="admin-product-cancel" type="button">Отмена</button><button class="catalog-submit" type="submit">Сохранить <span aria-hidden="true">✓</span></button></div>
+          </form>
+        </section>
+      </div>
+      <div class="admin-modal" id="admin-story-modal" hidden>
+        <div class="admin-modal-backdrop" data-admin-story-modal-close></div>
+        <section class="admin-modal-card" role="dialog" aria-modal="true" aria-labelledby="admin-story-modal-title">
+          <div class="admin-modal-heading"><div><p class="catalog-section-eyebrow">ГЛАВНАЯ СТРАНИЦА</p><h2 id="admin-story-modal-title">Новая история</h2></div><button class="admin-modal-close" type="button" data-admin-story-modal-close aria-label="Закрыть">×</button></div>
+          <form class="admin-data-form admin-story-form" id="admin-story-form">
+            <input name="id" type="hidden" />
+            <label>Заголовок<input name="title" maxlength="60" placeholder="Короткое название" required /></label>
+            <label>Подпись<input name="subtitle" maxlength="80" placeholder="Дополнительная строка" /></label>
+            <label>Фото<select name="image"><option value="story-01.jpg">Фото 1</option><option value="story-02.jpg">Фото 2</option><option value="story-03.jpg">Фото 3</option><option value="story-04.jpg">Фото 4</option><option value="story-05.jpg">Фото 5</option><option value="story-06.jpg">Фото 6</option><option value="story-07.jpg">Фото 7</option></select></label>
+            <label>Открывать страницу<select name="href"><option value="help.html">Помощь</option><option value="catalog.html">Товары</option><option value="stores.html">Магазины</option><option value="medical-card.html">Профиль</option><option value="feedback.html">Обратная связь</option></select></label>
+            <div class="admin-modal-actions"><button class="admin-cancel" id="admin-story-cancel" type="button">Отмена</button><button class="catalog-submit" type="submit">Сохранить <span aria-hidden="true">✓</span></button></div>
+          </form>
+        </section>
+      </div>
+    </main>
+    <script src="/assets/js/api.js" defer></script>
+    <script src="/assets/js/admin.js" defer></script>
+  </body>
+</html>

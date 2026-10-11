@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#00c4bd" />
+    <meta name="description" content="Состав, аллергены и добавки в продукте." />
+    <title>Продукт — Я Вижу!</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a>
+      <nav class="main-nav" aria-label="Основная навигация"><a href="index.html">Главная</a><a href="medical-card.html">Мед. карточка</a><a href="stores.html">Магазины</a></nav>
+    </header>
+    <main class="page-width content-page" id="product-page">
+      <a class="back-link" href="index.html">← Назад к сканированию</a>
+      <p class="eyebrow">ИНФОРМАЦИЯ О ПРОДУКТЕ</p>
+      <section class="product-heading"><div id="product-image-wrap" class="product-hero-art" hidden></div><div><h1 id="product-name">Загружаем продукт…</h1><p id="product-meta" class="product-meta"></p></div></section>
+      <p id="product-status" class="product-status" aria-live="polite"></p>
+      <section class="product-details-grid" id="product-details" aria-label="Состав, аллергены и добавки" hidden>
+        <article class="info-card"><span class="info-icon" aria-hidden="true">≡</span><h2>Состав</h2><p id="product-ingredients"></p></article>
+        <article class="info-card info-warning"><span class="info-icon" aria-hidden="true">!</span><h2>Аллергены</h2><p id="product-allergens"></p></article>
+        <article class="info-card"><span class="info-icon" aria-hidden="true">E</span><h2>Добавки и консерванты</h2><p id="product-additives"></p></article>
+      </section>
+      <section class="product-actions"><a class="button button-primary" href="index.html">Сканировать другой продукт</a><button class="button button-secondary" id="save-check" type="button" hidden>Сохранить проверку в истории</button></section>
+      <p class="product-status" id="check-status" aria-live="polite"></p><a class="text-link" id="check-login-link" href="medical-card.html" hidden>Войдите в профиле, чтобы сохранить проверку</a>
+      <p class="source-note">Данные получены из Open Food Facts и могут быть неполными. При аллергии обязательно проверьте упаковку.</p>
+    </main>
+    <footer class="site-footer"><p>Справочная информация не заменяет медицинскую рекомендацию.</p><a href="stores.html">Магазины</a></footer>
+    <script src="../assets/js/api.js" defer></script><script src="../assets/js/product.js" defer></script>
+  </body>
+</html>
