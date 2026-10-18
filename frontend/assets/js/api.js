@@ -1,4 +1,6 @@
 (() => {
+  const savedFontSize = localStorage.getItem('ya-vizhu-font-size');
+  if (savedFontSize) document.documentElement.dataset.fontSize = savedFontSize;
   const tokenKey = 'ya-vizhu-demo-token-v1';
   const userKey = 'ya-vizhu-demo-user-v1';
 

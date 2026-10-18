@@ -1,3 +1,10 @@
+if (!localStorage.getItem("ya-vizhu-onboarding-done-v1") && !window.location.pathname.endsWith("onboarding.html")) {
+  window.location.replace("onboarding.html");
+}
+
+const savedFontSize = localStorage.getItem("ya-vizhu-font-size");
+if (savedFontSize) document.documentElement.dataset.fontSize = savedFontSize;
+
 const ADVICE = {
   general: {
     title: "Начните с выделенных предупреждений",

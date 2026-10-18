@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#e8f7f5" />
+    <title>Добро пожаловать — Я Вижу!</title>
+    <link rel="stylesheet" href="../assets/css/onboarding.css?v=onboarding-5" />
+  </head>
+  <body class="onboarding-body">
+    <main class="onboarding-shell">
+      <header class="onboarding-topbar"><a class="onboarding-brand" href="index.html"><span class="onboarding-brand-mark">Я</span><span>Я Вижу!</span></a><button class="onboarding-skip" id="onboarding-skip" type="button">Пропустить</button></header>
+      <div class="onboarding-progress" aria-label="Прогресс знакомства"><span class="onboarding-progress-fill" id="onboarding-progress-fill"></span></div>
+      <section class="onboarding-card" aria-live="polite">
+        <div class="onboarding-art onboarding-art-welcome" data-step-art="0"><span>✦</span><b>Я<br />Вижу!</b></div>
+        <div class="onboarding-art onboarding-art-type" data-step-art="1" hidden><span class="onboarding-type-sample">Aa</span><span class="onboarding-type-label">Просто<br />читать</span></div>
+        <div class="onboarding-art onboarding-art-health" data-step-art="2" hidden><span class="onboarding-health-mark">+</span><span>Ваша карточка<br />поможет помнить важное</span></div>
+        <p class="eyebrow" id="onboarding-kicker">ПЕРВОЕ ЗНАКОМСТВО</p>
+        <h1 id="onboarding-title">Покупки спокойнее</h1>
+        <p class="onboarding-description" id="onboarding-description">Я Вижу! помогает разобраться в составе продуктов, аллергенах и добавках простыми словами.</p>
+        <div class="onboarding-step" data-step="1">
+          <label for="font-size-choice">Выберите размер текста</label>
+          <div class="font-size-options"><label><input type="radio" name="font-size" value="normal" checked /><span class="font-option normal">Обычный<br /><small>Удобно для большинства</small></span></label><label><input type="radio" name="font-size" value="large" /><span class="font-option large">Крупный<br /><small>Больше воздуха и контраста</small></span></label></div>
+        </div>
+        <div class="onboarding-step" data-step="2">
+          <p class="onboarding-form-note">Заполните медицинскую карточку сейчас или сделайте это позже в профиле.</p>
+          <label class="onboarding-field">Что вызывает аллергию?<input id="onboarding-allergy" type="text" placeholder="Например, арахис" maxlength="80" /></label>
+          <label class="onboarding-field">Что вы не едите?<input id="onboarding-avoid" type="text" placeholder="Например, острое" maxlength="80" /></label>
+        </div>
+        <div class="onboarding-actions"><button class="button button-secondary" id="onboarding-back" type="button" hidden>Назад</button><button class="button button-primary" id="onboarding-next" type="button">Далее</button></div>
+        <p class="onboarding-counter" id="onboarding-counter">1 из 3</p>
+      </section>
+    </main>
+    <script src="../assets/js/onboarding.js?v=1" defer></script>
+  </body>
+</html>
