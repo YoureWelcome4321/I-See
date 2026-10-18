@@ -3,31 +3,98 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#00c4bd" />
-    <meta name="description" content="Состав, аллергены и добавки в продукте." />
-    <title>Продукт — Я Вижу!</title>
+    <meta name="theme-color" content="#185e31" />
+    <meta name="description" content="Результат сканирования продукта: состав, аллергены и добавки." />
+    <title>Результат сканирования — Я Вижу!</title>
     <link rel="stylesheet" href="../assets/css/style.css" />
   </head>
-  <body>
-    <header class="site-header">
-      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a>
-      <nav class="main-nav" aria-label="Основная навигация"><a href="index.html">Главная</a><a href="medical-card.html">Мед. карточка</a><a href="stores.html">Магазины</a></nav>
+  <body class="scan-result-page">
+    <header class="scan-result-header">
+      <a class="scan-result-brand" href="index.html" aria-label="Я Вижу! — на главную">
+        <span class="scan-result-brand-mark" aria-hidden="true">Я</span>
+        <span>Я Вижу!</span>
+      </a>
+      <a class="scan-result-profile" href="medical-card.html">
+        <span class="scan-result-profile-mark" aria-hidden="true">♙</span>
+        <span>Профиль</span><span aria-hidden="true">›</span>
+      </a>
     </header>
-    <main class="page-width content-page" id="product-page">
-      <a class="back-link" href="index.html">← Назад к сканированию</a>
-      <p class="eyebrow">ИНФОРМАЦИЯ О ПРОДУКТЕ</p>
-      <section class="product-heading"><div id="product-image-wrap" class="product-hero-art" hidden></div><div><h1 id="product-name">Загружаем продукт…</h1><p id="product-meta" class="product-meta"></p></div></section>
-      <p id="product-status" class="product-status" aria-live="polite"></p>
-      <section class="product-details-grid" id="product-details" aria-label="Состав, аллергены и добавки" hidden>
-        <article class="info-card"><span class="info-icon" aria-hidden="true">≡</span><h2>Состав</h2><p id="product-ingredients"></p></article>
-        <article class="info-card info-warning"><span class="info-icon" aria-hidden="true">!</span><h2>Аллергены</h2><p id="product-allergens"></p></article>
-        <article class="info-card"><span class="info-icon" aria-hidden="true">E</span><h2>Добавки и консерванты</h2><p id="product-additives"></p></article>
-      </section>
-      <section class="product-actions"><a class="button button-primary" href="index.html">Сканировать другой продукт</a><button class="button button-secondary" id="save-check" type="button" hidden>Сохранить проверку в истории</button></section>
-      <p class="product-status" id="check-status" aria-live="polite"></p><a class="text-link" id="check-login-link" href="medical-card.html" hidden>Войдите в профиле, чтобы сохранить проверку</a>
-      <p class="source-note">Данные получены из Open Food Facts и могут быть неполными. При аллергии обязательно проверьте упаковку.</p>
+
+    <main class="scan-result-main" id="product-page">
+      <div class="scan-result-content">
+        <a class="scan-result-back" href="index.html?scan=1"><span aria-hidden="true">←</span> Сканировать другой продукт</a>
+
+        <section class="scan-product-card" aria-labelledby="product-name">
+          <div class="scan-product-copy">
+            <p class="scan-result-eyebrow"><span aria-hidden="true">✦</span> РЕЗУЛЬТАТ СКАНИРОВАНИЯ</p>
+            <h1 id="product-name">Загружаем продукт…</h1>
+            <p id="product-meta" class="scan-product-meta"></p>
+            <p id="product-status" class="scan-product-status" aria-live="polite">Ищем сведения о продукте.</p>
+          </div>
+          <div class="scan-product-visual" aria-label="Изображение продукта">
+            <div id="product-image-wrap" class="scan-product-photo" hidden></div>
+            <div class="scan-product-placeholder" aria-hidden="true">
+              <svg viewBox="0 0 80 80"><path d="M14 18v44M21 18v44m7-44v44m13-44v44m6-44v44m10-44v44m7-44v44" /></svg>
+              <span>ПРОДУКТ</span>
+            </div>
+            <span class="scan-product-sticker" aria-hidden="true">Я<br />Вижу!</span>
+          </div>
+        </section>
+
+        <section class="scan-product-details" id="product-result-section" aria-labelledby="product-details-title" hidden>
+          <div class="scan-section-heading">
+            <div><p class="scan-section-kicker">ПО ДАННЫМ НА УПАКОВКЕ</p><h2 id="product-details-title">Что внутри</h2></div>
+            <span class="scan-section-decoration" aria-hidden="true">✦</span>
+          </div>
+          <div class="scan-detail-grid" id="product-details" aria-label="Состав, аллергены и добавки" hidden>
+            <article class="scan-detail-card">
+              <span class="scan-detail-icon" aria-hidden="true">≋</span>
+              <h3>Состав</h3>
+              <p id="product-ingredients"></p>
+            </article>
+            <article class="scan-detail-card scan-detail-card-alert">
+              <span class="scan-detail-icon" aria-hidden="true">!</span>
+              <h3>Аллергены</h3>
+              <p id="product-allergens"></p>
+            </article>
+            <article class="scan-detail-card">
+              <span class="scan-detail-icon" aria-hidden="true">E</span>
+              <h3>Добавки</h3>
+              <p id="product-additives"></p>
+            </article>
+            <article class="scan-detail-card">
+              <span class="scan-detail-icon" aria-hidden="true">i</span>
+              <h3>О продукте</h3>
+              <p id="product-info">Дополнительная информация не найдена.</p>
+            </article>
+            <article class="scan-detail-card">
+              <span class="scan-detail-icon" aria-hidden="true">≈</span>
+              <h3>Пищевая ценность</h3>
+              <p id="product-nutrition">Пищевая ценность не указана в базе.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="scan-result-save" aria-label="Действия с результатом">
+          <div class="scan-result-save-copy"><span class="scan-save-mark" aria-hidden="true">✓</span><div><h2>Проверка завершена</h2><p>Сохраните результат в истории профиля или проверьте следующий продукт.</p></div></div>
+          <div class="scan-result-actions">
+            <button class="scan-save-button" id="save-check" type="button" hidden>Сохранить в истории</button>
+            <a class="scan-again-button" href="index.html?scan=1"><span aria-hidden="true">▥</span> Сканировать ещё</a>
+          </div>
+          <p id="check-status" class="scan-check-status" aria-live="polite"></p>
+          <a class="scan-login-link" id="check-login-link" href="medical-card.html" hidden>Войдите в профиле, чтобы сохранить проверку</a>
+        </section>
+
+        <section class="scan-ai-sources" id="ai-sources-section" aria-label="Источники данных ИИ" hidden>
+          <p class="scan-ai-sources-title">ИИ нашёл сведения на сайтах</p>
+          <ul id="ai-sources-list"></ul>
+        </section>
+        <p class="scan-result-note"><span aria-hidden="true">i</span><span>Сведения из Open Food Facts и поиск ИИ могут быть неполными или относиться к другой версии продукта. При аллергии всегда сверяйте полный состав на упаковке.</span></p>
+      </div>
     </main>
-    <footer class="site-footer"><p>Справочная информация не заменяет медицинскую рекомендацию.</p><a href="stores.html">Магазины</a></footer>
-    <script src="../assets/js/api.js" defer></script><script src="../assets/js/product.js" defer></script>
+
+    <footer class="scan-result-footer"><span>Я Вижу! — покупки спокойнее</span><a href="stores.html">Магазины рядом</a></footer>
+    <script src="../assets/js/api.js?v=20261018-2" defer></script>
+    <script src="../assets/js/product.js?v=20261018-2" defer></script>
   </body>
 </html>

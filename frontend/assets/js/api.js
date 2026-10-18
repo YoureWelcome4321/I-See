@@ -9,7 +9,7 @@
     if (token) headers.set('Authorization', `Bearer ${token}`);
     const response = await fetch(path, { ...options, headers });
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.error || 'Не удалось связаться с сервером.');
+    if (!response.ok) throw new Error(payload.detail || payload.error || 'Не удалось связаться с сервером.');
     return payload;
   }
 
