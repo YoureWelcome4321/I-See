@@ -1,61 +1,443 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0b572b" />
-    <meta name="description" content="Подборка продуктов и информация об их составе от Я Вижу!." />
-    <title>Товары для вас — Я Вижу!</title>
-    <link rel="stylesheet" href="../assets/css/catalog.css" />
-  </head>
-  <body class="catalog-page">
-    <header class="catalog-header">
-      <a class="catalog-brand" href="index.html" aria-label="Я Вижу! — на главную">
-        <span class="catalog-brand-mark" aria-hidden="true">Я</span>
-        <span>Я Вижу!</span>
-      </a>
-      <a class="catalog-home-button" href="index.html">
-        <span aria-hidden="true">←</span>
-        <span>Вернуться на главную</span>
-      </a>
-      <a class="catalog-profile-link" href="medical-card.html">
-        <span class="catalog-profile-icon" aria-hidden="true">
-          <svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg>
-        </span>
-        <span>Профиль</span>
-        <span class="catalog-chevron" aria-hidden="true">›</span>
-      </a>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b572b" />
+  <meta name="description" content="Подборка продуктов и информация об их составе от Я Вижу!." />
+  <title>Товары для вас — Я Вижу!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --deep: #0b572b; --green: #218638; --bright: #63b83f; --lime: #d9f05b;
+      --ink: #17251a; --muted: #68746b; --line: #e4ebe0; --page: #f3f4f1; --soft: #f8fbf5;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; min-height: 100vh; background: var(--page); color: var(--ink);
+      font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, p { margin: 0; }
+    h1, h2, h3 { font-family: Manrope, "DM Sans", sans-serif; letter-spacing: -.03em; }
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 3px solid var(--lime); outline-offset: 2px; }
 
-    <main class="catalog-main">
-      <section class="catalog-intro" aria-labelledby="catalog-title">
-        <div class="catalog-intro-copy">
-          <span class="catalog-scan-icon" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M3 3v18M7 3v18m4-18v18m5-18v18m4-18v18m5-18v18" /></svg></span>
-          <div>
-            <h2 id="catalog-title">Проверьте продукт сканером</h2>
-          </div>
+    /* ---------- Шапка ---------- */
+    .header {
+      width: min(1040px, calc(100% - 40px)); margin: 0 auto; padding: 16px 0 14px;
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 48px 50px; align-items: center; gap: 10px 18px;
+      border-radius: 0 0 34px 34px; background: linear-gradient(115deg, #0b572b 0%, #218638 58%, #62b83f 100%);
+      padding-inline: 4px;
+    }
+    .brand { grid-area: 1 / 1; display: inline-flex; align-items: center; gap: 10px; color: #fff; font: 800 17px Manrope, sans-serif; }
+    .brand-mark { width: 39px; height: 39px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); font-size: 21px; }
+    .profile {
+      grid-area: 1 / 2; min-height: 48px; padding: 4px 14px 4px 5px; display: inline-flex; align-items: center; gap: 9px;
+      border: 1px solid rgb(255 255 255 / 28%); border-radius: 999px; background: rgb(8 64 30 / 40%); color: #fff; font-size: 14px; font-weight: 800;
+    }
+    .profile i { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); }
+    .profile svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .home {
+      grid-area: 2 / 1 / 3 / 3; min-height: 50px; padding: 6px 18px 6px 8px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      border: 2px solid var(--lime); border-radius: 999px; background: #fff; color: #185e31; font-size: 15px; font-weight: 900; transition: background .15s, transform .15s;
+    }
+    .home:hover { background: #f4fadf; transform: translateY(-1px); }
+    .home span:first-child { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); font-size: 22px; line-height: 1; }
+
+    .main { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 24px 0 70px; }
+
+    /* ---------- Сканер-плашка ---------- */
+    .scan-bar {
+      min-height: 80px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      border: 1px solid #e6ece3; border-radius: 26px; background: #fff;
+    }
+    .scan-bar-copy { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .scan-icon { width: 46px; height: 46px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #e7f3dd; }
+    .scan-icon svg { width: 23px; height: 23px; fill: none; stroke: var(--green); stroke-width: 2; stroke-linecap: round; }
+    .scan-bar h2 { color: var(--deep); font-size: 16px; line-height: 1.3; }
+    .scan-link {
+      min-height: 42px; flex: none; padding: 6px 8px 6px 16px; display: inline-flex; align-items: center; gap: 10px;
+      border: 1px solid #dfe9d8; border-radius: 999px; background: var(--soft); color: var(--deep); font-size: 12px; font-weight: 800; transition: background .15s;
+    }
+    .scan-link:hover { background: #edf6e6; }
+    .scan-link i { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); font-style: normal; font-size: 16px; }
+
+    /* ---------- Заголовок и поиск ---------- */
+    .section { padding: 26px 4px 0; }
+    .heading { margin-bottom: 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+    .eyebrow { margin-bottom: 7px; color: var(--green); font-size: 10px; font-weight: 900; letter-spacing: .13em; }
+    .heading h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.12; }
+    .count { min-width: 44px; height: 44px; padding: 0 12px; display: grid; place-items: center; border-radius: 999px; background: #e4f4d0; color: var(--deep); font-size: 15px; font-weight: 900; }
+
+    .search {
+      position: relative; margin-bottom: 14px; display: flex; align-items: center;
+      border: 1.5px solid var(--line); border-radius: 999px; background: #fff; box-shadow: 0 8px 22px rgb(31 67 36 / 6%);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .search:focus-within { border-color: var(--bright); box-shadow: 0 0 0 4px rgb(217 240 91 / 60%); }
+    .search-icon { width: 54px; flex: none; display: grid; place-items: center; color: var(--green); }
+    .search-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+    .search input { flex: 1; min-width: 0; height: 58px; padding: 0 6px 0 0; border: 0; background: transparent; color: var(--ink); font-size: 16px; outline: 0; }
+    .search input::placeholder { color: #8f9b91; }
+    .search input::-webkit-search-cancel-button { display: none; }
+    .clear { width: 38px; height: 38px; margin-right: 10px; border: 0; border-radius: 50%; background: #eef5e8; color: var(--deep); font-size: 20px; line-height: 1; cursor: pointer; }
+    .clear:hover { background: var(--lime); }
+
+    .chips { margin-bottom: 18px; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: none; min-height: 40px; padding: 8px 16px; border: 1.5px solid var(--line); border-radius: 999px; background: #fff;
+      color: #405544; font-size: 13px; font-weight: 800; cursor: pointer; transition: all .15s;
+    }
+    .chip:hover { border-color: #c5d9bb; }
+    .chip[aria-pressed="true"] { border-color: var(--green); background: var(--green); color: #fff; }
+
+    .status { min-height: 20px; margin-bottom: 14px; color: var(--muted); font-size: 14px; }
+
+    /* ---------- Карточки ---------- */
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
+    .card {
+      min-width: 0; overflow: hidden; display: flex; flex-direction: column;
+      border: 1px solid var(--line); border-radius: 27px; background: #fff;
+      transition: transform .2s, box-shadow .2s; animation: rise .45s ease both;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgb(31 67 36 / 10%); }
+    .art { position: relative; min-height: 166px; display: grid; place-items: center; background: linear-gradient(145deg, #f1f8e9, #e3f1d7); }
+    .art.t1 { background: linear-gradient(145deg, #f5f7e8, #eaf0ce); }
+    .art.t2 { background: linear-gradient(145deg, #eef7e7, #d9efc9); }
+    .art.t3 { background: linear-gradient(145deg, #f0f8ee, #d6ecd0); }
+    .cat {
+      position: absolute; top: 14px; left: 14px; max-width: calc(100% - 28px); padding: 7px 11px; overflow: hidden;
+      border: 1px solid rgb(255 255 255 / 80%); border-radius: 999px; background: rgb(255 255 255 / 80%);
+      color: #426448; font-size: 10px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .mark {
+      width: 90px; height: 90px; display: grid; place-items: center; border: 1px solid #d7e8cc; border-radius: 30px;
+      transform: rotate(-6deg); background: #fff; color: var(--green); font: 800 46px Manrope, sans-serif; transition: transform .25s;
+    }
+    .card:hover .mark { transform: rotate(4deg) scale(1.06); }
+    .spark { position: absolute; top: 28px; right: 29px; color: #6cb947; font-size: 26px; }
+    .body { padding: 18px; display: flex; flex: 1; flex-direction: column; }
+    .row { display: flex; align-items: flex-start; justify-content: space-between; gap: 9px; }
+    .row h3 { font-size: 18px; line-height: 1.22; }
+    .price { flex: none; padding: 5px 9px; border-radius: 999px; background: #eff7e9; color: var(--deep); font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .body p { margin-top: 12px; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+    .body p.warn { color: #547348; }
+    .body p.warn b { color: #8a5a1f; }
+    .open {
+      width: 100%; min-height: 46px; margin-top: auto; padding: 8px 8px 8px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      border: 1px solid #dfe9d8; border-radius: 999px; background: var(--soft); color: var(--deep); font-size: 13px; font-weight: 850; cursor: pointer; transition: background .15s;
+    }
+    .body p + .open, .body .gap { margin-top: 18px; }
+    .open:hover { background: #edf6e6; }
+    .open i { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); font-style: normal; font-size: 16px; }
+    mark { padding: 0 2px; border-radius: 5px; background: var(--lime); color: var(--deep); }
+
+    /* Пусто */
+    .empty {
+      padding: 46px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;
+      border: 2px dashed #d3e4c8; border-radius: 27px; background: #fff; color: var(--muted);
+    }
+    .empty svg { width: 54px; height: 54px; fill: none; stroke: var(--bright); stroke-width: 1.7; stroke-linecap: round; }
+    .empty b { color: var(--ink); font: 800 20px Manrope, sans-serif; }
+    .empty button { margin-top: 6px; min-height: 44px; padding: 8px 20px; border: 1px solid #dce8d5; border-radius: 999px; background: var(--soft); color: var(--deep); font-weight: 800; cursor: pointer; }
+
+    /* Кнопка «Показать ещё» */
+    .more-wrap { margin-top: 26px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .more {
+      min-width: min(100%, 340px); min-height: 58px; padding: 8px 9px 8px 26px; display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      border: 0; border-radius: 999px; background: linear-gradient(110deg, #6cc044, #2f9c3c); color: #fff;
+      font-size: 15.5px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 0 #2a8335, 0 12px 22px rgb(47 156 60 / 22%); transition: transform .16s, box-shadow .16s;
+    }
+    .more:hover { transform: translateY(-2px); }
+    .more:active { transform: translateY(3px); box-shadow: 0 2px 0 #2a8335; }
+    .more i { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); font-style: normal; font-size: 20px; font-weight: 800; }
+    .more-hint { color: var(--muted); font-size: 13px; }
+    .progress { width: min(340px, 100%); height: 6px; overflow: hidden; border-radius: 99px; background: #dfead6; }
+    .progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--bright), var(--lime)); transition: width .3s; }
+
+    .note { margin-top: 24px; padding: 15px 17px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 19px; background: #fff; }
+    .note span { width: 26px; height: 26px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #e7f3dc; color: #286f37; font: 800 14px Georgia, serif; }
+    .note p { color: #59685b; font-size: 12.5px; line-height: 1.5; }
+
+    /* ---------- Окно состава ---------- */
+    dialog { width: min(520px, calc(100% - 28px)); max-height: calc(100dvh - 28px); padding: 0; border: 0; border-radius: 30px; background: #fff; color: var(--ink); box-shadow: 0 30px 80px rgb(8 40 18 / 35%); }
+    dialog::backdrop { background: rgb(12 47 25 / 60%); backdrop-filter: blur(4px); }
+    dialog[open] { animation: rise .3s ease both; }
+    .dlg-top { position: relative; padding: 26px 26px 20px; background: linear-gradient(135deg, #e7f3db, #d3ebbd); }
+    .dlg-top .mark { width: 70px; height: 70px; margin-bottom: 14px; border-radius: 24px; font-size: 36px; }
+    .dlg-top h2 { padding-right: 44px; font-size: 26px; line-height: 1.15; }
+    .dlg-meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .dlg-meta span { padding: 6px 12px; border-radius: 999px; background: rgb(255 255 255 / 75%); color: var(--deep); font-size: 12px; font-weight: 800; }
+    .dlg-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: #fff; color: var(--deep); font-size: 24px; line-height: 1; cursor: pointer; }
+    .dlg-close:hover { background: var(--lime); }
+    .dlg-body { padding: 22px 26px 26px; display: grid; gap: 18px; overflow: auto; }
+    .dlg-body h3 { margin-bottom: 9px; color: var(--green); font: 900 10.5px "DM Sans", sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .tags span { padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--soft); font-size: 13px; font-weight: 600; }
+    .tags.alert span { border-color: #f0dcae; background: #fff6dc; color: #7a5712; font-weight: 800; }
+    .tags.ok span { border-color: #cfe6c1; background: #eaf6df; color: var(--deep); font-weight: 800; }
+    .dlg-actions { display: grid; grid-template-columns: 1fr; }
+    .dlg-actions a {
+      min-height: 52px; padding: 8px 10px 8px 22px; display: flex; align-items: center; justify-content: space-between;
+      border-radius: 999px; background: linear-gradient(110deg, #6cc044, #2f9c3c); color: #fff; font-weight: 800; box-shadow: 0 4px 0 #2a8335;
+    }
+    .dlg-actions i { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); font-style: normal; font-size: 18px; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+    /* ---------- Адаптив ---------- */
+    @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 560px) {
+      .header { width: calc(100% - 24px); grid-template-rows: 42px 48px; gap: 8px; padding-block: 10px; border-radius: 0 0 25px 25px; }
+      .brand { font-size: 15px; } .brand-mark { width: 35px; height: 35px; }
+      .profile { min-height: 42px; padding-right: 10px; gap: 7px; font-size: 13px; } .profile i { width: 33px; height: 33px; }
+      .home { min-height: 48px; font-size: 14px; }
+      .main { width: calc(100% - 26px); padding: 16px 0 48px; }
+      .scan-bar { padding: 12px; border-radius: 22px; } .scan-icon { width: 38px; height: 38px; } .scan-bar h2 { font-size: 13px; }
+      .scan-link { padding-left: 10px; font-size: 10px; gap: 6px; }
+      .section { padding-top: 22px; } .heading h1 { font-size: 26px; } .count { min-width: 38px; height: 38px; font-size: 13px; }
+      .search input { height: 52px; font-size: 15px; } .search-icon { width: 48px; }
+      .grid { grid-template-columns: 1fr; gap: 12px; }
+      .card { display: grid; grid-template-columns: 112px minmax(0, 1fr); border-radius: 22px; }
+      .art { min-height: 100%; } .cat { top: 8px; left: 7px; max-width: calc(100% - 14px); padding: 5px 7px; font-size: 8px; }
+      .mark { width: 60px; height: 60px; border-radius: 21px; font-size: 31px; } .spark { top: 24px; right: 11px; font-size: 19px; }
+      .body { padding: 13px 12px; } .row h3 { font-size: 15px; } .price { font-size: 10px; padding: 4px 7px; }
+      .body p { margin-top: 7px; font-size: 11px; } .open { min-height: 38px; font-size: 11px; padding-left: 11px; } .open i { width: 25px; height: 25px; }
+      .body p + .open { margin-top: 10px; }
+      .dlg-top { padding: 22px 18px 16px; } .dlg-body { padding: 18px; }
+    }
+  </style>
+</head>
+<body class="catalog-page">
+  <header class="header">
+    <a class="brand" href="index.html" aria-label="Я Вижу! — на главную"><span class="brand-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a>
+    <a class="home" href="index.html"><span aria-hidden="true">←</span><span>Вернуться на главную</span></a>
+    <a class="profile" href="medical-card.html">
+      <i aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="10" r="5.5"></circle><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3"></path></svg></i>
+      <span>Профиль</span><span aria-hidden="true">›</span>
+    </a>
+  </header>
+
+  <main class="main">
+    <section class="scan-bar" aria-labelledby="scan-title">
+      <div class="scan-bar-copy">
+        <span class="scan-icon" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M3 3v18M7 3v18m4-18v18m5-18v18m4-18v18m5-18v18"></path></svg></span>
+        <h2 id="scan-title">Проверьте продукт сканером</h2>
+      </div>
+      <a class="scan-link" href="index.html?scan=1#start-scan"><span>Сканировать</span><i aria-hidden="true">↗</i></a>
+    </section>
+
+    <section class="section" aria-labelledby="products-heading">
+      <div class="heading">
+        <div>
+          <p class="eyebrow">НАША ПОДБОРКА</p>
+          <h1 id="products-heading">Рекомендуем вам попробовать</h1>
         </div>
-        <a class="catalog-scan-link" href="index.html?scan=1#start-scan">
-          <span>Сканировать</span>
-          <span class="catalog-scan-arrow" aria-hidden="true">↗</span>
-        </a>
-      </section>
+        <span class="count" id="count" aria-label="Найдено товаров">30</span>
+      </div>
 
-      <section class="catalog-products-section" aria-labelledby="products-heading">
-        <div class="catalog-section-heading">
-          <div>
-            <p class="catalog-section-eyebrow">НАША ПОДБОРКА</p>
-            <h1 id="products-heading">Рекомендуем вам попробовать</h1>
-          </div>
-          <span class="catalog-count" id="catalog-count" aria-label="Количество продуктов">…</span>
-        </div>
-        <p class="catalog-status" id="catalog-status" aria-live="polite">Загружаем товары…</p>
-        <section class="catalog-grid" id="catalog-grid" aria-label="Список продуктов"></section>
-      </section>
+      <form class="search" role="search" id="search-form" onsubmit="return false">
+        <span class="search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg></span>
+        <input id="search" type="search" placeholder="Найти товар по названию…" autocomplete="off" aria-label="Поиск товара по названию" />
+        <button class="clear" id="clear" type="button" aria-label="Очистить поиск" hidden>×</button>
+      </form>
 
-    </main>
+      <div class="chips" id="chips" role="group" aria-label="Категории"></div>
+      <p class="status" id="status" aria-live="polite"></p>
 
-    <script src="../assets/js/api.js" defer></script>
-    <script src="../assets/js/catalog.js" defer></script>
-  </body>
+      <div class="grid" id="grid" aria-label="Список продуктов"></div>
+
+      <div class="more-wrap" id="more-wrap" hidden>
+        <div class="progress" aria-hidden="true"><span id="progress"></span></div>
+        <button class="more" id="more" type="button"><span id="more-text">Показать ещё</span><i aria-hidden="true">↓</i></button>
+        <p class="more-hint" id="more-hint"></p>
+      </div>
+
+      <div class="note">
+        <span aria-hidden="true">i</span>
+        <p>Состав приведён для ознакомления и может отличаться у разных производителей. Всегда проверяйте информацию на упаковке.</p>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="dlg" aria-labelledby="dlg-title">
+    <div class="dlg-top">
+      <button class="dlg-close" id="dlg-close" type="button" aria-label="Закрыть">×</button>
+      <span class="mark" id="dlg-mark" aria-hidden="true"></span>
+      <h2 id="dlg-title"></h2>
+      <div class="dlg-meta" id="dlg-meta"></div>
+    </div>
+    <div class="dlg-body">
+      <div><h3>Состав</h3><div class="tags" id="dlg-ingredients"></div></div>
+      <div><h3>Аллергены</h3><div class="tags" id="dlg-allergens"></div></div>
+      <div class="dlg-actions"><a href="index.html?scan=1#start-scan"><span>Проверить такой продукт сканером</span><i aria-hidden="true">↗</i></a></div>
+    </div>
+  </dialog>
+
+  <script src="../assets/js/api.js" defer></script>
+  <script>
+    (function () {
+      var PRODUCTS = [
+        { n: "Йогурт клубничный", c: "Молочные продукты", p: 89, i: ["молоко", "клубника", "сахар", "закваска"], a: ["молоко"] },
+        { n: "Кефир 1%", c: "Молочные продукты", p: 74, i: ["нормализованное молоко", "закваска кефирных грибков"], a: ["молоко"] },
+        { n: "Творог зернистый", c: "Молочные продукты", p: 119, i: ["молоко", "сливки", "соль", "закваска"], a: ["молоко"] },
+        { n: "Сыр Российский", c: "Молочные продукты", p: 289, i: ["молоко", "соль", "сычужный фермент", "закваска"], a: ["молоко"] },
+        { n: "Сметана 15%", c: "Молочные продукты", p: 69, i: ["сливки", "закваска"], a: ["молоко"] },
+        { n: "Молоко 2,5%", c: "Молочные продукты", p: 92, i: ["цельное молоко"], a: ["молоко"] },
+
+        { n: "Хлеб пшеничный", c: "Выпечка", p: 65, i: ["пшеничная мука", "вода", "дрожжи", "соль"], a: ["пшеница", "глютен"] },
+        { n: "Батон нарезной", c: "Выпечка", p: 58, i: ["пшеничная мука", "вода", "сахар", "подсолнечное масло", "дрожжи"], a: ["пшеница", "глютен"] },
+        { n: "Булочка с маком", c: "Выпечка", p: 45, i: ["пшеничная мука", "мак", "сахар", "молоко", "яйца", "дрожжи"], a: ["пшеница", "глютен", "молоко", "яйца"] },
+        { n: "Круассан с шоколадом", c: "Выпечка", p: 79, i: ["пшеничная мука", "сливочное масло", "шоколад", "сахар", "дрожжи"], a: ["пшеница", "глютен", "молоко"] },
+        { n: "Хлеб ржаной", c: "Выпечка", p: 62, i: ["ржаная мука", "пшеничная мука", "вода", "солод", "соль"], a: ["рожь", "пшеница", "глютен"] },
+
+        { n: "Шоколад с орехами", c: "Сладости", p: 149, i: ["какао", "сахар", "фундук", "молоко"], a: ["фундук", "орехи", "молоко"] },
+        { n: "Печенье овсяное", c: "Сладости", p: 98, i: ["овсяные хлопья", "пшеничная мука", "сахар", "сливочное масло", "яйца"], a: ["глютен", "пшеница", "яйца", "молоко"] },
+        { n: "Зефир ванильный", c: "Сладости", p: 135, i: ["яблочное пюре", "сахар", "яичный белок", "агар", "ваниль"], a: ["яйца"] },
+        { n: "Мармелад фруктовый", c: "Сладости", p: 88, i: ["сахар", "фруктовое пюре", "пектин", "лимонная кислота"], a: [] },
+        { n: "Вафли со сгущёнкой", c: "Сладости", p: 76, i: ["пшеничная мука", "сгущённое молоко", "сахар", "масло"], a: ["пшеница", "глютен", "молоко"] },
+
+        { n: "Гречка ядрица", c: "Крупы и макароны", p: 112, i: ["гречневая крупа"], a: [] },
+        { n: "Рис круглозёрный", c: "Крупы и макароны", p: 96, i: ["рис"], a: [] },
+        { n: "Овсяные хлопья", c: "Крупы и макароны", p: 84, i: ["овсяные хлопья"], a: ["овёс", "глютен"] },
+        { n: "Спагетти", c: "Крупы и макароны", p: 79, i: ["мука из твёрдой пшеницы", "вода"], a: ["пшеница", "глютен"] },
+
+        { n: "Сок яблочный", c: "Напитки", p: 119, i: ["яблочный сок"], a: [] },
+        { n: "Сок апельсиновый", c: "Напитки", p: 129, i: ["апельсиновый сок"], a: [] },
+        { n: "Чай зелёный", c: "Напитки", p: 139, i: ["зелёный чай", "лепестки жасмина"], a: [] },
+        { n: "Лимонад лимон-мята", c: "Напитки", p: 85, i: ["вода", "сахар", "лимонный сок", "мята", "лимонная кислота"], a: [] },
+
+        { n: "Арахис жареный", c: "Орехи и снеки", p: 109, i: ["арахис", "соль"], a: ["арахис"] },
+        { n: "Чипсы картофельные", c: "Орехи и снеки", p: 119, i: ["картофель", "подсолнечное масло", "соль"], a: [] },
+        { n: "Миндаль сушёный", c: "Орехи и снеки", p: 249, i: ["миндаль"], a: ["миндаль", "орехи"] },
+
+        { n: "Колбаса варёная", c: "Мясо и рыба", p: 219, i: ["говядина", "свинина", "молоко", "соль", "специи"], a: ["молоко"] },
+        { n: "Филе куриное", c: "Мясо и рыба", p: 299, i: ["куриное филе"], a: [] },
+        { n: "Горбуша консервированная", c: "Мясо и рыба", p: 135, i: ["горбуша", "масло", "соль"], a: ["рыба"] }
+      ];
+
+      var PAGE = 9;
+      var state = { q: "", cat: "Все", visible: PAGE };
+      var $ = function (id) { return document.getElementById(id); };
+      var grid = $("grid"), search = $("search"), clearBtn = $("clear"), chips = $("chips");
+      var dlg = $("dlg");
+
+      function norm(s) { return String(s).toLowerCase().replace(/ё/g, "е").trim(); }
+      function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+      function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+      function priceText(p) { return p + " ₽"; }
+
+      function highlight(name, q) {
+        if (!q) return esc(name);
+        var i = norm(name).indexOf(norm(q));
+        if (i < 0) return esc(name);
+        var l = norm(q).length;
+        return esc(name.slice(0, i)) + "<mark>" + esc(name.slice(i, i + l)) + "</mark>" + esc(name.slice(i + l));
+      }
+
+      function filtered() {
+        var q = norm(state.q);
+        return PRODUCTS.map(function (p, idx) { p.id = idx; return p; }).filter(function (p) {
+          return (state.cat === "Все" || p.c === state.cat) && (!q || norm(p.n).indexOf(q) !== -1);
+        });
+      }
+
+      function cardHTML(p, k) {
+        var warn = p.a.length
+          ? '<p class="warn"><b>Аллергены:</b> ' + esc(p.a.join(", ")) + "</p>"
+          : '<p class="warn">Аллергены не указаны</p>';
+        return '<article class="card" style="animation-delay:' + ((k % PAGE) * 40) + 'ms">' +
+          '<div class="art t' + (p.id % 4) + '"><span class="cat">' + esc(p.c) + '</span>' +
+          '<span class="mark" aria-hidden="true">' + esc(p.n.charAt(0).toUpperCase()) + '</span><span class="spark" aria-hidden="true">✦</span></div>' +
+          '<div class="body"><div class="row"><h3>' + highlight(p.n, state.q) + '</h3><span class="price">' + priceText(p.p) + "</span></div>" +
+          '<p>Состав: ' + esc(p.i.slice(0, 3).join(", ")) + (p.i.length > 3 ? "…" : "") + "</p>" + warn +
+          '<button class="open" type="button" data-id="' + p.id + '"><span>Открыть состав</span><i aria-hidden="true">→</i></button></div></article>';
+      }
+
+      function render(append) {
+        var list = filtered(), shown = Math.min(state.visible, list.length);
+        $("count").textContent = list.length;
+
+        if (!list.length) {
+          grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5M8.5 11h5"></path></svg>' +
+            '<b>Ничего не нашлось</b><span>Проверьте написание или выберите другую категорию.</span><button type="button" id="reset">Сбросить поиск</button></div>';
+          $("status").textContent = "";
+          $("more-wrap").hidden = true;
+          return;
+        }
+
+        var from = append ? grid.querySelectorAll(".card").length : 0;
+        if (!append) grid.innerHTML = "";
+        grid.insertAdjacentHTML("beforeend", list.slice(from, shown).map(function (p, k) { return cardHTML(p, k); }).join(""));
+
+        $("status").textContent = state.q || state.cat !== "Все"
+          ? "Найдено: " + list.length + " · показано " + shown
+          : "Показано " + shown + " из " + list.length;
+
+        var left = list.length - shown;
+        $("more-wrap").hidden = left <= 0;
+        if (left > 0) {
+          $("more-text").textContent = "Показать ещё " + Math.min(PAGE, left);
+          $("more-hint").textContent = "Осталось ещё " + left + " " + plural(left);
+          $("progress").style.width = Math.round(shown / list.length * 100) + "%";
+        }
+      }
+
+      function plural(n) {
+        var m = n % 10, h = n % 100;
+        if (m === 1 && h !== 11) return "товар";
+        if (m >= 2 && m <= 4 && (h < 12 || h > 14)) return "товара";
+        return "товаров";
+      }
+
+      function buildChips() {
+        var cats = ["Все"];
+        PRODUCTS.forEach(function (p) { if (cats.indexOf(p.c) < 0) cats.push(p.c); });
+        chips.innerHTML = cats.map(function (c) {
+          return '<button class="chip" type="button" data-cat="' + esc(c) + '" aria-pressed="' + (c === state.cat) + '">' + esc(c) + "</button>";
+        }).join("");
+      }
+
+      function openDialog(id) {
+        var p = PRODUCTS[id]; if (!p) return;
+        $("dlg-mark").textContent = p.n.charAt(0).toUpperCase();
+        $("dlg-title").textContent = p.n;
+        $("dlg-meta").innerHTML = "<span>" + esc(p.c) + "</span><span>" + priceText(p.p) + "</span>";
+        $("dlg-ingredients").innerHTML = p.i.map(function (x) { return "<span>" + esc(cap(x)) + "</span>"; }).join("");
+        $("dlg-allergens").className = "tags " + (p.a.length ? "alert" : "ok");
+        $("dlg-allergens").innerHTML = p.a.length
+          ? p.a.map(function (x) { return "<span>" + esc(cap(x)) + "</span>"; }).join("")
+          : "<span>Аллергены не указаны</span>";
+        if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+      }
+
+      search.addEventListener("input", function () {
+        state.q = search.value; state.visible = PAGE;
+        clearBtn.hidden = !search.value;
+        render(false);
+      });
+      clearBtn.addEventListener("click", function () { search.value = ""; state.q = ""; state.visible = PAGE; clearBtn.hidden = true; render(false); search.focus(); });
+      chips.addEventListener("click", function (e) {
+        var b = e.target.closest(".chip"); if (!b) return;
+        state.cat = b.getAttribute("data-cat"); state.visible = PAGE; buildChips(); render(false);
+      });
+      $("more").addEventListener("click", function () { state.visible += PAGE; render(true); });
+      grid.addEventListener("click", function (e) {
+        var o = e.target.closest(".open"); if (o) return openDialog(+o.getAttribute("data-id"));
+        if (e.target.id === "reset") { search.value = ""; state.q = ""; state.cat = "Все"; state.visible = PAGE; clearBtn.hidden = true; buildChips(); render(false); }
+      });
+      $("dlg-close").addEventListener("click", function () { dlg.close(); });
+      dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
+
+      buildChips();
+      render(false);
+    })();
+  </script>
+  <script src="../assets/js/logo.js" defer></script>
+</body>
 </html>

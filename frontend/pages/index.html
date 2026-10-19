@@ -1,78 +1,213 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#e8f7f5" />
-    <meta name="description" content="Я Вижу! — помощник для спокойных покупок." />
-    <title>Я Вижу! — главная</title>
-    <link rel="stylesheet" href="../assets/css/index.css" />
-  </head>
-  <body class="home-body reference-home">
-    <header class="site-header home-header">
-      <a class="profile-link" href="medical-card.html">
-        <span class="profile-icon" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg></span>
-        <span>Профиль</span><span class="profile-chevron" aria-hidden="true">›</span>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b572b" />
+  <meta name="description" content="Я Вижу! — сканер продуктов: состав, аллергены и добавки за пару секунд." />
+  <title>Я Вижу! — главная</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --deep:#0b572b; --green:#218638; --bright:#63b83f; --lime:#d9f05b; --ink:#17251a; --muted:#5f6c62; --line:#e4ebe0; --page:#f3f4f1; --soft:#f8fbf5; --amber:#fff6dc; --amber-line:#f0dcae; --amber-ink:#7a5712; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    html[data-font-size="large"] { font-size: 18px; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--page); color: var(--ink); font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+    body:has(.scanner.is-open), body:has(.advice-dialog[open]) { overflow: hidden; }
+    h1, h2, h3, p, ul, ol { margin: 0; padding: 0; }
+    h1, h2, h3 { font-family: Manrope, "DM Sans", sans-serif; letter-spacing: -.03em; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+    .hm-top :focus-visible { outline-color: var(--lime); }
+
+    /* ---------- Шапка и истории ---------- */
+    .hm-top { padding: max(14px, env(safe-area-inset-top)) 0 38px; background: linear-gradient(150deg, #0b572b 0%, #218638 58%, #62b83f 100%); }
+    .hm-bar { width: min(980px, calc(100% - 32px)); margin: 0 auto 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .hm-brand { display: inline-flex; align-items: center; gap: .6rem; color: #fff; font: 800 1.05rem Manrope, sans-serif; }
+    .hm-mark { width: 2.4rem; height: 2.4rem; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); font-size: 1.3rem; }
+    .hm-profile { min-height: 3rem; padding: .25rem .85rem .25rem .3rem; display: inline-flex; align-items: center; gap: .55rem; border: 1px solid rgb(255 255 255 / 34%); border-radius: 999px; background: rgb(8 64 30 / 45%); color: #fff; font-size: .95rem; font-weight: 800; transition: background .15s; }
+    .hm-profile:hover { background: rgb(8 64 30 / 70%); }
+    .hm-profile i { width: 2.4rem; height: 2.4rem; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); }
+    .hm-profile svg { width: 1.3rem; height: 1.3rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .quick-links { width: min(1012px, 100%); margin: 0 auto; padding: 2px 16px 4px; display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; }
+    .quick-links::-webkit-scrollbar { display: none; }
+    .recipe-story { position: relative; flex: 0 0 clamp(132px, 38vw, 176px); aspect-ratio: 1; overflow: hidden; border: 2px solid rgb(255 255 255 / 90%); border-radius: 24px; background: #2c6b3c; color: #fff; scroll-snap-align: start; transition: transform .18s; }
+    .recipe-story:hover { transform: translateY(-3px); }
+    .story-image { position: absolute; inset: 0; }
+    .story-image img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .story-caption { position: absolute; inset: auto 0 0; padding: 30px 10px 10px; display: flex; flex-direction: column; gap: 2px; background: linear-gradient(transparent, rgb(8 36 17 / 85%)); text-shadow: 0 1px 2px rgb(0 0 0 / 50%); }
+    .story-caption b { font-size: .9rem; font-weight: 800; line-height: 1.15; }
+    .story-caption small { font-size: .72rem; font-weight: 600; line-height: 1.15; opacity: .92; }
+
+    /* ---------- Основа ---------- */
+    .hm-main { position: relative; margin-top: -24px; padding: 26px 0 calc(110px + env(safe-area-inset-bottom)); border-radius: 30px 30px 0 0; background: var(--page); }
+    .hm-wrap { width: min(980px, calc(100% - 32px)); margin: 0 auto; display: grid; gap: 30px; }
+
+    /* ---------- Сканер ---------- */
+    .hm-hero { padding: 28px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 230px); align-items: center; gap: 8px 20px; border-radius: 32px; background: #fff; box-shadow: 0 12px 34px rgb(16 66 32 / 10%); }
+    .hm-badge, .eyebrow { width: fit-content; margin-bottom: 12px; padding: .4rem .75rem; border-radius: 999px; background: var(--lime); color: var(--deep); font-size: .7rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+    .hm-hero h1 { margin-bottom: .7rem; font-size: clamp(2rem, 5.2vw, 3rem); line-height: 1.05; }
+    .hm-lead { max-width: 30rem; color: #4e6252; font-size: 1.05rem; line-height: 1.5; }
+    .product-mascot { width: 100%; max-width: 230px; height: auto; justify-self: center; }
+    .hm-scan { grid-column: 1 / -1; min-height: 4.2rem; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: .9rem; border: 0; border-radius: 999px; background: linear-gradient(110deg, #6cc044, #2f9c3c); color: #fff; font: 800 1.2rem Manrope, sans-serif; box-shadow: 0 5px 0 #2a8335, 0 12px 22px rgb(47 156 60 / 22%); transition: transform .16s, box-shadow .16s; }
+    .hm-scan:hover { transform: translateY(-2px); }
+    .hm-scan:active { transform: translateY(3px); box-shadow: 0 2px 0 #2a8335; }
+    .hm-scan svg { width: 1.7rem; height: 1.4rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: square; }
+
+
+
+
+
+    /* ---------- Разделы ---------- */
+    .hm-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .hm-tile { min-width: 0; min-height: 5.6rem; padding: 1rem 1.1rem; display: flex; align-items: center; gap: .9rem; border: 1px solid var(--line); border-radius: 26px; background: #fff; transition: transform .18s, box-shadow .18s; }
+    .hm-tile:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgb(31 67 36 / 10%); }
+    .hm-ico { width: 3rem; height: 3rem; flex: none; display: grid; place-items: center; border-radius: 16px; background: #e7f3dd; }
+    .hm-ico svg { width: 1.7rem; height: 1.7rem; fill: none; stroke: var(--green); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .hm-tile-text { min-width: 0; }
+    .hm-tile h3 { font-size: 1.05rem; line-height: 1.2; }
+    .hm-tile p { margin-top: .2rem; color: var(--muted); font-size: .85rem; line-height: 1.35; }
+    .hm-tile > i { width: 1.9rem; height: 1.9rem; margin-left: auto; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); font-style: normal; }
+    @media (max-width: 800px) { .hm-tiles { grid-template-columns: 1fr; gap: 10px; } .hm-tile { min-height: 4.8rem; border-radius: 22px; } }
+
+    .hm-dock { position: fixed; z-index: 20; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); width: min(560px, calc(100% - 28px)); padding: 6px; transform: translateX(-50%); border-radius: 999px; background: rgb(255 255 255 / 94%); backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgb(14 52 24 / 20%); }
+    .bottom-advice { width: 100%; min-height: 3.4rem; display: flex; align-items: center; justify-content: center; gap: .7rem; border: 2px solid var(--lime); border-radius: 999px; background: var(--lime); color: #185e31; font-size: 1.05rem; font-weight: 800; transition: background .15s; }
+    .bottom-advice:hover { background: #cbe44c; }
+    .assistant-mark svg { width: 1.5rem; height: 1.5rem; display: block; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ---------- Окно помощника ---------- */
+    .advice-dialog { width: min(540px, calc(100% - 28px)); padding: 0; border: 0; border-radius: 28px; background: #fff; color: var(--ink); box-shadow: 0 30px 80px rgb(8 40 18 / 35%); }
+    .advice-dialog::backdrop { background: rgb(12 47 25 / 60%); backdrop-filter: blur(4px); }
+    .advice-dialog.is-fallback { position: fixed; inset: 50% auto auto 50%; z-index: 80; transform: translate(-50%, -50%); display: block; }
+    .advice-dialog-inner { padding: 26px; }
+    .advice-dialog-header { display: flex; justify-content: space-between; gap: 16px; }
+    .advice-dialog-header h2 { font-size: 1.7rem; line-height: 1.15; }
+    .dialog-close, .close-button { width: 2.9rem; height: 2.9rem; flex: none; border: 0; border-radius: 50%; background: #f0f5eb; color: var(--deep); font-size: 1.9rem; line-height: 1; transition: background .15s; }
+    .dialog-close:hover, .close-button:hover { background: var(--lime); }
+    .advice-description { margin: 12px 0 18px; color: var(--muted); font-size: .95rem; line-height: 1.5; }
+    .advice-form { display: grid; gap: 8px; }
+    .advice-form label { font-weight: 800; }
+    .advice-form select { min-height: 3.1rem; padding: .5rem .8rem; border: 1.5px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); font: inherit; }
+    .advice-form button { min-height: 3.3rem; margin-top: 6px; border: 0; border-radius: 999px; background: linear-gradient(110deg, #6cc044, #2f9c3c); color: #fff; font-size: 1rem; font-weight: 800; box-shadow: 0 4px 0 #2a8335; }
+    .advice-result[data-ready="true"] { margin-top: 18px; padding: 16px 18px; border-left: 5px solid var(--green); border-radius: 18px; background: #eef7e8; }
+    .advice-result h3 { margin-bottom: 6px; font-size: 1.1rem; }
+    .advice-result p { margin-bottom: 10px; color: #405544; line-height: 1.5; }
+    .advice-result-link { color: var(--deep); font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
+    .advice-footnote { margin-top: 16px; color: var(--muted); font-size: .78rem; line-height: 1.4; }
+
+    /* ---------- Камера ---------- */
+    .scanner { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; padding: 20px; background: rgb(12 47 25 / 82%); backdrop-filter: blur(10px); }
+    .scanner.is-open { display: grid; }
+    .scanner-panel { width: min(96vw, 1000px); min-height: min(94dvh, 900px); padding: clamp(18px, 4vw, 30px); display: flex; flex-direction: column; border-radius: 30px; background: #fff; box-shadow: 0 24px 70px rgb(6 35 15 / 35%); }
+    .scanner-header { margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .scanner-header .eyebrow { margin-bottom: 8px; }
+    .scanner-header h2 { font-size: clamp(1.4rem, 3.6vw, 2rem); line-height: 1.15; }
+    .camera-frame { position: relative; flex: 1; min-height: 340px; max-height: 72dvh; overflow: hidden; border: 5px solid #edf3e9; border-radius: 24px; background: #102319; }
+    .camera-frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .camera-placeholder { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at 50% 40%, #286a38, #123d25 72%); color: #fff; text-align: center; font-size: 1.05rem; line-height: 1.5; }
+    .camera-frame.is-active .camera-placeholder { display: none; }
+    .scan-window { position: absolute; inset: 22% 12%; border: 3px solid var(--lime); border-radius: 18px; box-shadow: 0 0 0 999px rgb(8 25 13 / 16%); pointer-events: none; }
+    .scanner-hint { margin: 16px 4px; color: #526452; text-align: center; font-size: 1rem; font-weight: 600; line-height: 1.45; }
+    .scanner-hint.error { color: #a0271a; }
+    .camera-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .camera-action { min-height: 3rem; padding: .6rem 1.1rem; display: inline-flex; align-items: center; gap: .5rem; border: 1px solid var(--green); border-radius: 999px; background: #fff; color: var(--deep); font-size: .9rem; font-weight: 800; }
+    .camera-action:hover, .camera-action[aria-pressed="true"] { border-color: var(--lime); background: var(--lime); }
+    .camera-action svg { width: 1.1rem; height: 1.1rem; fill: currentColor; }
+    .camera-action[hidden] { display: none; }
+    .scanner :focus-visible { outline-color: var(--lime); }
+
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+        @media (max-width: 560px) {
+      .hm-wrap { gap: 26px; }
+      .hm-hero { padding: 20px 16px; grid-template-columns: minmax(0, 1fr) 38%; border-radius: 26px; }
+      .hm-lead { font-size: .95rem; }
+      .hm-scan { min-height: 3.8rem; font-size: 1.05rem; }
+      .advice-dialog-inner { padding: 20px; }
+      .scanner { padding: 0; }
+      .scanner-panel { width: 100%; min-height: 100dvh; padding: calc(18px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); border-radius: 0; }
+      .camera-frame { min-height: 0; max-height: none; border-width: 4px; border-radius: 22px; }
+      .scan-window { inset: 29% 9%; }
+    }
+  </style>
+</head>
+<body class="home-body">
+  <header class="hm-top">
+    <div class="hm-bar">
+      <a class="hm-brand" href="index.html" aria-label="Я Вижу! — главная"><span class="hm-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a>
+      <a class="hm-profile" href="medical-card.html">
+        <i aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg></i>
+        <span>Профиль</span><span aria-hidden="true">›</span>
       </a>
-      <nav class="quick-links" aria-label="Полезные истории">
-        <a class="recipe-story" data-story-id="story-01" href="help.html"><span class="story-image"><img src="../assets/images/story-01.jpg" alt="" fetchpriority="high" /></span><span class="story-caption"><b>Новый образ</b><small>Детали и настроение</small></span></a>
-        <a class="recipe-story" data-story-id="story-02" href="help.html"><span class="story-image"><img src="../assets/images/story-02.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Город не спит</b><small>Вечерние огни</small></span></a>
-        <a class="recipe-story" data-story-id="story-03" href="medical-card.html"><span class="story-image"><img src="../assets/images/story-03.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Тёплый вечер</b><small>Моменты на память</small></span></a>
-        <a class="recipe-story" data-story-id="story-04" href="feedback.html"><span class="story-image"><img src="../assets/images/story-04.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Wanna play?</b><small>Новая игра</small></span></a>
-        <a class="recipe-story" data-story-id="story-05" href="help.html"><span class="story-image"><img src="../assets/images/story-05.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Особенный день</b><small>Важные события</small></span></a>
-        <a class="recipe-story" data-story-id="story-06" href="help.html"><span class="story-image"><img src="../assets/images/story-06.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Вечер дома</b><small>Время для себя</small></span></a>
-        <a class="recipe-story" data-story-id="story-07" href="help.html"><span class="story-image"><img src="../assets/images/story-07.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Другой взгляд</b><small>Игра света и тени</small></span></a>
-      </nav>
-    </header>
-
-    <main id="main-content" class="home-main">
-      <section class="reference-content" aria-label="Главная страница">
-        <section class="promo-banner page-width scanner-promo" aria-labelledby="hero-title">
-          <div class="promo-copy">
-            <p class="scanner-promo-eyebrow">ПРОВЕРКА ПРОДУКТОВ</p>
-            <h1 id="hero-title">Сканер<br />продуктов</h1>
-            <p>Наведите камеру на штрихкод. Узнайте состав, аллергены и добавки.</p>
-            <button class="scanner-promo-button" id="start-scan" type="button"><span class="barcode-button-icon" aria-hidden="true"><svg viewBox="0 0 44 32"><path d="M4 4v24M8 4v24M14 4v24M18 4v24M23 4v24M29 4v24M33 4v24M40 4v24" /></svg></span><span>Начать сканирование</span></button>
-          </div>
-          <div class="promo-graphic scanner-product-graphic" aria-hidden="true"><img class="product-mascot" src="../assets/images/babushka-korzina.png" alt="" /></div>
-        </section>
-
-        <section class="home-tiles page-width" aria-label="Разделы сайта">
-          <div class="tile-column">
-            <a class="reference-tile pharmacy-tile" href="catalog.html"><span class="reference-art pharmacy-art" aria-hidden="true"><svg viewBox="0 0 100 80"><path d="M15 31h70l-6 43H21zM11 31l8-17h62l8 17M31 31v43m19-43v43m19-43v43"/><path d="M36 48h28"/></svg></span><span>Товары для вас</span></a>
-            <div class="small-tiles">
-              <a class="reference-tile" href="stores.html"><span class="reference-art map-art" aria-hidden="true"><svg viewBox="0 0 80 90"><path d="M40 82S12 52 12 34a28 28 0 1 1 56 0c0 18-28 48-28 48z"/><circle cx="40" cy="34" r="10"/></svg></span><span>Магазины<br />на карте</span></a>
-            </div>
-          </div>
-          <a class="reference-tile recipes-tile" href="help.html"><span class="reference-art" aria-hidden="true"><svg viewBox="0 0 100 80"><path d="M25 13h50v58H25zM35 27h30M35 39h30M35 51h20"/><path d="m66 57 5 5 11-13"/></svg></span><span>Домашние рецепты</span></a>
-        </section>
-      </section>
-    </main>
-
-    <nav class="bottom-nav" aria-label="Быстрые действия">
-      <button class="bottom-advice" id="open-advice-bottom" type="button"><span class="assistant-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 7h22v16H15l-7 5v-5H5z"/><path d="M11 15h.1m5 0h.1m5 0h.1"/></svg></span><span>Спросить помощника</span></button>
+    </div>
+    <nav class="quick-links" aria-label="Полезные истории">
+      <a class="recipe-story" data-story-id="story-01" href="help.html"><span class="story-image"><img src="../assets/images/story-01.jpg" alt="" fetchpriority="high" /></span><span class="story-caption"><b>Новый образ</b><small>Детали и настроение</small></span></a>
+      <a class="recipe-story" data-story-id="story-02" href="help.html"><span class="story-image"><img src="../assets/images/story-02.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Город не спит</b><small>Вечерние огни</small></span></a>
+      <a class="recipe-story" data-story-id="story-03" href="medical-card.html"><span class="story-image"><img src="../assets/images/story-03.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Тёплый вечер</b><small>Моменты на память</small></span></a>
+      <a class="recipe-story" data-story-id="story-04" href="feedback.html"><span class="story-image"><img src="../assets/images/story-04.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Wanna play?</b><small>Новая игра</small></span></a>
+      <a class="recipe-story" data-story-id="story-05" href="help.html"><span class="story-image"><img src="../assets/images/story-05.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Особенный день</b><small>Важные события</small></span></a>
+      <a class="recipe-story" data-story-id="story-06" href="help.html"><span class="story-image"><img src="../assets/images/story-06.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Вечер дома</b><small>Время для себя</small></span></a>
+      <a class="recipe-story" data-story-id="story-07" href="help.html"><span class="story-image"><img src="../assets/images/story-07.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Другой взгляд</b><small>Игра света и тени</small></span></a>
     </nav>
+  </header>
 
-    <footer class="site-footer"><a href="stores.html">Магазины</a></footer>
+  <main id="main-content" class="hm-main">
+    <div class="hm-wrap">
+      <section class="hm-hero" aria-labelledby="hero-title">
+        <div>
+          <p class="hm-badge">Проверка продуктов</p>
+          <h1 id="hero-title">Сканер продуктов</h1>
+          <p class="hm-lead">Наведите камеру на штрихкод. Узнайте состав, аллергены и добавки.</p>
+        </div>
+        <img class="product-mascot" src="../assets/images/babushka-korzina.png" alt="" aria-hidden="true" />
+        <button class="hm-scan scanner-promo-button" id="start-scan" type="button"><svg viewBox="0 0 44 32" aria-hidden="true"><path d="M4 4v24M8 4v24M14 4v24M18 4v24M23 4v24M29 4v24M33 4v24M40 4v24" /></svg><span>Начать сканирование</span></button>
+      </section>
 
-    <dialog class="advice-dialog" id="advice-dialog" aria-labelledby="advice-title" aria-describedby="advice-description">
-      <div class="advice-dialog-inner">
-        <header class="advice-dialog-header"><div><p class="eyebrow">Подсказка рядом</p><h2 id="advice-title">О чём хотите узнать?</h2></div><button class="dialog-close" type="button" data-advice-close aria-label="Закрыть окно">×</button></header>
-        <p id="advice-description" class="advice-description">Выберите тему — помощник покажет короткое объяснение. Это справочная информация, а не медицинское заключение.</p>
-        <form id="advice-form" class="advice-form"><label for="advice-topic">Тема</label><select id="advice-topic" name="topic"><option value="general">Не знаю, с чего начать</option><option value="allergens">Аллергены</option><option value="composition">Состав</option><option value="additives">Добавки</option><option value="card">Моя карточка</option><option value="label">Как читать этикетку</option></select><button class="button button-primary" type="submit">Показать совет</button></form>
-        <div class="advice-result" id="advice-result" aria-live="polite" tabindex="-1"></div><p class="advice-footnote">При аллергии всегда сверяйтесь с полной упаковкой и рекомендациями врача.</p>
-      </div>
-    </dialog>
+      <nav class="hm-tiles" aria-label="Разделы">
+        <a class="hm-tile" href="catalog.html">
+          <span class="hm-ico" aria-hidden="true"><svg viewBox="0 0 100 80"><path d="M15 31h70l-6 43H21zM11 31l8-17h62l8 17M31 31v43m19-43v43m19-43v43"/><path d="M36 48h28"/></svg></span>
+          <span class="hm-tile-text"><h3>Товары для вас</h3><p>Состав и аллергены</p></span><i aria-hidden="true">→</i>
+        </a>
+        <a class="hm-tile" href="stores.html">
+          <span class="hm-ico" aria-hidden="true"><svg viewBox="0 0 80 90"><path d="M40 82S12 52 12 34a28 28 0 1 1 56 0c0 18-28 48-28 48z"/><circle cx="40" cy="34" r="10"/></svg></span>
+          <span class="hm-tile-text"><h3>Магазины на карте</h3><p>Найти рядом</p></span><i aria-hidden="true">→</i>
+        </a>
+        <a class="hm-tile" href="help.html">
+          <span class="hm-ico" aria-hidden="true"><svg viewBox="0 0 100 80"><path d="M25 13h50v58H25zM35 27h30M35 39h30M35 51h20"/><path d="m66 57 5 5 11-13"/></svg></span>
+          <span class="hm-tile-text"><h3>Как проверить продукт</h3><p>Три простых шага</p></span><i aria-hidden="true">→</i>
+        </a>
+      </nav>
+    </div>
+  </main>
 
-    <section class="scanner" id="scanner" aria-hidden="true" aria-labelledby="scanner-title">
-      <div class="scanner-panel">
-        <header class="scanner-header"><div><p class="eyebrow">СКАНИРОВАНИЕ</p><h2 id="scanner-title">Наведите камеру на штрихкод</h2></div><button class="close-button" id="close-scan" type="button" aria-label="Закрыть сканер">×</button></header>
-        <div class="camera-frame" id="camera-frame"><video id="camera" autoplay muted playsinline></video><div class="camera-placeholder"><p id="camera-message">Готовим камеру…</p></div><div class="scan-window" aria-hidden="true"></div></div>
-        <p class="scanner-hint" id="scanner-hint" aria-live="polite">Покажите штрихкод целиком и держите телефон ровно.</p>
-        <div class="camera-actions"><button class="camera-action torch-action" id="torch-button" type="button" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2h6l-1 7h3l-8 13 1-9H7z" /></svg><span id="torch-label">Включить фонарик</span></button><button class="camera-action" id="switch-camera" type="button" hidden>Переключить камеру</button></div>
-      </div>
-    </section>
-    <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js" defer></script>
-    <script src="../assets/js/api.js" defer></script><script src="../assets/js/app.js?v=onboarding-1" defer></script>
-  </body>
+  <nav class="hm-dock bottom-nav" aria-label="Быстрые действия">
+    <button class="bottom-advice" id="open-advice-bottom" type="button"><span class="assistant-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 7h22v16H15l-7 5v-5H5z"/><path d="M11 15h.1m5 0h.1m5 0h.1"/></svg></span><span>Спросить помощника</span></button>
+  </nav>
+
+  <dialog class="advice-dialog" id="advice-dialog" aria-labelledby="advice-title" aria-describedby="advice-description">
+    <div class="advice-dialog-inner">
+      <header class="advice-dialog-header"><div><p class="eyebrow">Подсказка рядом</p><h2 id="advice-title">О чём хотите узнать?</h2></div><button class="dialog-close" type="button" data-advice-close aria-label="Закрыть окно">×</button></header>
+      <p id="advice-description" class="advice-description">Выберите тему — помощник покажет короткое объяснение. Это справочная информация, а не медицинское заключение.</p>
+      <form id="advice-form" class="advice-form"><label for="advice-topic">Тема</label><select id="advice-topic" name="topic"><option value="general">Не знаю, с чего начать</option><option value="allergens">Аллергены</option><option value="composition">Состав</option><option value="additives">Добавки</option><option value="card">Моя карточка</option><option value="label">Как читать этикетку</option></select><button class="button button-primary" type="submit">Показать совет</button></form>
+      <div class="advice-result" id="advice-result" aria-live="polite" tabindex="-1"></div><p class="advice-footnote">При аллергии всегда сверяйтесь с полной упаковкой и рекомендациями врача.</p>
+    </div>
+  </dialog>
+
+  <section class="scanner" id="scanner" aria-hidden="true" aria-labelledby="scanner-title">
+    <div class="scanner-panel">
+      <header class="scanner-header"><div><p class="eyebrow">СКАНИРОВАНИЕ</p><h2 id="scanner-title">Наведите камеру на штрихкод</h2></div><button class="close-button" id="close-scan" type="button" aria-label="Закрыть сканер">×</button></header>
+      <div class="camera-frame" id="camera-frame"><video id="camera" autoplay muted playsinline></video><div class="camera-placeholder"><p id="camera-message">Готовим камеру…</p></div><div class="scan-window" aria-hidden="true"></div></div>
+      <p class="scanner-hint" id="scanner-hint" aria-live="polite">Покажите штрихкод целиком и держите телефон ровно.</p>
+      <div class="camera-actions"><button class="camera-action torch-action" id="torch-button" type="button" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2h6l-1 7h3l-8 13 1-9H7z" /></svg><span id="torch-label">Включить фонарик</span></button><button class="camera-action" id="switch-camera" type="button" hidden>Переключить камеру</button></div>
+    </div>
+  </section>
+
+  <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js" defer></script>
+  <script src="../assets/js/api.js" defer></script><script src="../assets/js/app.js?v=onboarding-1" defer></script>
+  <script src="../assets/js/logo.js" defer></script>
+</body>
 </html>

@@ -1,47 +1,356 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#00c4bd" />
-    <meta name="description" content="Личная карточка питания: аллергии и продукты, которые вы не едите." />
-    <title>Мед. карточка — Я Вижу!</title>
-    <link rel="stylesheet" href="../assets/css/medical-card.css" />
-  </head>
-  <body class="medical-card-page">
-    <header class="site-header">
-      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a>
-      <nav class="main-nav" aria-label="Основная навигация"><a href="index.html">Главная</a><a aria-current="page" href="medical-card.html">Мед. карточка</a><a href="stores.html">Магазины</a></nav>
-    </header>
-    <main class="page-width content-page">
-      <section class="account-card" aria-labelledby="account-title">
-        <div class="account-heading"><div><p class="eyebrow">ЛИЧНЫЙ ПРОФИЛЬ</p><h1 id="account-title">Вход и история проверок</h1></div><span class="account-name" id="account-name"></span></div>
-        <p class="medical-intro">Войдите, чтобы сохранять проверенные товары на сервере и видеть свою историю.</p>
-        <form class="login-form" id="login-form"><label for="login-name">Логин<input id="login-name" name="login" autocomplete="username" required /></label><label for="login-password">Пароль<input id="login-password" name="password" type="password" autocomplete="current-password" required /></label><button class="button button-primary" type="submit">Войти</button></form>
-        <p class="medical-status" id="login-status" aria-live="polite"></p><button class="button button-secondary" id="logout-button" type="button" hidden>Выйти из профиля</button>
-        <p class="demo-credentials">Учебные аккаунты: <code>user / qwerty</code> или <code>admin / 12345</code>.</p>
-        <section class="history-section" aria-labelledby="history-title"><h2 id="history-title">Мои проверки</h2><p id="history-status" class="medical-status" aria-live="polite"></p><ul class="medical-list" id="check-history"></ul></section>
-      </section>
-      <section class="medical-card" aria-labelledby="medical-title">
-        <div class="medical-card-heading">
-          <span class="medical-card-icon" aria-hidden="true">+</span>
-          <div><p class="eyebrow">ВАЖНО ДЛЯ ВАС</p><h1 id="medical-title">Моя карточка питания</h1></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#185e31" />
+  <meta name="description" content="Личная карточка питания: аллергии и продукты, которые вы не едите." />
+  <title>Профиль — Я Вижу!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --deep: #0f4d27;
+      --green: #218638;
+      --bright: #63b83f;
+      --lime: #d9f05b;
+      --ink: #17251a;
+      --muted: #5d6e60;
+      --line: #e2eadd;
+      --canvas: #f1f5ee;
+      --card: #ffffff;
+      --soft: #f6faf2;
+      --danger: #b4513f;
+      --radius: 28px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh; background: var(--canvas); color: var(--ink);
+      font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1, h2, h3 { font-family: Manrope, "DM Sans", sans-serif; letter-spacing: -.03em; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
+
+    /* ================= HERO ================= */
+    .top {
+      position: relative; overflow: hidden; padding-bottom: 96px; color: #fff;
+      background:
+        radial-gradient(circle at 85% 10%, rgb(217 240 91 / 28%), transparent 38%),
+        radial-gradient(circle at 5% 100%, rgb(255 255 255 / 14%), transparent 42%),
+        linear-gradient(150deg, var(--deep) 0%, #1f7a35 52%, #58ae3e 100%);
+    }
+    .top::before, .top::after {
+      content: ""; position: absolute; border-radius: 50%; pointer-events: none;
+      border: 2px solid rgb(255 255 255 / 12%);
+    }
+    .top::before { width: 420px; height: 420px; right: -150px; top: -170px; }
+    .top::after { width: 260px; height: 260px; left: -90px; bottom: -110px; }
+    .wrap { position: relative; z-index: 1; width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
+
+    .nav { min-height: 84px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; font: 800 19px Manrope, sans-serif; }
+    .brand-mark {
+      width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%;
+      background: var(--lime); color: var(--deep); font-size: 22px;
+      box-shadow: 0 6px 16px rgb(5 40 18 / 28%);
+    }
+    .back {
+      min-height: 48px; padding: 5px 18px 5px 6px; display: inline-flex; align-items: center; gap: 10px;
+      border: 1px solid rgb(255 255 255 / 34%); border-radius: 999px;
+      background: rgb(255 255 255 / 12%); backdrop-filter: blur(8px);
+      font-size: 14px; font-weight: 700; transition: background .2s, transform .2s;
+    }
+    .back:hover { background: rgb(255 255 255 / 22%); transform: translateX(-2px); }
+    .back i {
+      width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%;
+      background: var(--lime); color: var(--deep); font-style: normal; font-size: 20px; font-weight: 800;
+    }
+
+    .hero { padding-top: 22px; display: flex; align-items: center; gap: 26px; }
+    .avatar {
+      position: relative; width: 112px; height: 112px; flex: 0 0 auto; display: grid; place-items: center;
+      border-radius: 50%; background: var(--lime); color: var(--deep);
+      box-shadow: 0 0 0 6px rgb(255 255 255 / 22%), 0 18px 34px rgb(5 40 18 / 32%);
+    }
+    .avatar svg { width: 56px; height: 56px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .avatar::after {
+      content: ""; position: absolute; right: 6px; bottom: 8px; width: 22px; height: 22px;
+      border: 4px solid #fff; border-radius: 50%; background: var(--bright);
+    }
+    .hero-copy { min-width: 0; flex: 1; }
+    .chip {
+      width: fit-content; margin-bottom: 12px; padding: 7px 13px; display: flex; align-items: center; gap: 7px;
+      border-radius: 999px; background: rgb(255 255 255 / 16%);
+      font-size: 11px; font-weight: 800; letter-spacing: .13em;
+    }
+    .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--lime); }
+    .hero h1 { font-size: clamp(36px, 6vw, 62px); line-height: 1.02; margin-bottom: 12px; }
+    .hero-text { max-width: 520px; color: rgb(255 255 255 / 86%); font-size: 16px; line-height: 1.55; }
+    .account-name {
+      align-self: flex-start; margin-top: 10px; padding: 9px 16px; border-radius: 999px;
+      background: var(--lime); color: var(--deep); font-size: 13px; font-weight: 800; white-space: nowrap;
+    }
+    .account-name:empty { display: none; }
+
+    /* ================= PANEL ================= */
+    .panel {
+      position: relative; z-index: 2; margin-top: -50px; min-height: 60vh;
+      border-radius: 44px 44px 0 0; background: var(--canvas);
+      box-shadow: 0 -14px 40px rgb(8 48 22 / 16%);
+    }
+    .content { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 32px 0 80px; display: grid; gap: 20px; }
+
+    /* Шаги */
+    .steps { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; counter-reset: s; }
+    .steps li {
+      position: relative; padding: 16px 18px; display: flex; align-items: center; gap: 14px;
+      border: 1px solid var(--line); border-radius: 24px; background: var(--card);
+      box-shadow: 0 8px 24px rgb(31 67 36 / 5%); transition: transform .2s, box-shadow .2s;
+    }
+    .steps li:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgb(31 67 36 / 9%); }
+    .step-num {
+      width: 42px; height: 42px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 15px;
+      background: linear-gradient(135deg, var(--bright), var(--green)); color: #fff; font: 800 18px Manrope, sans-serif;
+    }
+    .steps b { display: block; margin-bottom: 2px; font-size: 15px; }
+    .steps small { color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+
+    /* Карточки */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 20px; }
+    .card {
+      position: relative; min-width: 0; padding: 30px; overflow: hidden;
+      border: 1px solid var(--line); border-radius: var(--radius); background: var(--card);
+      box-shadow: 0 14px 36px rgb(31 67 36 / 7%);
+    }
+    .card::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+      background: linear-gradient(90deg, var(--bright), var(--lime));
+    }
+    .card-head { display: flex; align-items: center; gap: 15px; }
+    .icon {
+      width: 54px; height: 54px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 19px;
+      background: linear-gradient(135deg, #eaf6dd, #d2eabb); color: var(--green);
+    }
+    .icon svg { width: 27px; height: 27px; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+    .label { margin-bottom: 5px; color: var(--green); font-size: 10.5px; font-weight: 800; letter-spacing: .14em; }
+    .card h2 { font-size: clamp(22px, 2.6vw, 28px); line-height: 1.15; }
+    .text { margin-top: 16px; color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+
+    /* Формы */
+    .form { margin-top: 20px; display: grid; gap: 14px; }
+    .form label { display: grid; gap: 8px; min-width: 0; }
+    .form label span { color: #3c5240; font-size: 13px; font-weight: 700; }
+    .form input, .form select {
+      width: 100%; min-height: 54px; padding: 11px 16px; color: var(--ink);
+      border: 1.5px solid var(--line); border-radius: 17px; background: var(--soft);
+      transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    .form select {
+      appearance: none; padding-right: 44px; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23218638' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 15px center; background-size: 20px;
+    }
+    .form input::placeholder { color: #93a094; }
+    .form input:hover, .form select:hover { border-color: #c5d9bb; }
+    .form input:focus, .form select:focus {
+      outline: 0; background-color: #fff; border-color: var(--bright); box-shadow: 0 0 0 4px rgb(217 240 91 / 60%);
+    }
+
+    /* Кнопки */
+    .btn {
+      width: 100%; min-height: 58px; margin-top: 4px; padding: 8px 9px 8px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      border: 0; border-radius: 999px; cursor: pointer; color: #fff;
+      background: linear-gradient(110deg, #6cc044, #2f9c3c);
+      font-size: 15.5px; font-weight: 800; box-shadow: 0 5px 0 #2a8335, 0 12px 22px rgb(47 156 60 / 22%);
+      transition: transform .16s, box-shadow .16s, filter .16s;
+    }
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.04); }
+    .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #2a8335; }
+    .btn i {
+      width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%;
+      background: var(--lime); color: var(--deep); font-size: 21px; font-style: normal; font-weight: 800;
+    }
+    .btn-light {
+      min-height: 50px; margin-top: 16px; padding: 8px 22px; display: inline-flex; align-items: center; gap: 10px;
+      border: 1.5px solid var(--line); border-radius: 999px; background: var(--soft); color: var(--deep);
+      font-size: 14px; font-weight: 800; cursor: pointer; transition: background .15s, transform .15s;
+    }
+    .btn-light:hover { background: #ebf5e3; transform: translateY(-1px); }
+
+    .status { margin-top: 13px; color: var(--green); font-size: 13.5px; font-weight: 600; line-height: 1.5; }
+    .status:empty { display: none; }
+    .demo { margin-top: 16px; padding: 12px 14px; border-radius: 16px; background: var(--soft); color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+    .demo code { padding: 3px 8px; border-radius: 9px; background: #e6f2db; color: var(--deep); font-size: 12px; font-weight: 700; }
+
+    /* Списки (li.medical-item создаёт JS) */
+    .medical-list { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .medical-list:empty { display: none; }
+    .medical-item {
+      padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      border: 1px solid var(--line); border-left: 5px solid var(--bright); border-radius: 18px;
+      background: var(--soft); color: #24452c; font-size: 14.5px; font-weight: 700;
+      animation: pop .3s ease both;
+    }
+    .medical-item small { display: block; margin-top: 4px; color: var(--muted); font-size: 12.5px; font-weight: 500; line-height: 1.5; }
+    .medical-item button {
+      min-height: 38px; padding: 6px 15px; border: 1px solid #efd9d2; border-radius: 999px;
+      background: #fff6f3; color: var(--danger); font-size: 12.5px; font-weight: 800; cursor: pointer;
+      transition: background .15s;
+    }
+    .medical-item button:hover { background: #fde9e3; }
+    .history .medical-list { grid-template-columns: 1fr 1fr; }
+
+    /* Пустое состояние истории */
+    .empty-hint {
+      margin-top: 18px; padding: 26px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+      border: 2px dashed #d3e4c8; border-radius: 22px; background: var(--soft); color: var(--muted);
+      font-size: 13.5px; text-align: center;
+    }
+    .empty-hint svg { width: 44px; height: 44px; fill: none; stroke: var(--bright); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .history .status:not(:empty) + .medical-list:empty { display: none; }
+
+    /* Примечание */
+    .note {
+      padding: 16px 20px; display: flex; align-items: flex-start; gap: 13px;
+      border-radius: 22px; background: linear-gradient(120deg, #e6f3da, #dcefc9);
+    }
+    .note span {
+      width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 50%;
+      background: var(--lime); color: var(--deep); font: 800 15px Georgia, serif;
+    }
+    .note p { color: #3b5a42; font-size: 12.5px; line-height: 1.65; }
+
+    @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+    .hero, .steps, .card, .note { animation: rise .55s ease both; }
+    .steps { animation-delay: .05s; }
+    .grid .card:nth-child(1) { animation-delay: .1s; }
+    .grid .card:nth-child(2) { animation-delay: .18s; }
+    .history { animation-delay: .24s; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+    /* ================= АДАПТИВ ================= */
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; gap: 10px; }
+      .history .medical-list { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .wrap, .content { width: calc(100% - 28px); }
+      .top { padding-bottom: 80px; }
+      .nav { min-height: 70px; }
+      .brand { font-size: 17px; }
+      .brand-mark { width: 38px; height: 38px; }
+      .back { min-height: 44px; font-size: 13px; }
+      .back i { width: 32px; height: 32px; }
+      .hero { flex-wrap: wrap; gap: 16px; padding-top: 10px; }
+      .avatar { width: 78px; height: 78px; box-shadow: 0 0 0 4px rgb(255 255 255 / 22%), 0 12px 24px rgb(5 40 18 / 30%); }
+      .avatar svg { width: 40px; height: 40px; }
+      .avatar::after { width: 17px; height: 17px; border-width: 3px; right: 3px; bottom: 5px; }
+      .hero-text { font-size: 14px; }
+      .account-name { margin-top: 0; }
+      .panel { margin-top: -38px; border-radius: 30px 30px 0 0; }
+      .content { padding: 22px 0 56px; gap: 16px; }
+      .card { padding: 22px 18px; border-radius: 24px; }
+      .icon { width: 46px; height: 46px; border-radius: 16px; }
+    }
+  </style>
+</head>
+<body class="medical-card-page">
+  <header class="top">
+    <div class="wrap">
+      <nav class="nav" aria-label="Навигация">
+        <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a>
+        <a class="back" href="index.html"><i aria-hidden="true">←</i><span>На главную</span></a>
+      </nav>
+
+      <div class="hero">
+        <span class="avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 20c.9-4 3.7-6 7.5-6s6.6 2 7.5 6"></path></svg>
+        </span>
+        <div class="hero-copy">
+          <p class="chip">ЛИЧНЫЙ ПРОФИЛЬ</p>
+          <h1>Мой профиль</h1>
+          <p class="hero-text">Сохраняйте проверки продуктов и держите под рукой свои аллергии — всё в одном месте.</p>
         </div>
-        <p class="medical-intro">Запишите продукты, которые вызывают аллергию или которые вы не едите. После входа эти ограничения будут учитываться при проверке состава.</p>
-        <form class="medical-form" id="medical-form">
-          <label for="food-type">Что добавить</label>
-          <select id="food-type" name="type"><option value="allergy">Вызывает аллергию</option><option value="avoid">Не ем этот продукт</option></select>
-          <label for="food-name">Название продукта</label>
-          <input id="food-name" name="food" type="text" maxlength="80" placeholder="Например, арахис" required />
-          <button class="button button-primary medical-add" type="submit">Добавить в карточку</button>
-        </form>
-        <p class="medical-status" id="medical-status" aria-live="polite"></p>
-        <ul class="medical-list" id="medical-list" aria-label="Мои аллергии и продукты, которые я не ем"></ul>
-        <p class="medical-privacy">Без входа список сохраняется в этом браузере. После входа он также синхронизируется с учебным сервером. Не указывайте лишние личные сведения.</p>
-        <p class="medical-disclaimer">Карточка помогает не забыть ваши записи и не заменяет медицинские рекомендации.</p>
+        <span class="account-name" id="account-name"></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="panel">
+    <div class="content">
+
+      <ol class="steps" aria-label="Как это работает">
+        <li><span class="step-num">1</span><div><b>Войдите</b><small>Чтобы данные сохранялись</small></div></li>
+        <li><span class="step-num">2</span><div><b>Добавьте ограничения</b><small>Аллергии и нелюбимые продукты</small></div></li>
+        <li><span class="step-num">3</span><div><b>Сканируйте</b><small>Мы сравним с составом</small></div></li>
+      </ol>
+
+      <div class="grid">
+        <section class="card" aria-labelledby="account-title">
+          <div class="card-head">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="3"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></span>
+            <div><p class="label">АККАУНТ</p><h2 id="account-title">Вход в профиль</h2></div>
+          </div>
+          <p class="text">Войдите, чтобы сохранять проверенные товары на сервере и видеть свою историю.</p>
+
+          <form class="form" id="login-form">
+            <label for="login-name"><span>Логин</span><input id="login-name" name="login" autocomplete="username" placeholder="Ваш логин" required /></label>
+            <label for="login-password"><span>Пароль</span><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="••••••" required /></label>
+            <button class="btn" type="submit"><span>Войти</span><i aria-hidden="true">→</i></button>
+          </form>
+          <p class="status" id="login-status" aria-live="polite"></p>
+          <button class="btn-light" id="logout-button" type="button" hidden><span aria-hidden="true">↩</span> Выйти из профиля</button>
+          <p class="demo">Учебные аккаунты:<br /><code>user / qwerty</code> &nbsp;или&nbsp; <code>admin / 12345</code></p>
+        </section>
+
+        <section class="card" aria-labelledby="medical-title">
+          <div class="card-head">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>
+            <div><p class="label">ВАЖНО ДЛЯ ВАС</p><h2 id="medical-title">Моя карточка питания</h2></div>
+          </div>
+          <p class="text">Запишите продукты, которые вызывают аллергию или которые вы не едите. После входа они будут учитываться при проверке состава.</p>
+
+          <form class="form" id="medical-form">
+            <label for="food-type"><span>Что добавить</span>
+              <select id="food-type" name="type"><option value="allergy">Вызывает аллергию</option><option value="avoid">Не ем этот продукт</option></select>
+            </label>
+            <label for="food-name"><span>Название продукта</span>
+              <input id="food-name" name="food" type="text" maxlength="80" placeholder="Например, арахис" required />
+            </label>
+            <button class="btn" type="submit"><span>Добавить в карточку</span><i aria-hidden="true">+</i></button>
+          </form>
+          <p class="status" id="medical-status" aria-live="polite"></p>
+          <ul class="medical-list" id="medical-list" aria-label="Мои аллергии и продукты, которые я не ем"></ul>
+        </section>
+      </div>
+
+      <section class="card history" aria-labelledby="history-title">
+        <div class="card-head">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+          <div><p class="label">ИСТОРИЯ</p><h2 id="history-title">Мои проверки</h2></div>
+        </div>
+        <p class="status" id="history-status" aria-live="polite" style="font-size:14px"></p>
+        <ul class="medical-list" id="check-history"></ul>
       </section>
-    </main>
-    <footer class="site-footer"><p>Я Вижу! — помощник, который объясняет просто.</p><a href="stores.html">Магазины</a></footer>
-    <script src="../assets/js/api.js" defer></script><script src="../assets/js/medical-card.js" defer></script>
-  </body>
+
+      <div class="note">
+        <span aria-hidden="true">i</span>
+        <p>Без входа список сохраняется в этом браузере. После входа он также синхронизируется с учебным сервером. Не указывайте лишние личные сведения. Карточка помогает не забыть ваши записи и не заменяет медицинские рекомендации.</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="../assets/js/api.js" defer></script>
+  <script src="../assets/js/medical-card.js" defer></script>
+</body>
 </html>
