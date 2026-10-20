@@ -6,30 +6,87 @@
     <meta name="theme-color" content="#185e31" />
     <meta name="description" content="Результат сканирования продукта: состав, аллергены и добавки." />
     <title>Результат сканирования — Я Вижу!</title>
+  <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../assets/css/product.css" />
+    <link rel="stylesheet" href="/assets/css/ui.css?v=2" />
+    <style>
+      /* Режим крупного, спокойного результата для пользователя после сканирования. */
+      .product-page .hm-wrap { width: min(760px, calc(100% - 32px)); gap: 18px; }
+      .product-page .scan-result-save, .product-page .scan-product-details { margin: 0; }
+      .product-page .scan-result-save { display: block; padding: 0; border: 0; background: transparent; }
+      .product-page .scan-result-actions { width: 100%; }
+      .product-page .scan-result-actions .ui-btn { min-height: 3.4rem; font-size: 1rem; }
+      .scan-product-card { grid-template-columns: 1fr 180px; gap: 22px; padding: 24px; border-radius: 24px; }
+      .scan-result-eyebrow { font-size: 12px; letter-spacing: .08em; }
+      .scan-product-copy h1 { max-width: 560px; font-size: clamp(30px, 5vw, 48px); line-height: 1.08; }
+      .scan-product-meta { font-size: 16px; }
+      .scan-product-status { margin-top: 16px; font-size: 20px; font-weight: 800; line-height: 1.35; }
+      .scan-section-heading h2, .scan-result-save-copy h2 { font-size: clamp(25px, 4vw, 34px); }
+      .scan-detail-grid { grid-template-columns: 1fr; gap: 14px; }
+      .scan-detail-card { min-height: 0; padding: 22px; border-radius: 20px; }
+      .scan-detail-card h3 { font-size: 23px; }
+      .scan-detail-card p { font-size: 19px; line-height: 1.55; }
+      .scan-detail-card-alert { border-width: 3px; }
+      .scan-result-save { padding: 24px; border-radius: 24px; }
+      .scan-result-save-copy p { font-size: 17px; line-height: 1.45; }
+      .scan-result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      /* Озвучка: большая кнопка «Послушать» и динамик на каждой карточке. */
+      .speak-all { margin-top: 18px; min-height: 3.6rem; font-size: 1.1rem; }
+      .speak-all svg, .speak-card svg { width: 1.35rem; height: 1.35rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .speak-all[aria-pressed="true"] > i { background: #fff; }
+      .scan-detail-card { position: relative; }
+      .scan-detail-card h3 { padding-right: 60px; }
+      .speak-card { position: absolute; top: 16px; right: 16px; width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid #dfe9d8; border-radius: 50%; background: var(--soft); color: var(--deep); cursor: pointer; }
+      .speak-card:hover { background: #edf6e6; }
+      .speak-card[aria-busy="true"], .speak-all[aria-busy="true"] > i { animation: speak-wait 1s ease-in-out infinite alternate; }
+      @keyframes speak-wait { to { opacity: .45; } }
+      .speak-card[aria-pressed="true"] { border-color: var(--green); background: var(--lime); }
+      /* На узких экранах карточка — сетка «иконка + текст»; список занимает всю ширину. */
+      .additive-list { grid-column: 1 / -1; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; list-style: none; }
+      .additive-list li { padding: 12px 14px; border-radius: 14px; background: var(--soft); font-size: 18px; line-height: 1.45; color: #3c4d3f; }
+      .additive-list b { color: var(--deep); }
+      .additive-list .additive-kind { display: inline-block; margin-left: 6px; padding: 1px 9px; border-radius: 999px; background: var(--tint); color: var(--green); font-size: 13px; font-weight: 800; vertical-align: 2px; }
+      .additive-list .additive-note { display: block; margin-top: 3px; }
+      @media (max-width: 600px) {
+        .speak-all { width: 100%; justify-content: space-between; }
+        .speak-card { top: 12px; right: 12px; }
+        .scan-product-card { grid-template-columns: 1fr; padding: 20px; }
+        .scan-product-visual { order: -1; min-height: 170px; }
+        .scan-result-actions { grid-template-columns: 1fr; }
+        .scan-detail-card p { font-size: 18px; }
+      }
+    </style>
   </head>
   <body class="scan-result-page product-page">
-    <header class="scan-result-header">
-      <a class="scan-result-brand" href="index.html" aria-label="Я Вижу! — на главную">
-        <span class="scan-result-brand-mark" aria-hidden="true">Я</span>
-        <span>Я Вижу!</span>
-      </a>
-      <a class="scan-result-profile" href="medical-card.html">
-        <span class="scan-result-profile-mark" aria-hidden="true">♙</span>
-        <span>Профиль</span><span aria-hidden="true">›</span>
-      </a>
+  <header class="hm-top">
+      <div class="hm-bar">
+        <a class="hm-brand" href="/" aria-label="Я Вижу! — главная"><img class="hm-mark" src="/assets/images/logo.png" alt="" aria-hidden="true" /><span>Я Вижу!</span></a>
+        <a class="hm-profile" href="/medical-card.html"><i aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg></i><span>Профиль</span><span aria-hidden="true">›</span></a>
+      </div>
+      <div class="hm-head">
+        <a class="hm-back" href="index.html?scan=1" aria-label="Сканировать другой продукт"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg></a>
+        <div class="hm-head-copy">
+          <p class="hm-kicker">Сканирование</p>
+          <p class="hm-title">Результат проверки</p>
+          <p class="hm-sub">Состав, аллергены и добавки продукта простыми словами.</p>
+        </div>
+      </div>
     </header>
 
-    <main class="scan-result-main" id="product-page">
-      <div class="scan-result-content">
-        <a class="scan-result-back" href="index.html?scan=1"><span aria-hidden="true">←</span> Сканировать другой продукт</a>
+    <main class="hm-main" id="product-page">
+      <div class="hm-wrap">
 
         <section class="scan-product-card" aria-labelledby="product-name">
           <div class="scan-product-copy">
-            <p class="scan-result-eyebrow"><span aria-hidden="true">✦</span> РЕЗУЛЬТАТ СКАНИРОВАНИЯ</p>
+            <p class="scan-result-eyebrow"><span aria-hidden="true">✦</span> РЕЗУЛЬТАТ ПРОВЕРКИ</p>
             <h1 id="product-name">Загружаем продукт…</h1>
             <p id="product-meta" class="scan-product-meta"></p>
-            <p id="product-status" class="scan-product-status" aria-live="polite">Ищем сведения о продукте.</p>
+            <p id="product-status" class="scan-product-status" aria-live="polite">Загружаем понятную информацию о продукте.</p>
+            <button class="ui-btn speak-all" id="speak-all" type="button" aria-pressed="false" hidden><span>Послушать о продукте</span><i aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z" /><path d="M15.5 8.8a4.5 4.5 0 0 1 0 6.4M18 6.3a8 8 0 0 1 0 11.4" /></svg></i></button>
           </div>
           <div class="scan-product-visual" aria-label="Изображение продукта">
             <div id="product-image-wrap" class="scan-product-photo" hidden></div>
@@ -43,58 +100,54 @@
 
         <section class="scan-product-details" id="product-result-section" aria-labelledby="product-details-title" hidden>
           <div class="scan-section-heading">
-            <div><p class="scan-section-kicker">ПО ДАННЫМ НА УПАКОВКЕ</p><h2 id="product-details-title">Что внутри</h2></div>
+            <div><p class="scan-section-kicker">ГЛАВНОЕ</p><h2 id="product-details-title">Состав и аллергены</h2></div>
             <span class="scan-section-decoration" aria-hidden="true">✦</span>
           </div>
           <div class="scan-detail-grid" id="product-details" aria-label="Состав, аллергены и добавки" hidden>
             <article class="scan-detail-card">
               <span class="scan-detail-icon" aria-hidden="true">≋</span>
               <h3>Состав</h3>
+              <button class="speak-card" type="button" data-speak="ingredients" aria-label="Послушать: состав" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z" /><path d="M15.5 8.8a4.5 4.5 0 0 1 0 6.4M18 6.3a8 8 0 0 1 0 11.4" /></svg></button>
               <p id="product-ingredients"></p>
             </article>
             <article class="scan-detail-card scan-detail-card-alert">
               <span class="scan-detail-icon" aria-hidden="true">!</span>
               <h3>Аллергены</h3>
+              <button class="speak-card" type="button" data-speak="allergens" aria-label="Послушать: аллергены" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z" /><path d="M15.5 8.8a4.5 4.5 0 0 1 0 6.4M18 6.3a8 8 0 0 1 0 11.4" /></svg></button>
               <p id="product-allergens"></p>
             </article>
             <article class="scan-detail-card">
               <span class="scan-detail-icon" aria-hidden="true">E</span>
               <h3>Добавки</h3>
+              <button class="speak-card" type="button" data-speak="additives" aria-label="Послушать: добавки" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z" /><path d="M15.5 8.8a4.5 4.5 0 0 1 0 6.4M18 6.3a8 8 0 0 1 0 11.4" /></svg></button>
               <p id="product-additives"></p>
-            </article>
-            <article class="scan-detail-card">
-              <span class="scan-detail-icon" aria-hidden="true">i</span>
-              <h3>О продукте</h3>
-              <p id="product-info">Дополнительная информация не найдена.</p>
+              <ul class="additive-list" id="product-additives-list" hidden></ul>
             </article>
             <article class="scan-detail-card">
               <span class="scan-detail-icon" aria-hidden="true">≈</span>
               <h3>Пищевая ценность</h3>
+              <button class="speak-card" type="button" data-speak="nutrition" aria-label="Послушать: пищевая ценность" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z" /><path d="M15.5 8.8a4.5 4.5 0 0 1 0 6.4M18 6.3a8 8 0 0 1 0 11.4" /></svg></button>
               <p id="product-nutrition">Пищевая ценность не указана в базе.</p>
             </article>
           </div>
         </section>
 
         <section class="scan-result-save" aria-label="Действия с результатом">
-          <div class="scan-result-save-copy"><span class="scan-save-mark" aria-hidden="true">✓</span><div><h2>Проверка завершена</h2><p>Сохраните результат в истории профиля или проверьте следующий продукт.</p></div></div>
           <div class="scan-result-actions">
-            <button class="scan-save-button" id="save-check" type="button" hidden>Сохранить в истории</button>
-            <a class="scan-again-button" href="index.html?scan=1"><span aria-hidden="true">▥</span> Сканировать ещё</a>
+            <a class="ui-btn ui-btn--block" href="index.html?scan=1"><span>Сканировать ещё</span><i aria-hidden="true">↗</i></a>
+            <a class="ui-btn ui-btn--ghost ui-btn--block" href="/"><span>На главную</span><i aria-hidden="true">→</i></a>
           </div>
-          <p id="check-status" class="scan-check-status" aria-live="polite"></p>
-          <a class="scan-login-link" id="check-login-link" href="medical-card.html" hidden>Войдите в профиле, чтобы сохранить проверку</a>
         </section>
 
         <section class="scan-ai-sources" id="ai-sources-section" aria-label="Источники данных ИИ" hidden>
           <p class="scan-ai-sources-title">ИИ нашёл сведения на сайтах</p>
           <ul id="ai-sources-list"></ul>
         </section>
-        <p class="scan-result-note"><span aria-hidden="true">i</span><span>Сведения из Open Food Facts и поиск ИИ могут быть неполными или относиться к другой версии продукта. При аллергии всегда сверяйте полный состав на упаковке.</span></p>
       </div>
     </main>
 
-    <footer class="scan-result-footer"><span>Я Вижу! — покупки спокойнее</span><a href="stores.html">Магазины рядом</a></footer>
     <script src="../assets/js/api.js?v=20261018-2" defer></script>
-    <script src="../assets/js/product.js?v=20261018-2" defer></script>
+    <script src="../assets/js/additives.js?v=2" defer></script>
+    <script src="../assets/js/product.js?v=20261021-5" defer></script>
   </body>
 </html>

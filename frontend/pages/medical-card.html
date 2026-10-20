@@ -6,23 +6,26 @@
   <meta name="theme-color" content="#185e31" />
   <meta name="description" content="Личная карточка питания: аллергии и продукты, которые вы не едите." />
   <title>Профиль — Я Вижу!</title>
+  <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/ui.css?v=2" />
   <style>
     :root {
-      --deep: #0f4d27;
+      --deep: #0b572b;
       --green: #218638;
       --bright: #63b83f;
       --lime: #d9f05b;
       --ink: #17251a;
       --muted: #5d6e60;
       --line: #e2eadd;
-      --canvas: #f1f5ee;
+      --canvas: #f3f4f1;
       --card: #ffffff;
       --soft: #f6faf2;
-      --danger: #b4513f;
-      --radius: 28px;
+      --danger: #a0271a;
+      --radius: 26px;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -37,75 +40,6 @@
     button, input, select { font: inherit; }
     [hidden] { display: none !important; }
     :focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
-
-    /* ================= HERO ================= */
-    .top {
-      position: relative; overflow: hidden; padding-bottom: 96px; color: #fff;
-      background:
-        radial-gradient(circle at 85% 10%, rgb(217 240 91 / 28%), transparent 38%),
-        radial-gradient(circle at 5% 100%, rgb(255 255 255 / 14%), transparent 42%),
-        linear-gradient(150deg, var(--deep) 0%, #1f7a35 52%, #58ae3e 100%);
-    }
-    .top::before, .top::after {
-      content: ""; position: absolute; border-radius: 50%; pointer-events: none;
-      border: 2px solid rgb(255 255 255 / 12%);
-    }
-    .top::before { width: 420px; height: 420px; right: -150px; top: -170px; }
-    .top::after { width: 260px; height: 260px; left: -90px; bottom: -110px; }
-    .wrap { position: relative; z-index: 1; width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
-
-    .nav { min-height: 84px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-    .brand { display: inline-flex; align-items: center; gap: 11px; font: 800 19px Manrope, sans-serif; }
-    .brand-mark {
-      width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%;
-      background: var(--lime); color: var(--deep); font-size: 22px;
-      box-shadow: 0 6px 16px rgb(5 40 18 / 28%);
-    }
-    .back {
-      min-height: 48px; padding: 5px 18px 5px 6px; display: inline-flex; align-items: center; gap: 10px;
-      border: 1px solid rgb(255 255 255 / 34%); border-radius: 999px;
-      background: rgb(255 255 255 / 12%); backdrop-filter: blur(8px);
-      font-size: 14px; font-weight: 700; transition: background .2s, transform .2s;
-    }
-    .back:hover { background: rgb(255 255 255 / 22%); transform: translateX(-2px); }
-    .back i {
-      width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%;
-      background: var(--lime); color: var(--deep); font-style: normal; font-size: 20px; font-weight: 800;
-    }
-
-    .hero { padding-top: 22px; display: flex; align-items: center; gap: 26px; }
-    .avatar {
-      position: relative; width: 112px; height: 112px; flex: 0 0 auto; display: grid; place-items: center;
-      border-radius: 50%; background: var(--lime); color: var(--deep);
-      box-shadow: 0 0 0 6px rgb(255 255 255 / 22%), 0 18px 34px rgb(5 40 18 / 32%);
-    }
-    .avatar svg { width: 56px; height: 56px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .avatar::after {
-      content: ""; position: absolute; right: 6px; bottom: 8px; width: 22px; height: 22px;
-      border: 4px solid #fff; border-radius: 50%; background: var(--bright);
-    }
-    .hero-copy { min-width: 0; flex: 1; }
-    .chip {
-      width: fit-content; margin-bottom: 12px; padding: 7px 13px; display: flex; align-items: center; gap: 7px;
-      border-radius: 999px; background: rgb(255 255 255 / 16%);
-      font-size: 11px; font-weight: 800; letter-spacing: .13em;
-    }
-    .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--lime); }
-    .hero h1 { font-size: clamp(36px, 6vw, 62px); line-height: 1.02; margin-bottom: 12px; }
-    .hero-text { max-width: 520px; color: rgb(255 255 255 / 86%); font-size: 16px; line-height: 1.55; }
-    .account-name {
-      align-self: flex-start; margin-top: 10px; padding: 9px 16px; border-radius: 999px;
-      background: var(--lime); color: var(--deep); font-size: 13px; font-weight: 800; white-space: nowrap;
-    }
-    .account-name:empty { display: none; }
-
-    /* ================= PANEL ================= */
-    .panel {
-      position: relative; z-index: 2; margin-top: -50px; min-height: 60vh;
-      border-radius: 44px 44px 0 0; background: var(--canvas);
-      box-shadow: 0 -14px 40px rgb(8 48 22 / 16%);
-    }
-    .content { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 32px 0 80px; display: grid; gap: 20px; }
 
     /* Шаги */
     .steps { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; counter-reset: s; }
@@ -125,13 +59,8 @@
     /* Карточки */
     .grid { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 20px; }
     .card {
-      position: relative; min-width: 0; padding: 30px; overflow: hidden;
-      border: 1px solid var(--line); border-radius: var(--radius); background: var(--card);
-      box-shadow: 0 14px 36px rgb(31 67 36 / 7%);
-    }
-    .card::before {
-      content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px;
-      background: linear-gradient(90deg, var(--bright), var(--lime));
+      position: relative; min-width: 0; padding: 26px; overflow: hidden;
+      border: 1px solid var(--line); border-radius: 26px; background: var(--card);
     }
     .card-head { display: flex; align-items: center; gap: 15px; }
     .icon {
@@ -184,6 +113,7 @@
       font-size: 14px; font-weight: 800; cursor: pointer; transition: background .15s, transform .15s;
     }
     .btn-light:hover { background: #ebf5e3; transform: translateY(-1px); }
+    .logout-bottom { justify-self: start; }
 
     .status { margin-top: 13px; color: var(--green); font-size: 13.5px; font-weight: 600; line-height: 1.5; }
     .status:empty { display: none; }
@@ -230,7 +160,7 @@
 
     @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
     @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-    .hero, .steps, .card, .note { animation: rise .55s ease both; }
+    .steps, .card, .note { animation: rise .55s ease both; }
     .steps { animation-delay: .05s; }
     .grid .card:nth-child(1) { animation-delay: .1s; }
     .grid .card:nth-child(2) { animation-delay: .18s; }
@@ -244,73 +174,43 @@
       .history .medical-list { grid-template-columns: 1fr; }
     }
     @media (max-width: 560px) {
-      .wrap, .content { width: calc(100% - 28px); }
-      .top { padding-bottom: 80px; }
-      .nav { min-height: 70px; }
-      .brand { font-size: 17px; }
-      .brand-mark { width: 38px; height: 38px; }
-      .back { min-height: 44px; font-size: 13px; }
-      .back i { width: 32px; height: 32px; }
-      .hero { flex-wrap: wrap; gap: 16px; padding-top: 10px; }
-      .avatar { width: 78px; height: 78px; box-shadow: 0 0 0 4px rgb(255 255 255 / 22%), 0 12px 24px rgb(5 40 18 / 30%); }
-      .avatar svg { width: 40px; height: 40px; }
-      .avatar::after { width: 17px; height: 17px; border-width: 3px; right: 3px; bottom: 5px; }
-      .hero-text { font-size: 14px; }
-      .account-name { margin-top: 0; }
-      .panel { margin-top: -38px; border-radius: 30px 30px 0 0; }
-      .content { padding: 22px 0 56px; gap: 16px; }
-      .card { padding: 22px 18px; border-radius: 24px; }
+      .card { padding: 20px 16px; border-radius: 22px; }
       .icon { width: 46px; height: 46px; border-radius: 16px; }
     }
   </style>
 </head>
 <body class="medical-card-page">
-  <header class="top">
-    <div class="wrap">
-      <nav class="nav" aria-label="Навигация">
-        <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a>
-        <a class="back" href="index.html"><i aria-hidden="true">←</i><span>На главную</span></a>
-      </nav>
-
-      <div class="hero">
-        <span class="avatar" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 20c.9-4 3.7-6 7.5-6s6.6 2 7.5 6"></path></svg>
-        </span>
-        <div class="hero-copy">
-          <p class="chip">ЛИЧНЫЙ ПРОФИЛЬ</p>
-          <h1>Мой профиль</h1>
-          <p class="hero-text">Сохраняйте проверки продуктов и держите под рукой свои аллергии — всё в одном месте.</p>
-        </div>
-        <span class="account-name" id="account-name"></span>
+<header class="hm-top">
+    <div class="hm-bar">
+      <a class="hm-brand" href="/" aria-label="Я Вижу! — главная"><img class="hm-mark" src="/assets/images/logo.png" alt="" aria-hidden="true" /><span>Я Вижу!</span></a>
+      <a class="hm-profile" href="/medical-card.html" aria-current="page"><i aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg></i><span>Профиль</span><span aria-hidden="true">›</span></a>
+    </div>
+    <div class="hm-head">
+      <a class="hm-back" href="/" aria-label="На главную"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg></a>
+      <div class="hm-head-copy">
+        <p class="hm-kicker">Личный профиль</p>
+        <h1 id="page-title">Мой профиль</h1>
+        <p class="hm-sub">Сохраняйте проверки продуктов и держите под рукой свои аллергии — всё в одном месте.</p>
       </div>
     </div>
   </header>
 
-  <main class="panel">
-    <div class="content">
-
-      <ol class="steps" aria-label="Как это работает">
-        <li><span class="step-num">1</span><div><b>Войдите</b><small>Чтобы данные сохранялись</small></div></li>
-        <li><span class="step-num">2</span><div><b>Добавьте ограничения</b><small>Аллергии и нелюбимые продукты</small></div></li>
-        <li><span class="step-num">3</span><div><b>Сканируйте</b><small>Мы сравним с составом</small></div></li>
-      </ol>
-
+  <main class="hm-main">
+    <div class="hm-wrap">
       <div class="grid">
         <section class="card" aria-labelledby="account-title">
           <div class="card-head">
             <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="3"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></span>
-            <div><p class="label">АККАУНТ</p><h2 id="account-title">Вход в профиль</h2></div>
+            <div><p class="label">АККАУНТ</p><h2 id="account-title">Профиль и вход</h2></div>
           </div>
-          <p class="text">Войдите, чтобы сохранять проверенные товары на сервере и видеть свою историю.</p>
+          <p class="text">Имя и телефон уже сохранены в профиле. Здесь также появится история ваших проверок.</p>
 
           <form class="form" id="login-form">
-            <label for="login-name"><span>Логин</span><input id="login-name" name="login" autocomplete="username" placeholder="Ваш логин" required /></label>
+            <label for="login-name"><span>Телефон или логин</span><input id="login-name" name="login" autocomplete="username" placeholder="+7 900 000-00-00" required /></label>
             <label for="login-password"><span>Пароль</span><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="••••••" required /></label>
             <button class="btn" type="submit"><span>Войти</span><i aria-hidden="true">→</i></button>
           </form>
           <p class="status" id="login-status" aria-live="polite"></p>
-          <button class="btn-light" id="logout-button" type="button" hidden><span aria-hidden="true">↩</span> Выйти из профиля</button>
-          <p class="demo">Учебные аккаунты:<br /><code>user / qwerty</code> &nbsp;или&nbsp; <code>admin / 12345</code></p>
         </section>
 
         <section class="card" aria-labelledby="medical-title">
@@ -318,7 +218,7 @@
             <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>
             <div><p class="label">ВАЖНО ДЛЯ ВАС</p><h2 id="medical-title">Моя карточка питания</h2></div>
           </div>
-          <p class="text">Запишите продукты, которые вызывают аллергию или которые вы не едите. После входа они будут учитываться при проверке состава.</p>
+          <p class="text">Запишите продукты, которые вызывают аллергию или которые вы не едите. Они будут учитываться при проверке состава.</p>
 
           <form class="form" id="medical-form">
             <label for="food-type"><span>Что добавить</span>
@@ -343,10 +243,8 @@
         <ul class="medical-list" id="check-history"></ul>
       </section>
 
-      <div class="note">
-        <span aria-hidden="true">i</span>
-        <p>Без входа список сохраняется в этом браузере. После входа он также синхронизируется с учебным сервером. Не указывайте лишние личные сведения. Карточка помогает не забыть ваши записи и не заменяет медицинские рекомендации.</p>
-      </div>
+      <button class="ui-btn ui-btn--danger ui-btn--sm logout-bottom" id="logout-button" type="button" hidden><span aria-hidden="true">↩</span> Выйти из профиля</button>
+
     </div>
   </main>
 

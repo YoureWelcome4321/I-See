@@ -7,28 +7,82 @@
     <meta name="robots" content="noindex, nofollow" />
     <meta name="description" content="Управление товарами, пользователями и историями сайта Я Вижу!." />
     <title>Панель управления — Я Вижу!</title>
+  <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/assets/css/admin.css" />
+    <link rel="stylesheet" href="/assets/css/ui.css?v=2" />
+    <style>
+      /* Админка в общей стилистике: белые карточки, поля и кнопки-пилюли из ui.css. */
+      .admin-page .hm-wrap { gap: 18px; }
+      .admin-page .admin-login-card, .admin-page .admin-dashboard { width: auto; max-width: none; margin: 0; padding: 26px; border: 1px solid var(--line); border-radius: 26px; background: #fff; box-shadow: none; }
+      .admin-page .admin-card-heading, .admin-page .admin-dashboard-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+      .admin-page .admin-dashboard-top { justify-content: space-between; flex-wrap: wrap; }
+      .admin-page .admin-heading-icon { width: 3rem; height: 3rem; flex: none; display: grid; place-items: center; border-radius: 16px; background: var(--tint); color: var(--green); font-weight: 900; }
+      .admin-page h2 { margin: 0; font-size: 1.35rem; line-height: 1.2; }
+      .admin-page h3 { margin: 0; font-size: 1.2rem; }
+      .admin-page .catalog-section-eyebrow { margin: 0 0 6px; color: var(--green); font-size: .68rem; font-weight: 900; letter-spacing: .13em; }
+      .admin-page .admin-card-description, .admin-page .admin-section-hint { margin: 0 0 16px; color: var(--muted); font-size: .95rem; line-height: 1.55; }
+      .admin-page .admin-login-form, .admin-page .admin-data-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .admin-page .admin-login-form label, .admin-page .admin-data-form label { display: grid; gap: 7px; color: #34473a; font-size: .92rem; font-weight: 800; }
+      .admin-page .admin-form-wide, .admin-page .admin-modal-actions, .admin-page .admin-login-form .ui-btn { grid-column: 1 / -1; }
+      .admin-page input:not([type="hidden"]), .admin-page select { width: 100%; min-height: 3.2rem; padding: .75rem 1rem; border: 1.5px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); font-size: 1rem; font-weight: 500; }
+      .admin-page input:focus, .admin-page select:focus { border-color: var(--bright); outline: 0; box-shadow: 0 0 0 4px rgb(217 240 91 / 60%); }
+      .admin-page .ui-btn { margin: 0; }
+      .admin-page .admin-login-form .ui-btn { justify-self: start; min-width: 240px; }
+      .admin-page .admin-tabs { margin: 0 0 18px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; border: 0; background: transparent; }
+      .admin-page .admin-tabs button { min-height: 2.6rem; padding: .45rem 1.05rem; display: inline-flex; align-items: center; gap: .45rem; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; color: #405544; font-size: .9rem; font-weight: 800; box-shadow: none; }
+      .admin-page .admin-tabs button[aria-pressed="true"] { border-color: var(--green); background: var(--green); color: #fff; }
+      .admin-page .admin-section { padding: 0; border: 0; background: transparent; }
+      .admin-page .admin-section-heading { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+      .admin-page .admin-section-mark { display: none; }
+      .admin-page .admin-add-button { margin-bottom: 14px; }
+      .admin-page .admin-status { min-height: 1.2em; margin: 0 0 10px; color: var(--green); font-size: .9rem; font-weight: 600; }
+      .admin-page .admin-product-list { display: grid; gap: 10px; }
+      .admin-page .admin-product-row { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); }
+      .admin-page .admin-product-row h3 { font-size: 1rem; }
+      .admin-page .admin-product-row p { margin: 4px 0 0; color: var(--muted); font-size: .85rem; }
+      .admin-page .admin-product-row-actions, .admin-page .admin-story-row-actions { display: flex; flex: none; flex-wrap: wrap; gap: 8px; }
+      .admin-page .admin-story-row { padding: 12px 14px; display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); }
+      .admin-page .admin-story-row img { width: 56px; height: 56px; flex: none; border-radius: 14px; object-fit: cover; }
+      .admin-page .admin-story-row-copy { min-width: 0; flex: 1; }
+      .admin-page .admin-story-row-copy p { margin: 4px 0 0; color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
+      .admin-page .ui-btn--sm:disabled { opacity: .45; cursor: not-allowed; }
+      .admin-page .catalog-remove { min-height: 2.4rem; padding: .35rem 1rem; flex: none; border: 1px solid var(--danger-line); border-radius: 999px; background: #fff; color: var(--danger); font-size: .85rem; font-weight: 800; }
+      .admin-page .catalog-remove:hover { background: var(--danger-soft); }
+      .admin-page .admin-modal-card { padding: 26px; border-radius: 28px; }
+      .admin-page .admin-modal-heading { margin-bottom: 18px; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+      .admin-page .admin-modal-close { width: 2.9rem; height: 2.9rem; flex: none; border: 0; border-radius: 50%; background: #f0f5eb; color: var(--deep); font-size: 1.9rem; line-height: 1; }
+      .admin-page .admin-modal-close:hover { background: var(--lime); }
+      .admin-page .admin-modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+      @media (max-width: 560px) {
+        .admin-page .admin-login-card, .admin-page .admin-dashboard, .admin-page .admin-modal-card { padding: 18px 16px; border-radius: 22px; }
+        .admin-page .admin-login-form, .admin-page .admin-data-form { grid-template-columns: 1fr; }
+        .admin-page .admin-login-form .ui-btn { width: 100%; }
+        .admin-page .admin-modal-actions .ui-btn { flex: 1; }
+      }
+    </style>
   </head>
   <body class="catalog-page admin-route admin-page">
-    <header class="catalog-header admin-site-header">
-      <a class="catalog-brand" href="/" aria-label="Я Вижу! — на главную">
-        <span class="catalog-brand-mark" aria-hidden="true">Я</span>
-        <span>Я Вижу!</span>
-      </a>
-      <a class="catalog-home-button" href="/">
-        <span aria-hidden="true">←</span>
-        <span>Вернуться на главную</span>
-      </a>
-      <a class="catalog-profile-link" href="/medical-card.html" aria-label="Открыть профиль">
-        <span class="catalog-profile-icon" aria-hidden="true">
-          <svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg>
-        </span>
-        <span>Профиль</span>
-        <span class="catalog-chevron" aria-hidden="true">›</span>
-      </a>
+  <header class="hm-top">
+      <div class="hm-bar">
+        <a class="hm-brand" href="/" aria-label="Я Вижу! — главная"><img class="hm-mark" src="/assets/images/logo.png" alt="" aria-hidden="true" /><span>Я Вижу!</span></a>
+        <a class="hm-profile" href="/medical-card.html"><i aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg></i><span>Профиль</span><span aria-hidden="true">›</span></a>
+      </div>
+      <div class="hm-head">
+        <a class="hm-back" href="/" aria-label="На главную"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg></a>
+        <div class="hm-head-copy">
+          <p class="hm-kicker">Только для команды</p>
+          <h1 id="page-title">Панель управления</h1>
+          <p class="hm-sub">Товары каталога, рецепты и истории на главной.</p>
+        </div>
+      </div>
     </header>
 
-    <main class="catalog-main admin-main">
+    <main class="hm-main admin-main">
+      <div class="hm-wrap">
       <section class="admin-login-card" id="admin-login-panel" aria-labelledby="admin-login-title">
         <div class="admin-card-heading">
           <span class="admin-heading-icon" aria-hidden="true">↗</span>
@@ -38,7 +92,7 @@
         <form class="admin-login-form" id="admin-login-form">
           <label for="admin-login">Логин<input id="admin-login" name="login" autocomplete="username" required /></label>
           <label for="admin-password">Пароль<input id="admin-password" name="password" type="password" autocomplete="current-password" required /></label>
-          <button class="catalog-submit" type="submit">Войти в панель <span aria-hidden="true">→</span></button>
+          <button class="ui-btn" type="submit"><span>Войти в панель</span><i aria-hidden="true">→</i></button>
         </form>
         <p class="admin-status" id="admin-login-status" aria-live="polite"></p>
       </section>
@@ -49,37 +103,36 @@
             <p class="catalog-section-eyebrow">АДМИНИСТРАТОР</p>
             <h2 id="admin-dashboard-title">Управление сайтом</h2>
           </div>
-          <button class="admin-logout" id="admin-logout" type="button"><span aria-hidden="true">↪</span> Выйти</button>
+          <button class="ui-btn ui-btn--danger ui-btn--sm admin-logout" id="admin-logout" type="button"><span aria-hidden="true">↪</span> Выйти</button>
         </div>
 
         <nav class="admin-tabs" aria-label="Разделы панели управления">
           <button type="button" data-admin-tab="products" aria-pressed="true"><span aria-hidden="true">▦</span> Товары</button>
-          <button type="button" data-admin-tab="users" aria-pressed="false"><span aria-hidden="true">♙</span> Пользователи</button>
+          <button type="button" data-admin-tab="recipes" aria-pressed="false"><span aria-hidden="true">♨</span> Рецепты</button>
           <button type="button" data-admin-tab="stories" aria-pressed="false"><span aria-hidden="true">▣</span> Истории</button>
         </nav>
 
         <section class="admin-section" id="admin-section-products" aria-labelledby="admin-products-title">
           <div class="admin-section-heading"><div><p class="catalog-section-eyebrow">КАТАЛОГ</p><h3 id="admin-products-title">Товары</h3></div></div>
-          <button class="catalog-submit admin-add-button" id="admin-product-add" type="button">Добавить товар <span aria-hidden="true">+</span></button>
+          <button class="ui-btn ui-btn--sm admin-add-button" id="admin-product-add" type="button"><span>Добавить товар</span><i aria-hidden="true">+</i></button>
           <p class="admin-status" id="admin-product-status" aria-live="polite"></p>
           <div class="admin-product-list" id="admin-product-list" aria-live="polite"></div>
-        </section>
-
-        <section class="admin-section" id="admin-section-users" aria-labelledby="admin-users-title" hidden>
-          <div class="admin-section-heading"><div><p class="catalog-section-eyebrow">АККАУНТЫ</p><h3 id="admin-users-title">Пользователи</h3></div><span class="admin-section-mark" aria-hidden="true">02</span></div>
-          <p class="admin-section-hint">Список зарегистрированных пользователей и их активности. Управление учётными записями здесь недоступно.</p>
-          <p class="admin-status" id="admin-user-status" aria-live="polite"></p>
-          <div class="admin-product-list" id="admin-user-list" aria-live="polite"></div>
         </section>
 
         <section class="admin-section" id="admin-section-stories" aria-labelledby="admin-stories-title" hidden>
           <div class="admin-section-heading"><div><p class="catalog-section-eyebrow">ГЛАВНАЯ СТРАНИЦА</p><h3 id="admin-stories-title">Истории</h3></div><span class="admin-section-mark" aria-hidden="true">03</span></div>
           <p class="admin-section-hint">Обновляйте подписи, ссылки и изображения историй. Изображения нужно предварительно загрузить в папку сайта.</p>
-          <button class="catalog-submit admin-add-button" id="admin-story-add" type="button">Добавить историю <span aria-hidden="true">+</span></button>
+          <button class="ui-btn ui-btn--sm admin-add-button" id="admin-story-add" type="button"><span>Добавить историю</span><i aria-hidden="true">+</i></button>
           <p class="admin-status" id="admin-story-status" aria-live="polite"></p>
           <div class="admin-product-list" id="admin-story-list" aria-live="polite"></div>
         </section>
+        <section class="admin-section" id="admin-section-recipes" aria-labelledby="admin-recipes-title" hidden>
+          <div class="admin-section-heading"><div><p class="catalog-section-eyebrow">КОНТЕНТ</p><h3 id="admin-recipes-title">Рецепты</h3></div></div>
+          <p class="admin-section-hint">Всего рецептов: <strong id="admin-recipe-count">0</strong>. Рецепты с аллергенами автоматически исключаются из персональной подборки.</p>
+          <p class="admin-status" id="admin-recipe-status" aria-live="polite"></p><div class="admin-product-list" id="admin-recipe-list" aria-live="polite"></div>
+        </section>
       </section>
+      </div>
       <div class="admin-modal" id="admin-product-modal" hidden>
         <div class="admin-modal-backdrop" data-admin-modal-close></div>
         <section class="admin-modal-card" role="dialog" aria-modal="true" aria-labelledby="admin-product-modal-title">
@@ -92,7 +145,7 @@
             <label>Аллергены<input name="allergens" maxlength="500" placeholder="Если есть" /></label>
             <label class="admin-form-wide">Состав<input name="ingredients" maxlength="2000" placeholder="Перечислите ингредиенты" /></label>
             <label>Цена, ₽<input name="price" type="number" min="0" value="0" /></label>
-            <div class="admin-modal-actions"><button class="admin-cancel" id="admin-product-cancel" type="button">Отмена</button><button class="catalog-submit" type="submit">Сохранить <span aria-hidden="true">✓</span></button></div>
+            <div class="admin-modal-actions"><button class="ui-btn ui-btn--ghost admin-cancel" id="admin-product-cancel" type="button">Отмена</button><button class="ui-btn" type="submit"><span>Сохранить</span><i aria-hidden="true">✓</i></button></div>
           </form>
         </section>
       </div>
@@ -105,13 +158,13 @@
             <label>Заголовок<input name="title" maxlength="60" placeholder="Короткое название" required /></label>
             <label>Подпись<input name="subtitle" maxlength="80" placeholder="Дополнительная строка" /></label>
             <label>Фото<select name="image"><option value="story-01.jpg">Фото 1</option><option value="story-02.jpg">Фото 2</option><option value="story-03.jpg">Фото 3</option><option value="story-04.jpg">Фото 4</option><option value="story-05.jpg">Фото 5</option><option value="story-06.jpg">Фото 6</option><option value="story-07.jpg">Фото 7</option></select></label>
-            <label>Открывать страницу<select name="href"><option value="help.html">Помощь</option><option value="catalog.html">Товары</option><option value="stores.html">Магазины</option><option value="medical-card.html">Профиль</option><option value="feedback.html">Обратная связь</option></select></label>
-            <div class="admin-modal-actions"><button class="admin-cancel" id="admin-story-cancel" type="button">Отмена</button><button class="catalog-submit" type="submit">Сохранить <span aria-hidden="true">✓</span></button></div>
+            <label class="admin-form-wide">Рецепт (необязательно)<select name="recipe_id" id="admin-story-recipe"><option value="">Информационная история без рецепта</option></select></label>
+            <div class="admin-modal-actions"><button class="ui-btn ui-btn--ghost admin-cancel" id="admin-story-cancel" type="button">Отмена</button><button class="ui-btn" type="submit"><span>Сохранить</span><i aria-hidden="true">✓</i></button></div>
           </form>
         </section>
       </div>
     </main>
     <script src="/assets/js/api.js" defer></script>
-    <script src="/assets/js/admin.js" defer></script>
+    <script src="/assets/js/admin.js?v=3" defer></script>
   </body>
 </html>

@@ -1,4 +1,5 @@
 const storageKey = 'ya-vizhu-medical-card-v1';
+const onboardingStorageKey = 'ya-vizhu-onboarding-restrictions';
 const form = document.querySelector('#medical-form');
 const foodName = document.querySelector('#food-name');
 const foodType = document.querySelector('#food-type');
@@ -9,17 +10,36 @@ const loginStatus = document.querySelector('#login-status');
 const loginName = document.querySelector('#login-name');
 const loginPassword = document.querySelector('#login-password');
 const accountName = document.querySelector('#account-name');
+const accountPhone = document.querySelector('#account-phone');
 const logoutButton = document.querySelector('#logout-button');
 const historyList = document.querySelector('#check-history');
 const historyStatus = document.querySelector('#history-status');
 
+function normalizeItems(value) {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set();
+  return value.reduce((result, item) => {
+    if (!item || !['allergy', 'avoid'].includes(item.type)) return result;
+    const name = String(item.name || item.food || '').trim().slice(0, 80);
+    if (!name) return result;
+    const key = `${item.type}:${name.toLocaleLowerCase('ru')}`;
+    if (seen.has(key)) return result;
+    seen.add(key);
+    result.push({ name, type: item.type });
+    return result;
+  }, []);
+}
+
+function parseItems(raw) {
+  try { return normalizeItems(JSON.parse(raw || '[]')); } catch { return []; }
+}
+
 function readItems() {
-  try {
-    const value = JSON.parse(localStorage.getItem(storageKey) || '[]');
-    return Array.isArray(value) ? value.filter((item) => item && typeof item.name === 'string' && ['allergy', 'avoid'].includes(item.type)) : [];
-  } catch {
-    return [];
-  }
+  const stored = localStorage.getItem(storageKey);
+  if (stored !== null) return parseItems(stored);
+  const legacy = parseItems(localStorage.getItem(onboardingStorageKey));
+  if (legacy.length) localStorage.setItem(storageKey, JSON.stringify(legacy));
+  return legacy;
 }
 
 let items = readItems();
@@ -68,7 +88,8 @@ async function loadHistory() {
 
 function updateAccount() {
   const user = YaVizhuAPI.getUser();
-  accountName.textContent = user ? `Вы вошли как ${user.name}` : 'Гостевой режим';
+  if (accountName) accountName.textContent = user ? user.name : '';
+  if (accountPhone) accountPhone.textContent = user ? (user.phone || '') : '';
   logoutButton.hidden = !user;
   loginForm.hidden = Boolean(user);
   loadHistory();
@@ -80,6 +101,8 @@ loginForm.addEventListener('submit', async (event) => {
   try {
     const localItems = items;
     const user = await YaVizhuAPI.login(loginName.value.trim(), loginPassword.value);
+    // A returning user on a new device should not be sent back to onboarding.
+    localStorage.setItem('ya-vizhu-onboarding-done-v1', '1');
     let result = await YaVizhuAPI.request('/api/profile');
     if (!result.restrictions.length && localItems.length) {
       result = await YaVizhuAPI.request('/api/profile', { method: 'POST', body: JSON.stringify({ restrictions: localItems }) });

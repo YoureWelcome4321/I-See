@@ -1,0 +1,15 @@
+# Ключи и локальная база не должны попасть на сервер: ключи задаются в настройках хостинга.
+.env
+.env.*
+!.env.example
+data/
+*.sqlite3
+.git/
+.claude/
+__pycache__/
+*.py[cod]
+.DS_Store
+outputs/
+work/
+I-See/
+tests/

@@ -11,6 +11,11 @@
     if (token) headers.set('Authorization', `Bearer ${token}`);
     const response = await fetch(path, { ...options, headers });
     const payload = await response.json().catch(() => ({}));
+    if (response.status === 401 && token) {
+      // The session expired or was revoked: drop the stale token so the UI offers a login.
+      localStorage.removeItem(tokenKey);
+      localStorage.removeItem(userKey);
+    }
     if (!response.ok) throw new Error(payload.detail || payload.error || 'Не удалось связаться с сервером.');
     return payload;
   }
@@ -20,6 +25,18 @@
     getUser() {
       try { return JSON.parse(localStorage.getItem(userKey) || 'null'); } catch { return null; }
     },
+    async register(name, phone, password, restrictions) {
+      const result = await request('/api/register', {
+        method: 'POST',
+        body: JSON.stringify({ name, phone, password, restrictions }),
+      });
+      localStorage.setItem(tokenKey, result.token);
+      localStorage.setItem(userKey, JSON.stringify(result.user));
+      return result.user;
+    },
+    async checkPhone(phone) {
+      return request(`/api/register/check?phone=${encodeURIComponent(phone)}`);
+    },
     async login(login, password) {
       const result = await request('/api/login', { method: 'POST', body: JSON.stringify({ login, password }) });
       localStorage.setItem(tokenKey, result.token);
@@ -27,6 +44,7 @@
       return result.user;
     },
     logout() {
+      if (localStorage.getItem(tokenKey)) request('/api/logout', { method: 'POST' }).catch(() => {});
       localStorage.removeItem(tokenKey);
       localStorage.removeItem(userKey);
     },

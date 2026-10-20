@@ -6,9 +6,12 @@
   <meta name="theme-color" content="#0b572b" />
   <meta name="description" content="Подборка продуктов и информация об их составе от Я Вижу!." />
   <title>Товары для вас — Я Вижу!</title>
+  <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/ui.css?v=2" />
   <style>
     :root {
       --deep: #0b572b; --green: #218638; --bright: #63b83f; --lime: #d9f05b;
@@ -25,30 +28,6 @@
     [hidden] { display: none !important; }
     :focus-visible { outline: 3px solid var(--lime); outline-offset: 2px; }
 
-    /* ---------- Шапка ---------- */
-    .header {
-      width: min(1040px, calc(100% - 40px)); margin: 0 auto; padding: 16px 0 14px;
-      display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 48px 50px; align-items: center; gap: 10px 18px;
-      border-radius: 0 0 34px 34px; background: linear-gradient(115deg, #0b572b 0%, #218638 58%, #62b83f 100%);
-      padding-inline: 4px;
-    }
-    .brand { grid-area: 1 / 1; display: inline-flex; align-items: center; gap: 10px; color: #fff; font: 800 17px Manrope, sans-serif; }
-    .brand-mark { width: 39px; height: 39px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); font-size: 21px; }
-    .profile {
-      grid-area: 1 / 2; min-height: 48px; padding: 4px 14px 4px 5px; display: inline-flex; align-items: center; gap: 9px;
-      border: 1px solid rgb(255 255 255 / 28%); border-radius: 999px; background: rgb(8 64 30 / 40%); color: #fff; font-size: 14px; font-weight: 800;
-    }
-    .profile i { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); }
-    .profile svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .home {
-      grid-area: 2 / 1 / 3 / 3; min-height: 50px; padding: 6px 18px 6px 8px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      border: 2px solid var(--lime); border-radius: 999px; background: #fff; color: #185e31; font-size: 15px; font-weight: 900; transition: background .15s, transform .15s;
-    }
-    .home:hover { background: #f4fadf; transform: translateY(-1px); }
-    .home span:first-child { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); font-size: 22px; line-height: 1; }
-
-    .main { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 24px 0 70px; }
-
     /* ---------- Сканер-плашка ---------- */
     .scan-bar {
       min-height: 80px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -60,17 +39,13 @@
     .scan-bar h2 { color: var(--deep); font-size: 16px; line-height: 1.3; }
     .scan-link {
       min-height: 42px; flex: none; padding: 6px 8px 6px 16px; display: inline-flex; align-items: center; gap: 10px;
-      border: 1px solid #dfe9d8; border-radius: 999px; background: var(--soft); color: var(--deep); font-size: 12px; font-weight: 800; transition: background .15s;
+      border: 1px solid #dfe9d8; border-radius: 999px; background: var(--soft); color: var(--deep); font-size: 13px; font-weight: 800; transition: background .15s;
     }
     .scan-link:hover { background: #edf6e6; }
     .scan-link i { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); font-style: normal; font-size: 16px; }
 
     /* ---------- Заголовок и поиск ---------- */
-    .section { padding: 26px 4px 0; }
-    .heading { margin-bottom: 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
-    .eyebrow { margin-bottom: 7px; color: var(--green); font-size: 10px; font-weight: 900; letter-spacing: .13em; }
-    .heading h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.12; }
-    .count { min-width: 44px; height: 44px; padding: 0 12px; display: grid; place-items: center; border-radius: 999px; background: #e4f4d0; color: var(--deep); font-size: 15px; font-weight: 900; }
+    .section { padding: 0; }
 
     .search {
       position: relative; margin-bottom: 14px; display: flex; align-items: center;
@@ -193,14 +168,9 @@
     /* ---------- Адаптив ---------- */
     @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 560px) {
-      .header { width: calc(100% - 24px); grid-template-rows: 42px 48px; gap: 8px; padding-block: 10px; border-radius: 0 0 25px 25px; }
-      .brand { font-size: 15px; } .brand-mark { width: 35px; height: 35px; }
-      .profile { min-height: 42px; padding-right: 10px; gap: 7px; font-size: 13px; } .profile i { width: 33px; height: 33px; }
-      .home { min-height: 48px; font-size: 14px; }
-      .main { width: calc(100% - 26px); padding: 16px 0 48px; }
       .scan-bar { padding: 12px; border-radius: 22px; } .scan-icon { width: 38px; height: 38px; } .scan-bar h2 { font-size: 13px; }
-      .scan-link { padding-left: 10px; font-size: 10px; gap: 6px; }
-      .section { padding-top: 22px; } .heading h1 { font-size: 26px; } .count { min-width: 38px; height: 38px; font-size: 13px; }
+      .scan-link { padding-left: 12px; font-size: 12px; gap: 6px; }
+
       .search input { height: 52px; font-size: 15px; } .search-icon { width: 48px; }
       .grid { grid-template-columns: 1fr; gap: 12px; }
       .card { display: grid; grid-template-columns: 112px minmax(0, 1fr); border-radius: 22px; }
@@ -214,16 +184,24 @@
   </style>
 </head>
 <body class="catalog-page">
-  <header class="header">
-    <a class="brand" href="index.html" aria-label="Я Вижу! — на главную"><span class="brand-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a>
-    <a class="home" href="index.html"><span aria-hidden="true">←</span><span>Вернуться на главную</span></a>
-    <a class="profile" href="medical-card.html">
-      <i aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="10" r="5.5"></circle><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3"></path></svg></i>
-      <span>Профиль</span><span aria-hidden="true">›</span>
-    </a>
+<header class="hm-top">
+    <div class="hm-bar">
+      <a class="hm-brand" href="/" aria-label="Я Вижу! — главная"><img class="hm-mark" src="/assets/images/logo.png" alt="" aria-hidden="true" /><span>Я Вижу!</span></a>
+      <a class="hm-profile" href="/medical-card.html"><i aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg></i><span>Профиль</span><span aria-hidden="true">›</span></a>
+    </div>
+    <div class="hm-head">
+      <a class="hm-back" href="/" aria-label="На главную"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg></a>
+      <div class="hm-head-copy">
+        <p class="hm-kicker">Наша подборка</p>
+        <h1 id="products-heading">Рекомендуем вам попробовать</h1>
+        <p class="hm-sub">Состав и аллергены популярных продуктов — откройте карточку, чтобы увидеть подробности.</p>
+      </div>
+      <div class="hm-head-aside"><span class="ui-count" id="count" aria-label="Найдено товаров">30</span></div>
+    </div>
   </header>
 
-  <main class="main">
+  <main class="hm-main">
+    <div class="hm-wrap">
     <section class="scan-bar" aria-labelledby="scan-title">
       <div class="scan-bar-copy">
         <span class="scan-icon" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M3 3v18M7 3v18m4-18v18m5-18v18m4-18v18m5-18v18"></path></svg></span>
@@ -233,14 +211,6 @@
     </section>
 
     <section class="section" aria-labelledby="products-heading">
-      <div class="heading">
-        <div>
-          <p class="eyebrow">НАША ПОДБОРКА</p>
-          <h1 id="products-heading">Рекомендуем вам попробовать</h1>
-        </div>
-        <span class="count" id="count" aria-label="Найдено товаров">30</span>
-      </div>
-
       <form class="search" role="search" id="search-form" onsubmit="return false">
         <span class="search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg></span>
         <input id="search" type="search" placeholder="Найти товар по названию…" autocomplete="off" aria-label="Поиск товара по названию" />
@@ -263,6 +233,7 @@
         <p>Состав приведён для ознакомления и может отличаться у разных производителей. Всегда проверяйте информацию на упаковке.</p>
       </div>
     </section>
+    </div>
   </main>
 
   <dialog id="dlg" aria-labelledby="dlg-title">
@@ -438,6 +409,5 @@
       render(false);
     })();
   </script>
-  <script src="../assets/js/logo.js" defer></script>
 </body>
 </html>

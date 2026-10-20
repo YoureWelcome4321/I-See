@@ -1,21 +1,61 @@
 <!doctype html>
 <html lang="ru">
-  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="theme-color" content="#00c4bd" /><title>Форма — Я Вижу!</title><link rel="stylesheet" href="../assets/css/feedback.css" /></head>
-  <body class="feedback-page">
-    <header class="site-header"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">Я</span><span>Я Вижу!</span></a><nav class="main-nav" aria-label="Основная навигация"><a href="index.html">Главная</a><a href="medical-card.html">Мед. карточка</a><a href="stores.html">Магазины</a></nav></header>
-    <main class="page-width content-page narrow-page">
-      <p class="eyebrow">ВАШЕ МНЕНИЕ ВАЖНО</p><h1>Предложить продукт или сообщить об ошибке</h1><p class="lead">Заполните поля — браузер проверит обязательные данные. Отправка пока демонстрационная: форма не передаёт информацию на сервер.</p>
-      <form class="feedback-form" action="feedback.html#form-note" method="get">
-        <label for="name">Ваше имя <span aria-hidden="true">*</span><input id="name" name="name" autocomplete="name" required minlength="2" /></label>
-        <label for="email">Электронная почта <span aria-hidden="true">*</span><input id="email" name="email" type="email" autocomplete="email" required /></label>
-        <label for="topic">Тема обращения<select id="topic" name="topic"><option>Предложить продукт</option><option>Исправить информацию</option><option>Пожелание по сайту</option></select></label>
-        <label for="barcode">Штрихкод продукта<input id="barcode" name="barcode" inputmode="numeric" pattern="[0-9]{8,14}" aria-describedby="barcode-help" /><small id="barcode-help">От 8 до 14 цифр, если знаете его.</small></label>
-        <label for="message">Сообщение <span aria-hidden="true">*</span><textarea id="message" name="message" rows="5" required minlength="10"></textarea></label>
-        <button class="button button-primary form-submit" type="submit">Проверить форму</button>
-      </form>
-      <p class="form-note" id="form-note" tabindex="-1">Демо: форма проверяет заполнение в браузере, но пока не отправляет сообщение.</p>
-    </main>
-    <footer class="site-footer"><p>Спасибо, что помогаете сделать сайт понятнее.</p><a href="stores.html">Магазины</a></footer>
-    <script src="../assets/js/logo.js" defer></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b572b" />
+  <meta name="description" content="Предложите продукт или сообщите об ошибке в данных Я Вижу!" />
+  <title>Обратная связь — Я Вижу!</title>
+  <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/ui.css?v=2" />
+  <style>
+    .feedback-wrap { width: min(760px, calc(100% - 32px)); }
+    .feedback-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .feedback-form .is-wide { grid-column: 1 / -1; }
+    .feedback-form .ui-btn { grid-column: 1 / -1; justify-self: start; min-width: 260px; }
+    .feedback-form select { appearance: none; padding-right: 44px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23218638' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 15px center / 20px; }
+    .req { color: var(--green); }
+    @media (max-width: 560px) { .feedback-form { grid-template-columns: 1fr; } .feedback-form .ui-btn { width: 100%; } }
+  </style>
+</head>
+<body>
+  <header class="hm-top">
+    <div class="hm-bar">
+      <a class="hm-brand" href="/" aria-label="Я Вижу! — главная"><img class="hm-mark" src="/assets/images/logo.png" alt="" aria-hidden="true" /><span>Я Вижу!</span></a>
+      <a class="hm-profile" href="/medical-card.html"><i aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg></i><span>Профиль</span><span aria-hidden="true">›</span></a>
+    </div>
+    <div class="hm-head">
+      <a class="hm-back" href="/" aria-label="На главную"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg></a>
+      <div class="hm-head-copy">
+        <p class="hm-kicker">Ваше мнение важно</p>
+        <h1 id="page-title">Предложить продукт или сообщить об ошибке</h1>
+        <p class="hm-sub">Расскажите, какой продукт добавить или где мы ошиблись в составе.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="hm-main" id="main-content">
+    <div class="hm-wrap feedback-wrap">
+      <section class="ui-card" aria-labelledby="feedback-form-title">
+        <div class="ui-card-head">
+          <span class="ui-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 7h22v16H15l-7 5v-5H5z" /><path d="M11 15h.1m5 0h.1m5 0h.1" /></svg></span>
+          <div><p class="ui-label">Обращение</p><h2 id="feedback-form-title">Напишите нам</h2></div>
+        </div>
+        <form class="feedback-form" action="feedback.html#form-note" method="get">
+          <label class="ui-field" for="name"><span>Ваше имя <span class="req" aria-hidden="true">*</span></span><input id="name" name="name" autocomplete="name" required minlength="2" placeholder="Например, Ирина" /></label>
+          <label class="ui-field" for="email"><span>Электронная почта <span class="req" aria-hidden="true">*</span></span><input id="email" name="email" type="email" autocomplete="email" required placeholder="name@example.ru" /></label>
+          <label class="ui-field" for="topic">Тема обращения<select id="topic" name="topic"><option>Предложить продукт</option><option>Исправить информацию</option><option>Пожелание по сайту</option></select></label>
+          <label class="ui-field" for="barcode">Штрихкод продукта<input id="barcode" name="barcode" inputmode="numeric" pattern="[0-9]{8,14}" aria-describedby="barcode-help" placeholder="4601234567890" /><small id="barcode-help">От 8 до 14 цифр, если знаете его.</small></label>
+          <label class="ui-field is-wide" for="message"><span>Сообщение <span class="req" aria-hidden="true">*</span></span><textarea id="message" name="message" rows="5" required minlength="10" placeholder="Что стоит добавить или исправить?"></textarea></label>
+          <button class="ui-btn" type="submit"><span>Проверить форму</span><i aria-hidden="true">→</i></button>
+        </form>
+      </section>
+      <div class="ui-note" id="form-note" tabindex="-1"><span aria-hidden="true">i</span><p>Демо: форма проверяет заполнение в браузере, но пока не отправляет сообщение.</p></div>
+    </div>
+  </main>
+</body>
 </html>

@@ -7,12 +7,10 @@ const productStatus = document.querySelector('#admin-product-status');
 const productList = document.querySelector('#admin-product-list');
 const sectionElements = {
   products: document.querySelector('#admin-section-products'),
-  users: document.querySelector('#admin-section-users'),
   stories: document.querySelector('#admin-section-stories'),
+  recipes: document.querySelector('#admin-section-recipes'),
 };
 const tabs = [...document.querySelectorAll('[data-admin-tab]')];
-const userStatus = document.querySelector('#admin-user-status');
-const userList = document.querySelector('#admin-user-list');
 const storyForm = document.querySelector('#admin-story-form');
 const storyStatus = document.querySelector('#admin-story-status');
 const storyList = document.querySelector('#admin-story-list');
@@ -35,10 +33,17 @@ function showDashboard(user) {
 }
 
 function showSection(name) {
-  for (const [sectionName, section] of Object.entries(sectionElements)) section.hidden = sectionName !== name;
+  for (const [sectionName, section] of Object.entries(sectionElements)) {
+    if (section) section.hidden = sectionName !== name;
+  }
   tabs.forEach((tab) => tab.setAttribute('aria-pressed', String(tab.dataset.adminTab === name)));
-  if (name === 'users') loadUsers();
   if (name === 'stories') loadStories();
+  if (name === 'recipes') loadRecipes();
+}
+
+async function loadRecipes() {
+  const list = document.querySelector('#admin-recipe-list'); const status = document.querySelector('#admin-recipe-status');
+  try { const recipes = await YaVizhuAPI.request('/api/admin/recipes'); document.querySelector('#admin-recipe-count').textContent = recipes.length; list.replaceChildren(); recipes.forEach((recipe) => { const row=document.createElement('article'); row.className='admin-product-row'; const info=document.createElement('div'); const title=document.createElement('h3'); title.textContent=recipe.title; const detail=document.createElement('p'); detail.textContent=`${recipe.ingredients.length} ингредиентов${recipe.sponsored_product ? ` · ${recipe.sponsored_label || 'Реклама'}: ${recipe.sponsored_product}` : ''}`; info.append(title,detail); const remove=document.createElement('button'); remove.className='catalog-remove'; remove.type='button'; remove.textContent='Удалить'; remove.onclick=async()=>{ if(!confirm(`Удалить рецепт «${recipe.title}»?`)) return; await YaVizhuAPI.request(`/api/admin/recipes/${encodeURIComponent(recipe.id)}`,{method:'DELETE'}); loadRecipes(); }; row.append(info,remove); list.append(row); }); } catch (error) { status.textContent=error.message; }
 }
 
 function renderProducts(products) {
@@ -75,7 +80,7 @@ function renderProducts(products) {
     const actions = document.createElement('div');
     actions.className = 'admin-product-row-actions';
     const edit = document.createElement('button');
-    edit.className = 'button button-secondary';
+    edit.className = 'ui-btn ui-btn--ghost ui-btn--sm';
     edit.type = 'button';
     edit.textContent = 'Изменить';
     edit.addEventListener('click', () => openProductModal(product));
@@ -144,7 +149,7 @@ function renderStories(stories) {
     const actions = document.createElement('div');
     actions.className = 'admin-story-row-actions';
     const edit = document.createElement('button');
-    edit.className = 'button button-secondary';
+    edit.className = 'ui-btn ui-btn--ghost ui-btn--sm';
     edit.type = 'button';
     edit.textContent = 'Изменить';
     edit.addEventListener('click', () => {
@@ -152,13 +157,16 @@ function renderStories(stories) {
       storyForm.elements.title.value = story.title;
       storyForm.elements.subtitle.value = story.subtitle;
       storyForm.elements.image.value = story.image;
-      storyForm.elements.href.value = story.href;
       openStoryModal(story);
     });
     const remove = document.createElement('button');
     remove.className = 'catalog-remove';
     remove.type = 'button';
     remove.textContent = 'Удалить';
+    if (story.id === 'story-how' || story.id === 'story-team') {
+      remove.disabled = true;
+      remove.title = 'Системную историю нельзя удалить';
+    }
     remove.addEventListener('click', async () => {
       if (!window.confirm(`Удалить историю «${story.title}»?`)) return;
       try {
@@ -183,6 +191,14 @@ async function loadStories() {
   }
 }
 
+async function loadStoryRecipeOptions(selectedId = '') {
+  const select = document.querySelector('#admin-story-recipe');
+  const recipes = await YaVizhuAPI.request('/api/admin/recipes');
+  select.replaceChildren(new Option('Информационная история без рецепта', ''));
+  recipes.forEach((recipe) => select.add(new Option(recipe.title, recipe.id)));
+  select.value = selectedId || '';
+}
+
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   loginStatus.textContent = 'Проверяем доступ…';
@@ -203,15 +219,16 @@ loginForm.addEventListener('submit', async (event) => {
 
 tabs.forEach((tab) => tab.addEventListener('click', () => showSection(tab.dataset.adminTab)));
 
-function openStoryModal(story = null) {
+async function openStoryModal(story = null) {
   storyForm.reset();
   storyForm.elements.id.value = story?.id || '';
   storyForm.elements.title.value = story?.title || '';
   storyForm.elements.subtitle.value = story?.subtitle || '';
   storyForm.elements.image.value = story?.image || 'story-01.jpg';
-  storyForm.elements.href.value = story?.href || 'help.html';
+  storyForm.elements.recipe_id.value = story?.recipe_id || '';
   storyModalTitle.textContent = story ? 'Изменить историю' : 'Новая история';
   storyModal.hidden = false;
+  try { await loadStoryRecipeOptions(story?.recipe_id || ''); } catch (error) { storyStatus.textContent = error.message; }
   storyForm.elements.title.focus();
 }
 
