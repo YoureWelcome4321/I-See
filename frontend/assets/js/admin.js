@@ -5,10 +5,15 @@ const loginStatus = document.querySelector('#admin-login-status');
 const productForm = document.querySelector('#admin-product-form');
 const productStatus = document.querySelector('#admin-product-status');
 const productList = document.querySelector('#admin-product-list');
+const recipeList = document.querySelector('#admin-recipe-list');
+const recipeStatus = document.querySelector('#admin-recipe-status');
+const userList = document.querySelector('#admin-user-list');
+const userStatus = document.querySelector('#admin-user-status');
 const sectionElements = {
   products: document.querySelector('#admin-section-products'),
-  stories: document.querySelector('#admin-section-stories'),
   recipes: document.querySelector('#admin-section-recipes'),
+  stories: document.querySelector('#admin-section-stories'),
+  users: document.querySelector('#admin-section-users'),
 };
 const tabs = [...document.querySelectorAll('[data-admin-tab]')];
 const storyForm = document.querySelector('#admin-story-form');
@@ -22,174 +27,208 @@ const productModal = document.querySelector('#admin-product-modal');
 const productAdd = document.querySelector('#admin-product-add');
 const productCancel = document.querySelector('#admin-product-cancel');
 const productModalTitle = document.querySelector('#admin-product-modal-title');
+const SYSTEM_STORIES = ['story-how', 'story-team'];
+const STORY_KIND_NAMES = { article: 'Статья', recipe: 'Рецепт', guide: 'Инструкция' };
+const ICONS = {
+  edit: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4Z"></path><path d="m13.5 6.5 4 4"></path></svg>',
+  trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path></svg>',
+  lock: '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="3"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>',
+};
+
+// ---------- Small building blocks for every list ----------
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function tag(text, variant = '') {
+  return el('span', `admin-tag${variant ? ` admin-tag--${variant}` : ''}`, text);
+}
+
+function iconButton(icon, label, onClick, danger = false) {
+  const button = el('button', `admin-icon-btn${danger ? ' admin-icon-btn--danger' : ''}`);
+  button.type = 'button';
+  button.innerHTML = ICONS[icon];
+  button.setAttribute('aria-label', label);
+  button.title = label;
+  if (onClick) button.addEventListener('click', onClick);
+  return button;
+}
+
+function row({ mark, image, title, tags, actions, search }) {
+  const node = el('article', 'admin-row');
+  node.dataset.search = search.toLocaleLowerCase('ru');
+  if (image) { const img = el('img', 'admin-row-thumb'); img.src = image; img.alt = ''; img.loading = 'lazy'; node.append(img); }
+  else node.append(el('span', 'admin-row-mark', mark));
+  const main = el('div', 'admin-row-main');
+  const tagBox = el('div', 'admin-tags');
+  tagBox.append(...tags);
+  main.append(el('h4', '', title), tagBox);
+  const actionBox = el('div', 'admin-row-actions');
+  actionBox.append(...actions);
+  node.append(main, actionBox);
+  return node;
+}
+
+function showEmpty(list, text) {
+  list.replaceChildren(el('p', 'admin-empty', text));
+}
+
+function setStatus(node, text, isError = false) {
+  node.textContent = text;
+  node.classList.toggle('is-error', isError);
+}
+
+function setCount(key, value) {
+  document.querySelector(`[data-count="${key}"]`).textContent = value;
+}
+
+// The search box above a list hides rows that do not contain the typed words.
+document.querySelectorAll('[data-filter]').forEach((input) => input.addEventListener('input', () => {
+  const query = input.value.trim().toLocaleLowerCase('ru');
+  const list = sectionElements[input.dataset.filter].querySelector('.admin-list');
+  list.querySelectorAll('[data-search]').forEach((item) => { item.hidden = Boolean(query) && !item.dataset.search.includes(query); });
+}));
+
 function showDashboard(user) {
   const isAdmin = Boolean(user?.is_admin);
   loginPanel.hidden = isAdmin;
   dashboard.hidden = !isAdmin;
-  if (isAdmin) {
-    showSection('products');
-    loadProducts();
-  }
+  if (!isAdmin) return;
+  document.querySelector('#admin-avatar').textContent = (user.name || 'А').trim().charAt(0).toLocaleUpperCase('ru');
+  showSection('products');
+  // The other tiles show their counts right away, without opening each section.
+  loadRecipes(); loadStories(); loadUsers();
 }
 
 function showSection(name) {
-  for (const [sectionName, section] of Object.entries(sectionElements)) {
-    if (section) section.hidden = sectionName !== name;
-  }
+  for (const [sectionName, section] of Object.entries(sectionElements)) section.hidden = sectionName !== name;
   tabs.forEach((tab) => tab.setAttribute('aria-pressed', String(tab.dataset.adminTab === name)));
-  if (name === 'stories') loadStories();
-  if (name === 'recipes') loadRecipes();
+  ({ products: loadProducts, recipes: loadRecipes, stories: loadStories, users: loadUsers })[name]();
 }
 
-async function loadRecipes() {
-  const list = document.querySelector('#admin-recipe-list'); const status = document.querySelector('#admin-recipe-status');
-  try { const recipes = await YaVizhuAPI.request('/api/admin/recipes'); document.querySelector('#admin-recipe-count').textContent = recipes.length; list.replaceChildren(); recipes.forEach((recipe) => { const row=document.createElement('article'); row.className='admin-product-row'; const info=document.createElement('div'); const title=document.createElement('h3'); title.textContent=recipe.title; const detail=document.createElement('p'); detail.textContent=`${recipe.ingredients.length} ингредиентов${recipe.sponsored_product ? ` · ${recipe.sponsored_label || 'Реклама'}: ${recipe.sponsored_product}` : ''}`; info.append(title,detail); const remove=document.createElement('button'); remove.className='catalog-remove'; remove.type='button'; remove.textContent='Удалить'; remove.onclick=async()=>{ if(!confirm(`Удалить рецепт «${recipe.title}»?`)) return; await YaVizhuAPI.request(`/api/admin/recipes/${encodeURIComponent(recipe.id)}`,{method:'DELETE'}); loadRecipes(); }; row.append(info,remove); list.append(row); }); } catch (error) { status.textContent=error.message; }
-}
-
+// ---------- Products ----------
 function renderProducts(products) {
-  productList.replaceChildren();
-  if (!products.length) {
-    productList.textContent = 'В каталоге пока нет товаров.';
-    return;
-  }
-
-  products.forEach((product) => {
-    const row = document.createElement('article');
-    row.className = 'admin-product-row';
-    const info = document.createElement('div');
-    const title = document.createElement('h3');
-    title.textContent = product.name;
-    const detail = document.createElement('p');
-    detail.textContent = `${product.category || 'Продукты'} · ${product.price ? `${product.price} ₽` : 'Цена не указана'}${product.barcode ? ` · Штрихкод ${product.barcode}` : ''}`;
-    info.append(title, detail);
-
-    const remove = document.createElement('button');
-    remove.className = 'catalog-remove';
-    remove.type = 'button';
-    remove.textContent = 'Удалить';
-    remove.addEventListener('click', async () => {
+  setCount('products', products.length);
+  if (!products.length) { showEmpty(productList, 'В каталоге пока нет товаров. Добавьте первый.'); return; }
+  productList.replaceChildren(...products.map((product) => {
+    const tags = [tag(product.category || 'Продукты', 'green'), tag(product.price ? `${product.price} ₽` : 'Цена не указана')];
+    if (product.barcode) tags.push(tag(`Штрихкод ${product.barcode}`));
+    if (product.allergens) tags.push(tag(`Аллергены: ${product.allergens}`, 'danger'));
+    const remove = async () => {
       if (!window.confirm(`Удалить товар «${product.name}»?`)) return;
       try {
         await YaVizhuAPI.request(`/api/products/${product.id}`, { method: 'DELETE' });
-        productStatus.textContent = 'Товар удалён.';
+        setStatus(productStatus, `Товар «${product.name}» удалён.`);
         await loadProducts();
-      } catch (error) {
-        productStatus.textContent = error.message;
-      }
+      } catch (error) { setStatus(productStatus, error.message, true); }
+    };
+    return row({
+      mark: product.name.charAt(0).toLocaleUpperCase('ru'),
+      title: product.name,
+      tags,
+      search: `${product.name} ${product.category} ${product.barcode} ${product.ingredients} ${product.allergens}`,
+      actions: [iconButton('edit', `Изменить «${product.name}»`, () => openProductModal(product)), iconButton('trash', `Удалить «${product.name}»`, remove, true)],
     });
-    const actions = document.createElement('div');
-    actions.className = 'admin-product-row-actions';
-    const edit = document.createElement('button');
-    edit.className = 'ui-btn ui-btn--ghost ui-btn--sm';
-    edit.type = 'button';
-    edit.textContent = 'Изменить';
-    edit.addEventListener('click', () => openProductModal(product));
-    actions.append(edit, remove);
-    row.append(info, actions);
-    productList.append(row);
-  });
+  }));
 }
 
 async function loadProducts() {
+  try { renderProducts(await YaVizhuAPI.request('/api/products')); }
+  catch (error) { setStatus(productStatus, error.message, true); }
+}
+
+// ---------- Recipes ----------
+async function loadRecipes() {
   try {
-    const products = await YaVizhuAPI.request('/api/products');
-    renderProducts(products);
-  } catch (error) {
-    productStatus.textContent = error.message;
-  }
+    const recipes = await YaVizhuAPI.request('/api/admin/recipes');
+    setCount('recipes', recipes.length);
+    if (!recipes.length) { showEmpty(recipeList, 'Рецептов пока нет.'); return; }
+    recipeList.replaceChildren(...recipes.map((recipe) => {
+      const tags = [tag(`${recipe.ingredients.length} ${recipe.ingredients.length === 1 ? 'ингредиент' : 'ингредиентов'}`, 'green')];
+      if (recipe.sponsored_product) tags.push(tag(`${recipe.sponsored_label || 'Реклама'}: ${recipe.sponsored_product}`, 'lime'));
+      const remove = async () => {
+        if (!window.confirm(`Удалить рецепт «${recipe.title}»?`)) return;
+        try {
+          await YaVizhuAPI.request(`/api/admin/recipes/${encodeURIComponent(recipe.id)}`, { method: 'DELETE' });
+          setStatus(recipeStatus, `Рецепт «${recipe.title}» удалён.`);
+          await loadRecipes();
+        } catch (error) { setStatus(recipeStatus, error.message, true); }
+      };
+      return row({
+        image: `/assets/images/${recipe.image}`,
+        title: recipe.title,
+        tags,
+        search: `${recipe.title} ${recipe.ingredients.join(' ')}`,
+        actions: [iconButton('trash', `Удалить «${recipe.title}»`, remove, true)],
+      });
+    }));
+  } catch (error) { setStatus(recipeStatus, error.message, true); }
 }
 
-function renderUsers(users) {
-  userList.replaceChildren();
-  if (!users.length) {
-    userList.textContent = 'Пользователей пока нет.';
-    return;
-  }
-  users.forEach((user) => {
-    const row = document.createElement('article');
-    row.className = 'admin-product-row';
-    const info = document.createElement('div');
-    const title = document.createElement('h3');
-    title.textContent = user.name;
-    const detail = document.createElement('p');
-    detail.textContent = `Логин: ${user.login} · ${user.is_admin ? 'Администратор' : 'Пользователь'} · Проверок: ${user.checks_count}`;
-    info.append(title, detail);
-    row.append(info);
-    userList.append(row);
-  });
-}
-
+// ---------- Users ----------
 async function loadUsers() {
   try {
-    renderUsers(await YaVizhuAPI.request('/api/admin/users'));
-  } catch (error) {
-    userStatus.textContent = error.message;
-  }
+    const users = await YaVizhuAPI.request('/api/admin/users');
+    setCount('users', users.length);
+    if (!users.length) { showEmpty(userList, 'Пользователей пока нет.'); return; }
+    userList.replaceChildren(...users.map((user) => {
+      const tags = [user.is_admin ? tag('Администратор', 'dark') : tag('Пользователь', 'green')];
+      if (user.phone) tags.push(tag(user.phone));
+      tags.push(tag(`Проверок: ${user.checks_count}`));
+      return row({
+        mark: (user.name || '?').trim().charAt(0).toLocaleUpperCase('ru'),
+        title: user.name || user.login,
+        tags,
+        search: `${user.name} ${user.phone} ${user.login}`,
+        actions: [],
+      });
+    }));
+  } catch (error) { setStatus(userStatus, error.message, true); }
 }
 
+// ---------- Stories ----------
 function renderStories(stories) {
-  storyList.replaceChildren();
-  if (!stories.length) {
-    storyList.textContent = 'Историй пока нет. Добавьте первую с помощью формы выше.';
-    return;
-  }
-  stories.forEach((story) => {
-    const row = document.createElement('article');
-    row.className = 'admin-story-row';
-    const image = document.createElement('img');
-    image.src = `/assets/images/${story.image}`;
-    image.alt = '';
-    const info = document.createElement('div');
-    info.className = 'admin-story-row-copy';
-    const title = document.createElement('h3');
-    title.textContent = story.title;
-    const detail = document.createElement('p');
-    const kindName = { article: 'статья', recipe: 'рецепт', guide: 'инструкция' }[story.kind] || 'статья';
-    const empty = story.kind !== 'recipe' && !story.body ? ' · пока без текста' : '';
-    detail.textContent = `${story.subtitle || 'Без подписи'} · ${kindName}${empty} · ${story.photo_source === 'recipe' ? 'фото из рецепта' : 'своё фото'}`;
-    info.append(title, detail);
-    const actions = document.createElement('div');
-    actions.className = 'admin-story-row-actions';
-    const edit = document.createElement('button');
-    edit.className = 'ui-btn ui-btn--ghost ui-btn--sm';
-    edit.type = 'button';
-    edit.textContent = 'Изменить';
-    edit.addEventListener('click', () => {
-      storyForm.elements.id.value = story.id;
-      storyForm.elements.title.value = story.title;
-      storyForm.elements.subtitle.value = story.subtitle;
-      openStoryModal(story);
-    });
-    const remove = document.createElement('button');
-    remove.className = 'catalog-remove';
-    remove.type = 'button';
-    remove.textContent = 'Удалить';
-    if (story.id === 'story-how' || story.id === 'story-team') {
-      remove.disabled = true;
-      remove.title = 'Системную историю нельзя удалить';
+  setCount('stories', stories.length);
+  if (!stories.length) { showEmpty(storyList, 'Историй пока нет. Добавьте первую.'); return; }
+  storyList.replaceChildren(...stories.map((story) => {
+    const system = SYSTEM_STORIES.includes(story.id);
+    const card = el('article', 'admin-story-card');
+    const cover = el('div', 'admin-story-cover');
+    const image = el('img'); image.src = `/assets/images/${story.image}`; image.alt = ''; image.loading = 'lazy';
+    const badges = el('div', 'admin-tags');
+    badges.append(tag(STORY_KIND_NAMES[story.kind] || STORY_KIND_NAMES.article, 'lime'));
+    if (system) badges.append(tag('Системная', 'dark'));
+    if (story.kind !== 'recipe' && !story.body) badges.append(tag('Без текста', 'danger'));
+    cover.append(image, badges);
+    const body = el('div', 'admin-story-body');
+    body.append(el('h4', '', story.title), el('p', '', story.subtitle || 'Без подписи'));
+    const foot = el('div', 'admin-story-foot');
+    if (system) {
+      const locked = iconButton('lock', 'Системную историю нельзя изменить или удалить');
+      locked.disabled = true;
+      foot.append(locked);
+    } else {
+      const remove = async () => {
+        if (!window.confirm(`Удалить историю «${story.title}»?`)) return;
+        try {
+          await YaVizhuAPI.request(`/api/admin/stories/${encodeURIComponent(story.id)}`, { method: 'DELETE' });
+          setStatus(storyStatus, `История «${story.title}» удалена.`);
+          await loadStories();
+        } catch (error) { setStatus(storyStatus, error.message, true); }
+      };
+      foot.append(iconButton('edit', `Изменить «${story.title}»`, () => openStoryModal(story)), iconButton('trash', `Удалить «${story.title}»`, remove, true));
     }
-    remove.addEventListener('click', async () => {
-      if (!window.confirm(`Удалить историю «${story.title}»?`)) return;
-      try {
-        await YaVizhuAPI.request(`/api/admin/stories/${encodeURIComponent(story.id)}`, { method: 'DELETE' });
-        storyStatus.textContent = 'История удалена.';
-        await loadStories();
-      } catch (error) {
-        storyStatus.textContent = error.message;
-      }
-    });
-    actions.append(edit, remove);
-    row.append(image, info, actions);
-    storyList.append(row);
-  });
+    card.append(cover, body, foot);
+    return card;
+  }));
 }
 
 async function loadStories() {
-  try {
-    renderStories(await YaVizhuAPI.request('/api/admin/stories'));
-  } catch (error) {
-    storyStatus.textContent = error.message;
-  }
+  try { renderStories(await YaVizhuAPI.request('/api/admin/stories')); }
+  catch (error) { setStatus(storyStatus, error.message, true); }
 }
 
 const storyRecipeImages = new Map();
@@ -294,7 +333,7 @@ async function openStoryModal(story = null) {
   updateStoryKind();
   storyModalTitle.textContent = story ? 'Изменить историю' : 'Новая история';
   storyModal.hidden = false;
-  try { await loadStoryRecipeOptions(story?.recipe_id || ''); } catch (error) { storyStatus.textContent = error.message; }
+  try { await loadStoryRecipeOptions(story?.recipe_id || ''); } catch (error) { setStatus(storyStatus, error.message, true); }
   updateStoryKind();
   storyForm.elements.title.focus();
 }
@@ -325,10 +364,10 @@ storyForm.addEventListener('submit', async (event) => {
   try {
     await YaVizhuAPI.request('/api/admin/stories', { method: 'POST', body: JSON.stringify(data) });
     resetStoryForm();
-    storyStatus.textContent = data.id ? 'История обновлена.' : 'История добавлена.';
+    setStatus(storyStatus, data.id ? 'История обновлена.' : 'История добавлена.');
     await loadStories();
   } catch (error) {
-    storyStatus.textContent = error.message;
+    setStatus(storyStatus, error.message, true);
   }
 });
 
@@ -363,10 +402,10 @@ productForm.addEventListener('submit', async (event) => {
     delete data.id;
     await YaVizhuAPI.request(id ? `/api/products/${id}` : '/api/products', { method: id ? 'PUT' : 'POST', body: JSON.stringify(data) });
     closeProductModal();
-    productStatus.textContent = id ? 'Товар обновлён.' : 'Товар добавлен.';
+    setStatus(productStatus, id ? 'Товар обновлён.' : 'Товар добавлен.');
     await loadProducts();
   } catch (error) {
-    productStatus.textContent = error.message;
+    setStatus(productStatus, error.message, true);
   }
 });
 

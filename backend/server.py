@@ -170,8 +170,9 @@ def init_db():
         conn.execute("ALTER TABLE stories ADD COLUMN body TEXT NOT NULL DEFAULT ''")
         conn.execute("UPDATE stories SET kind='recipe' WHERE recipe_id IS NOT NULL AND recipe_id <> ''")
     if conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0:
-        conn.executemany("INSERT INTO users(login,password,name,phone,is_admin) VALUES (?,?,?,?,?)", [("user",hash_password("qwerty"),"Пользователь","",0),("admin",hash_password(seed_admin_password()),"Администратор","",1)])
-        conn.executemany("INSERT INTO profiles VALUES (?,?)", [("user","[]"),("admin","[]")])
+        # A fresh database starts with the administrator only; people sign up themselves.
+        conn.execute("INSERT INTO users(login,password,name,phone,is_admin) VALUES (?,?,?,?,?)", ("admin", hash_password(seed_admin_password()), "Администратор", "", 1))
+        conn.execute("INSERT INTO profiles VALUES (?,?)", ("admin", "[]"))
     # Once per database (user_version 0 → 1) the catalog is filled up by name: products the
     # admin edited stay as they are, and ones the admin deletes later do not come back.
     if conn.execute("PRAGMA user_version").fetchone()[0] < 1:

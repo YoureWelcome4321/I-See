@@ -1,0 +1,141 @@
+/* Панель управления «Я Вижу!»: работает поверх ui.css, старый admin.css не подключается. */
+.admin-page .hm-wrap { gap: 18px; }
+.admin-page h2, .admin-page h3 { margin: 0; }
+.admin-eyebrow { margin: 0 0 6px; color: var(--green); font-size: .68rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+.admin-muted { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+
+/* ---------- Карточки-основы ---------- */
+.admin-card { padding: 24px; border: 1px solid var(--line); border-radius: 26px; background: #fff; box-shadow: 0 10px 30px rgb(16 66 32 / 6%); }
+
+/* ---------- Вход ---------- */
+.admin-login { width: min(460px, 100%); margin: 8px auto 0; display: grid; gap: 18px; text-align: center; }
+.admin-login-icon { width: 4rem; height: 4rem; margin: 0 auto; display: grid; place-items: center; border-radius: 20px; background: var(--tint); color: var(--green); }
+.admin-login-icon svg { width: 1.9rem; height: 1.9rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.admin-login h2 { font-size: 1.6rem; }
+.admin-login form { display: grid; gap: 14px; text-align: left; }
+
+/* ---------- Поля ---------- */
+.admin-page .admin-field { display: grid; gap: 7px; color: #34473a; font-size: .9rem; font-weight: 800; }
+.admin-page .admin-field small { color: var(--muted); font-weight: 500; }
+/* :where keeps these base styles light, so the search box and others can override them. */
+.admin-page :where(input:not([type="hidden"]):not([type="radio"]):not([type="file"]), select, textarea) {
+  width: 100%; min-height: 3.1rem; padding: .7rem 1rem; border: 1.5px solid var(--line); border-radius: 14px;
+  background: #fff; color: var(--ink); font: 500 1rem/1.4 "DM Sans", system-ui, sans-serif; transition: border-color .15s, box-shadow .15s;
+}
+.admin-page :where(textarea) { min-height: 9rem; resize: vertical; line-height: 1.5; }
+.admin-page :where(input, select, textarea):focus { border-color: var(--bright); outline: 0; box-shadow: 0 0 0 4px rgb(217 240 91 / 55%); }
+.admin-page :where(input, textarea)::placeholder { color: #95a296; }
+.admin-status { min-height: 1.3em; margin: 0; color: var(--green); font-size: .9rem; font-weight: 700; }
+.admin-status:empty { display: none; }
+.admin-status.is-error { color: var(--danger); }
+
+/* ---------- Шапка панели ---------- */
+.admin-dashboard-inner { display: grid; gap: 18px; }
+.admin-top { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.admin-top h2 { font-size: 1.45rem; }
+.admin-who { display: flex; align-items: center; gap: 14px; }
+.admin-avatar { width: 3.2rem; height: 3.2rem; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); font: 800 1.3rem Manrope, sans-serif; }
+
+/* ---------- Плитки разделов ---------- */
+.admin-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.admin-tile { position: relative; min-height: 6.4rem; padding: 16px 18px; display: grid; align-content: space-between; gap: 10px; border: 1.5px solid var(--line); border-radius: 22px; background: #fff; color: var(--ink); text-align: left; cursor: pointer; transition: border-color .15s, transform .15s, box-shadow .15s; }
+.admin-tile:hover { border-color: #c8dfb8; transform: translateY(-2px); box-shadow: 0 10px 24px rgb(16 66 32 / 8%); }
+.admin-tile[aria-pressed="true"] { border-color: var(--green); background: linear-gradient(150deg, #0f5a2c, #2f8f3a); color: #fff; box-shadow: 0 12px 28px rgb(16 90 40 / 25%); }
+.admin-tile-icon { width: 2.4rem; height: 2.4rem; display: grid; place-items: center; border-radius: 13px; background: var(--tint); color: var(--green); font-size: 1.15rem; }
+.admin-tile[aria-pressed="true"] .admin-tile-icon { background: rgb(255 255 255 / 16%); color: var(--lime); }
+.admin-tile-label { font-weight: 800; font-size: .95rem; }
+.admin-tile-count { position: absolute; top: 14px; right: 16px; font: 800 1.7rem/1 Manrope, sans-serif; }
+
+/* ---------- Раздел ---------- */
+.admin-section { display: grid; gap: 14px; }
+.admin-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.admin-toolbar-title { flex: 1 1 200px; min-width: 0; }
+.admin-toolbar-title h3 { font-size: 1.3rem; }
+.admin-search { position: relative; flex: 0 1 280px; min-width: 200px; }
+.admin-search svg { position: absolute; left: 14px; top: 50%; width: 1.1rem; height: 1.1rem; transform: translateY(-50%); fill: none; stroke: var(--muted); stroke-width: 2.2; stroke-linecap: round; pointer-events: none; }
+.admin-page .admin-search input { min-height: 2.9rem; padding-left: 2.7rem; border-radius: 999px; background: var(--soft); }
+.admin-section .ui-btn--sm { min-height: 2.9rem; }
+
+/* ---------- Списки ---------- */
+.admin-list { display: grid; gap: 10px; }
+.admin-row { padding: 12px 14px; display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 20px; background: #fff; transition: border-color .15s, box-shadow .15s; }
+.admin-row:hover { border-color: #cfe2c3; box-shadow: 0 8px 20px rgb(16 66 32 / 6%); }
+.admin-row-mark { width: 3.2rem; height: 3.2rem; flex: none; display: grid; place-items: center; border-radius: 16px; background: var(--tint); color: var(--green); font: 800 1.25rem Manrope, sans-serif; }
+.admin-row-thumb { width: 3.6rem; height: 3.6rem; flex: none; border-radius: 16px; object-fit: cover; background: var(--soft); }
+.admin-row-main { min-width: 0; flex: 1; display: grid; gap: 6px; }
+.admin-row-main h4 { margin: 0; overflow: hidden; font: 800 1.02rem/1.25 Manrope, sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.admin-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.admin-tag { padding: .2rem .6rem; border-radius: 999px; background: #f1f5ee; color: #4a5b4d; font-size: .78rem; font-weight: 700; white-space: nowrap; }
+.admin-tag--green { background: var(--tint); color: var(--deep); }
+.admin-tag--danger { background: var(--danger-soft); color: var(--danger); }
+.admin-tag--lime { background: var(--lime); color: var(--deep); }
+.admin-tag--dark { background: var(--deep); color: #fff; }
+.admin-row-actions { display: flex; flex: none; gap: 8px; }
+.admin-icon-btn { width: 2.6rem; height: 2.6rem; display: grid; place-items: center; border: 1.5px solid var(--line); border-radius: 50%; background: #fff; color: var(--deep); cursor: pointer; transition: background .15s, border-color .15s; }
+.admin-icon-btn svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.admin-icon-btn:hover { border-color: #c8dfb8; background: var(--soft); }
+.admin-icon-btn--danger { color: var(--danger); }
+.admin-icon-btn--danger:hover { border-color: var(--danger-line); background: var(--danger-soft); }
+.admin-icon-btn:disabled { opacity: .35; cursor: not-allowed; }
+.admin-empty { padding: 34px 20px; border: 2px dashed var(--line-strong); border-radius: 22px; color: var(--muted); text-align: center; }
+
+/* Истории — карточками с обложкой. */
+.admin-story-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.admin-story-card { overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 22px; background: #fff; transition: box-shadow .15s, transform .15s; }
+.admin-story-card:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgb(16 66 32 / 9%); }
+.admin-story-cover { position: relative; aspect-ratio: 16 / 10; background: var(--soft); }
+.admin-story-cover img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.admin-story-cover .admin-tags { position: absolute; top: 10px; left: 10px; }
+.admin-story-body { padding: 14px; display: grid; gap: 6px; flex: 1; }
+.admin-story-body h4 { margin: 0; font: 800 1.02rem/1.25 Manrope, sans-serif; }
+.admin-story-body p { margin: 0; color: var(--muted); font-size: .86rem; line-height: 1.4; }
+.admin-story-foot { padding: 0 14px 14px; display: flex; justify-content: flex-end; gap: 8px; }
+
+/* ---------- Окна ---------- */
+.admin-modal[hidden] { display: none !important; }
+.admin-modal { position: fixed; inset: 0; z-index: 100; padding: 18px; display: grid; place-items: center; }
+.admin-modal-backdrop { position: absolute; inset: 0; background: rgb(10 36 19 / 55%); backdrop-filter: blur(4px); }
+.admin-modal-card { position: relative; width: min(640px, 100%); max-height: calc(100vh - 36px); overflow: auto; border-radius: 28px; background: #fff; box-shadow: 0 30px 80px rgb(5 30 14 / 35%); }
+.admin-modal-heading { position: sticky; top: 0; z-index: 2; padding: 20px 24px 14px; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); background: #fff; }
+.admin-modal-heading h2 { font-size: 1.4rem; }
+.admin-modal-close { width: 2.7rem; height: 2.7rem; flex: none; border: 0; border-radius: 50%; background: #f0f5eb; color: var(--deep); font-size: 1.7rem; line-height: 1; cursor: pointer; }
+.admin-modal-close:hover { background: var(--lime); }
+.admin-data-form { padding: 18px 24px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.admin-data-form label { display: grid; gap: 7px; color: #34473a; font-size: .9rem; font-weight: 800; }
+.admin-form-wide { grid-column: 1 / -1; }
+.admin-modal-actions { position: sticky; bottom: 0; z-index: 2; grid-column: 1 / -1; margin: 4px -24px 0; padding: 14px 24px 18px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--line); background: #fff; }
+
+/* Выбор вариантов и фото в форме истории. */
+.admin-photo { margin: 0; padding: 0; border: 0; display: grid; gap: 10px; }
+.admin-photo legend { margin-bottom: 7px; padding: 0; color: #34473a; font-size: .9rem; font-weight: 800; }
+.admin-photo-source { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-photo-source label { padding: .55rem .95rem; display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; font-weight: 700; cursor: pointer; }
+.admin-photo-source label:has(input:checked) { border-color: var(--green); background: var(--tint); color: var(--deep); }
+.admin-photo-source input { margin: 0; accent-color: var(--green); }
+.admin-photo-body { display: flex; align-items: center; gap: 14px; }
+.admin-photo-preview { width: 96px; height: 96px; flex: none; border-radius: 18px; object-fit: cover; background: var(--soft); }
+.admin-photo-controls { min-width: 0; display: grid; gap: 6px; justify-items: start; }
+.admin-photo-pick { position: relative; cursor: pointer; }
+.admin-photo-pick input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.admin-photo-hint, .admin-story-body-hint { margin: 0; color: var(--muted); font-size: .85rem; font-weight: 500; }
+
+/* ---------- Адаптив ---------- */
+@media (max-width: 860px) {
+  .admin-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .admin-card { padding: 18px 16px; border-radius: 22px; }
+  .admin-tile { min-height: 5.6rem; padding: 14px; border-radius: 18px; }
+  .admin-tile-count { font-size: 1.4rem; }
+  .admin-search { flex: 1 1 100%; }
+  .admin-section .ui-btn--sm { flex: 1 1 100%; }
+  .admin-row { align-items: flex-start; flex-wrap: wrap; }
+  .admin-row-main h4 { white-space: normal; }
+  .admin-row-actions { width: 100%; justify-content: flex-end; }
+  .admin-modal { padding: 0; align-items: end; }
+  .admin-modal-card { width: 100%; max-height: 92vh; border-radius: 26px 26px 0 0; }
+  .admin-data-form { padding: 16px 16px 0; grid-template-columns: 1fr; }
+  .admin-modal-heading { padding: 16px; }
+  .admin-modal-actions { margin: 4px -16px 0; padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); }
+  .admin-modal-actions .ui-btn { flex: 1; }
+}
