@@ -4,7 +4,9 @@
     {
       "name": "isee-backend",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["backend/server.py"],
+      "runtimeArgs": [
+        "backend/server.py"
+      ],
       "port": 4173,
       "autoPort": true
     }

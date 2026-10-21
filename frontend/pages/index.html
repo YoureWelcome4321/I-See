@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/css/ui.css?v=2" />
+  <link rel="stylesheet" href="../assets/css/ui.css?v=5" />
   <style>
     /* Шапка, лист, токены и базовые стили — в ../assets/css/ui.css */
     .hm-top { padding-bottom: 38px; }
@@ -82,7 +82,6 @@
     .advice-result h3 { margin-bottom: 6px; font-size: 1.1rem; }
     .advice-result p { margin-bottom: 10px; color: #405544; line-height: 1.5; }
     .advice-result-link { color: var(--deep); font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
-    .advice-footnote { margin-top: 16px; color: var(--muted); font-size: .78rem; line-height: 1.4; }
 
     /* ---------- Камера ---------- */
     .scanner { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; padding: 20px; background: rgb(12 47 25 / 82%); backdrop-filter: blur(10px); }
@@ -117,6 +116,41 @@
       .camera-frame { min-height: 0; max-height: none; border-width: 4px; border-radius: 22px; }
       .scan-window { inset: 29% 9%; }
     }
+    /* ---------- Просмотр истории ---------- */
+    .recipe-story { padding: 0; font: inherit; text-align: left; cursor: pointer; }
+    .story-viewer { width: min(560px, 100%); max-width: 100%; height: min(860px, 100%); max-height: 100%; margin: auto; padding: 0; border: 0; border-radius: 30px; background: #fff; color: var(--ink); box-shadow: 0 30px 80px rgb(5 30 14 / 45%); overflow: hidden; }
+    .story-viewer::backdrop { background: rgb(8 32 17 / 72%); backdrop-filter: blur(6px); }
+    .story-viewer[open] { display: flex; flex-direction: column; }
+    .sv-cover { position: relative; flex: none; height: clamp(200px, 34vh, 300px); background: #1f6a35; color: #fff; }
+    .sv-cover img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .sv-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgb(6 30 14 / 55%), transparent 35%, rgb(6 30 14 / 85%)); }
+    .sv-bars { position: absolute; z-index: 2; inset: 14px 70px auto 16px; display: flex; gap: 5px; }
+    .sv-bars i { height: 5px; flex: 1; border-radius: 99px; background: rgb(255 255 255 / 38%); }
+    .sv-bars i.is-seen { background: #fff; }
+    .sv-close { position: absolute; z-index: 2; top: 8px; right: 12px; width: 3rem; height: 3rem; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgb(0 0 0 / 35%); color: #fff; font-size: 1.8rem; line-height: 1; cursor: pointer; }
+    .sv-close:hover { background: rgb(0 0 0 / 55%); }
+    .sv-cover-text { position: absolute; z-index: 1; inset: auto 20px 18px; display: grid; gap: 6px; }
+    .sv-kind { width: fit-content; padding: .3rem .75rem; border-radius: 999px; background: var(--lime); color: var(--deep); font-size: .78rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .sv-cover-text h2 { margin: 0; font-size: clamp(1.6rem, 6vw, 2.1rem); line-height: 1.12; text-shadow: 0 2px 8px rgb(0 0 0 / 35%); }
+    .sv-cover-text p { margin: 0; font-size: 1.02rem; font-weight: 600; opacity: .92; }
+    .sv-body { flex: 1; min-height: 0; padding: 22px 22px 8px; overflow-y: auto; display: grid; align-content: start; gap: 16px; font-size: 1.12rem; line-height: 1.6; }
+    .sv-body p { margin: 0; white-space: pre-line; }
+    .sv-body h3 { margin: 6px 0 0; font-size: 1.25rem; }
+    .sv-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; counter-reset: sv; }
+    .sv-steps li { padding: 14px 16px; display: flex; align-items: flex-start; gap: 14px; border-radius: 20px; background: var(--soft); font-weight: 600; line-height: 1.45; counter-increment: sv; }
+    .sv-steps li::before { content: counter(sv); width: 2.3rem; height: 2.3rem; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--deep); font: 800 1.05rem Manrope, sans-serif; }
+    .sv-ingredients { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+    .sv-ingredients li { padding: .45rem .9rem; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; font-size: 1rem; font-weight: 700; }
+    .sv-empty { padding: 22px; border: 2px dashed var(--line-strong); border-radius: 20px; color: var(--muted); text-align: center; }
+    .sv-nav { flex: none; padding: 12px 22px 18px; display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; border-top: 1px solid var(--line); background: #fff; }
+    .sv-nav .ui-btn { min-height: 3.4rem; font-size: 1.02rem; }
+    /* On the first story there is no "back", so "next" takes the whole row. */
+    .sv-nav .ui-btn[hidden] + .ui-btn { grid-column: 1 / -1; }
+    @media (max-width: 560px) {
+      .story-viewer { width: 100%; height: 100%; border-radius: 0; }
+      .sv-body { padding: 18px 16px 8px; }
+      .sv-nav { padding: 10px 16px calc(14px + env(safe-area-inset-bottom)); }
+    }
   </style>
 </head>
 <body class="home-body">
@@ -128,15 +162,7 @@
         <span>Профиль</span><span aria-hidden="true">›</span>
       </a>
     </div>
-    <nav class="quick-links" aria-label="Полезные истории">
-      <a class="recipe-story" data-story-id="story-01" href="help.html"><span class="story-image"><img src="../assets/images/story-01.jpg" alt="" fetchpriority="high" /></span><span class="story-caption"><b>Новый образ</b><small>Детали и настроение</small></span></a>
-      <a class="recipe-story" data-story-id="story-02" href="help.html"><span class="story-image"><img src="../assets/images/story-02.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Город не спит</b><small>Вечерние огни</small></span></a>
-      <a class="recipe-story" data-story-id="story-03" href="medical-card.html"><span class="story-image"><img src="../assets/images/story-03.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Тёплый вечер</b><small>Моменты на память</small></span></a>
-      <a class="recipe-story" data-story-id="story-04" href="feedback.html"><span class="story-image"><img src="../assets/images/story-04.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Wanna play?</b><small>Новая игра</small></span></a>
-      <a class="recipe-story" data-story-id="story-05" href="help.html"><span class="story-image"><img src="../assets/images/story-05.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Особенный день</b><small>Важные события</small></span></a>
-      <a class="recipe-story" data-story-id="story-06" href="help.html"><span class="story-image"><img src="../assets/images/story-06.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Вечер дома</b><small>Время для себя</small></span></a>
-      <a class="recipe-story" data-story-id="story-07" href="help.html"><span class="story-image"><img src="../assets/images/story-07.jpg" alt="" loading="lazy" /></span><span class="story-caption"><b>Другой взгляд</b><small>Игра света и тени</small></span></a>
-    </nav>
+    <nav class="quick-links" aria-label="Полезные истории"></nav>
   </header>
 
   <main id="main-content" class="hm-main">
@@ -172,12 +198,25 @@
     <button class="bottom-advice" id="open-advice-bottom" type="button"><span class="assistant-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 7h22v16H15l-7 5v-5H5z"/><path d="M11 15h.1m5 0h.1m5 0h.1"/></svg></span><span>Спросить помощника</span></button>
   </nav>
 
+  <dialog class="story-viewer" id="story-viewer" aria-labelledby="sv-title">
+    <div class="sv-cover">
+      <img id="sv-image" alt="" />
+      <div class="sv-bars" id="sv-bars" aria-hidden="true"></div>
+      <button class="sv-close" type="button" id="sv-close" aria-label="Закрыть историю">×</button>
+      <div class="sv-cover-text"><span class="sv-kind" id="sv-kind"></span><h2 id="sv-title"></h2><p id="sv-subtitle"></p></div>
+    </div>
+    <div class="sv-body" id="sv-body"></div>
+    <div class="sv-nav">
+      <button class="ui-btn ui-btn--ghost" type="button" id="sv-prev"><span aria-hidden="true">←</span> Назад</button>
+      <button class="ui-btn" type="button" id="sv-next"><span>Дальше</span><i aria-hidden="true">→</i></button>
+    </div>
+  </dialog>
   <dialog class="advice-dialog" id="advice-dialog" aria-labelledby="advice-title" aria-describedby="advice-description">
     <div class="advice-dialog-inner">
       <header class="advice-dialog-header"><div><p class="eyebrow">Подсказка рядом</p><h2 id="advice-title">О чём хотите узнать?</h2></div><button class="dialog-close" type="button" data-advice-close aria-label="Закрыть окно">×</button></header>
-      <p id="advice-description" class="advice-description">Выберите тему — помощник покажет короткое объяснение. Это справочная информация, а не медицинское заключение.</p>
+      <p id="advice-description" class="advice-description">Выберите тему — помощник покажет короткое объяснение.</p>
       <form id="advice-form" class="advice-form"><label for="advice-topic">Тема</label><select id="advice-topic" name="topic"><option value="start">Как пользоваться сайтом</option><option value="scan">Как проверить продукт</option><option value="profile">Профиль и ограничения</option><option value="recipes">Рецепты для вас</option><option value="catalog">Каталог товаров</option><option value="stores">Магазины рядом</option><option value="allergens">Аллергены</option><option value="composition">Состав</option><option value="additives">Добавки</option><option value="label">Как читать этикетку</option></select><button class="button button-primary" type="submit">Показать инструкцию</button></form>
-      <div class="advice-result" id="advice-result" aria-live="polite" tabindex="-1"></div><p class="advice-footnote">При аллергии всегда сверяйтесь с полной упаковкой и рекомендациями врача.</p>
+      <div class="advice-result" id="advice-result" aria-live="polite" tabindex="-1"></div>
     </div>
   </dialog>
 
@@ -191,6 +230,6 @@
   </section>
 
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js" defer></script>
-  <script src="../assets/js/api.js" defer></script><script src="../assets/js/app.js?v=help-2" defer></script>
+  <script src="../assets/js/api.js" defer></script><script src="../assets/js/app.js?v=stories-1" defer></script>
 </body>
 </html>

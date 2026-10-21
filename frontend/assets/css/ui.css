@@ -31,6 +31,8 @@ button { cursor: pointer; }
 /* ---------- Шапка ---------- */
 .hm-top { padding: max(14px, env(safe-area-inset-top)) 0 38px; background: linear-gradient(150deg, #0b572b 0%, #218638 58%, #62b83f 100%); color: #fff; }
 .hm-top a { text-decoration: none; }
+/* Старые product.css и admin.css красят все ссылки в чёрный с !important — в шапке ссылки всегда белые. */
+.hm-top .hm-brand, .hm-top .hm-profile, .hm-top .hm-back { color: #fff !important; }
 .hm-bar { width: min(980px, calc(100% - 32px)); margin: 0 auto 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .hm-brand { display: inline-flex; align-items: center; gap: .6rem; color: #fff; font: 800 1.05rem Manrope, sans-serif; }
 .hm-brand:hover { color: #fff; }
@@ -41,11 +43,14 @@ button { cursor: pointer; }
 .hm-profile svg { width: 1.3rem; height: 1.3rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Заголовок внутренней страницы: кнопка «назад» + надзаголовок + h1 */
-.hm-head { width: min(980px, calc(100% - 32px)); margin: 8px auto 0; display: flex; align-items: flex-start; gap: 16px; }
-.hm-back { width: 3rem; height: 3rem; flex: none; margin-top: .2rem; display: grid; place-items: center; border: 1px solid rgb(255 255 255 / 34%); border-radius: 50%; background: rgb(8 64 30 / 45%); color: #fff; transition: background .15s, transform .15s; }
+.hm-head { width: min(980px, calc(100% - 32px)); margin: 8px auto 0; display: flex; align-items: center; gap: 16px; }
+.hm-back { width: 3rem; height: 3rem; flex: none; display: grid; place-items: center; border: 1px solid rgb(255 255 255 / 34%); border-radius: 50%; background: rgb(8 64 30 / 45%); color: #fff; transition: background .15s, transform .15s; }
 .hm-back:hover { background: rgb(8 64 30 / 70%); color: #fff; transform: translateX(-2px); }
 .hm-back svg { width: 1.35rem; height: 1.35rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-.hm-head-copy { min-width: 0; flex: 1; }
+/* Плашка стоит в одной строке с заголовком (справа), подзаголовок — отдельной строкой ниже. */
+.hm-head-copy { min-width: 0; flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: .55rem .9rem; }
+.hm-head-copy > .hm-kicker { order: 1; margin: 0; }
+.hm-head-copy > .hm-sub { order: 2; flex-basis: 100%; max-width: none; margin-top: 0; padding-right: max(0px, 100% - 36rem); }
 .hm-kicker { width: fit-content; margin: 0 0 10px; padding: .35rem .7rem; border-radius: 999px; background: var(--lime); color: var(--deep); font-size: .68rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
 .hm-head h1 { margin: 0; color: #fff; font-size: clamp(1.9rem, 4.6vw, 2.75rem); line-height: 1.08; }
 .hm-sub { max-width: 36rem; margin: .55rem 0 0; color: rgb(255 255 255 / 86%); font-size: 1rem; line-height: 1.5; }

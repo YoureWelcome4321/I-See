@@ -14,8 +14,10 @@ from urllib.error import HTTPError, URLError
 import certifi
 try:
     import free_search  # started as `python backend/server.py`
+    import diet_match
 except ImportError:
     from backend import free_search  # imported as the `backend.server` module
+    from backend import diet_match
 
 from fastapi import FastAPI, HTTPException, Header, Query, Request as FastAPIRequest
 from fastapi.middleware.cors import CORSMiddleware
@@ -46,6 +48,11 @@ STORE_RADIUS_METERS = 2000
 STORE_PROVIDERS = ("https://maps.mail.ru/osm/tools/overpass/api/interpreter", "https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter")
 DB_PATH = Path(os.getenv("DATABASE_PATH", BASE / "data" / "isee.sqlite3"))
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+# Uploaded story photos live next to the database so they survive redeploys (the Docker volume).
+UPLOADS = DB_PATH.parent / "uploads"
+UPLOADS.mkdir(exist_ok=True)
+UPLOAD_MAX_BYTES = 5 * 1024 * 1024
+UPLOAD_TYPES = ((b"\xff\xd8\xff", "jpg"), (b"\x89PNG\r\n\x1a\n", "png"), (b"RIFF", "webp"))
 TLS_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 
 SESSION_TTL_SECONDS = 30 * 24 * 3600
@@ -93,6 +100,11 @@ def seed_admin_password():
     print(f"Создан администратор: логин admin, пароль {password} (задайте ADMIN_PASSWORD, чтобы выбрать свой)", flush=True)
     return password
 
+# Starter content of the two system stories.
+STORY_KINDS = ("article", "recipe", "guide")
+STORY_HOW_BODY = "Откройте главную страницу и нажмите «Сканировать».\nРазрешите сайту пользоваться камерой телефона.\nНаведите камеру на штрихкод на упаковке и подержите пару секунд.\nПрочитайте состав: он появится крупными буквами, а сложные слова мы объясним.\nЕсли в составе есть то, что вам нельзя, вы увидите предупреждение."
+STORY_TEAM_BODY = "«Я Вижу!» придумали, чтобы покупки снова были спокойными. Мелкий шрифт на упаковке трудно разглядеть, а названия вроде «Е330» или «мальтодекстрин» ничего не говорят.\n\nМы читаем упаковку за вас: показываем состав крупно и объясняем непонятные слова простым языком. А если в продукте есть то, что вам нельзя, сразу предупреждаем.\n\nЕсли что-то неудобно или непонятно, напишите нам через «Обратную связь» — мы читаем каждое сообщение."
+
 def init_db():
     conn = db()
     conn.executescript("""
@@ -118,6 +130,11 @@ def init_db():
     story_columns = {row[1] for row in conn.execute("PRAGMA table_info(stories)")}
     if "recipe_id" not in story_columns:
         conn.execute("ALTER TABLE stories ADD COLUMN recipe_id TEXT REFERENCES recipes(id) ON DELETE SET NULL")
+    # What opens inside a story: an article, a recipe or a step-by-step guide.
+    if "kind" not in story_columns:
+        conn.execute("ALTER TABLE stories ADD COLUMN kind TEXT NOT NULL DEFAULT 'article'")
+        conn.execute("ALTER TABLE stories ADD COLUMN body TEXT NOT NULL DEFAULT ''")
+        conn.execute("UPDATE stories SET kind='recipe' WHERE recipe_id IS NOT NULL AND recipe_id <> ''")
     if conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0:
         conn.executemany("INSERT INTO users(login,password,name,phone,is_admin) VALUES (?,?,?,?,?)", [("user",hash_password("qwerty"),"Пользователь","",0),("admin",hash_password(seed_admin_password()),"Администратор","",1)])
         conn.executemany("INSERT INTO profiles VALUES (?,?)", [("user","[]"),("admin","[]")])
@@ -131,6 +148,10 @@ def init_db():
         if existing_stories == 7 and conn.execute("SELECT 1 FROM stories WHERE id='story-how'").fetchone() is None:
             conn.execute("DELETE FROM stories")
             conn.executemany("INSERT INTO stories(id,title,subtitle,image,href,recipe_id) VALUES (?,?,?,?,?,?)", [("story-how", "Как пользоваться сервисом", "Сканируйте продукты и проверяйте состав", "story-how.jpg", "/help.html", None), ("story-team", "Команда проекта «Я Вижу!»", "Создано с заботой о ваших покупках", "story-team.jpg", "/help.html", None)])
+    # An empty image means "use the linked recipe's photo"; older recipe stories kept a stock photo instead.
+    conn.execute("UPDATE stories SET image='' WHERE recipe_id IS NOT NULL AND recipe_id <> '' AND image LIKE 'story-__.jpg'")
+    conn.execute("UPDATE stories SET kind='guide', body=? WHERE id='story-how' AND body=''", (STORY_HOW_BODY,))
+    conn.execute("UPDATE stories SET kind='article', body=? WHERE id='story-team' AND body=''", (STORY_TEAM_BODY,))
     # System stories have their own illustrations; older databases still point at the shared photos.
     conn.execute("UPDATE stories SET image='story-how.jpg' WHERE id='story-how' AND image='story-01.jpg'")
     conn.execute("UPDATE stories SET image='story-team.jpg' WHERE id='story-team' AND image='story-02.jpg'")
@@ -182,9 +203,11 @@ class RegistrationData(BaseModel):
     restrictions: list[dict] = Field(default_factory=list, max_length=100)
 class ProductData(BaseModel):
     name: str = Field(min_length=1, max_length=120); category: str = "Продукты"; barcode: str = ""; ingredients: str = ""; allergens: str = ""; price: int = Field(default=0, ge=0, le=10000000)
+class DietItem(BaseModel): id: str = Field(min_length=1, max_length=80); text: str = Field(max_length=2000)
+class DietCheckData(BaseModel): items: list[DietItem] = Field(default_factory=list, max_length=200)
 class ProfileData(BaseModel): restrictions: list[dict] = Field(default_factory=list, max_length=100)
 class CheckData(BaseModel): product_id: int | None = None; product: dict | None = None
-class StoryData(BaseModel): id: str = ""; title: str = Field(min_length=1, max_length=60); subtitle: str = ""; image: str; href: str = "help.html"; recipe_id: str | None = None
+class StoryData(BaseModel): id: str = ""; title: str = Field(min_length=1, max_length=60); subtitle: str = ""; image: str = ""; href: str = "help.html"; recipe_id: str | None = None; kind: str = "article"; body: str = Field(default="", max_length=6000)
 class RecipeData(BaseModel): id: str = ""; title: str = Field(min_length=1, max_length=120); description: str = ""; image: str = "story-01.jpg"; ingredients: list[str] = Field(default_factory=list, max_length=30); steps: list[str] = Field(default_factory=list, max_length=20); sponsored_product: str = ""; sponsored_label: str = ""
 class ProductLookupData(BaseModel):
     name: str = Field(min_length=2, max_length=180)
@@ -368,6 +391,12 @@ def get_profile(authorization: str | None = Header(default=None)):
 def save_profile(data: ProfileData, authorization: str | None = Header(default=None)):
     user = require_user(authorization); clean = clean_restrictions(data.restrictions)
     conn=db(); conn.execute("INSERT INTO profiles(login,restrictions) VALUES (?,?) ON CONFLICT(login) DO UPDATE SET restrictions=excluded.restrictions",(user,json.dumps(clean,ensure_ascii=False))); conn.commit(); conn.close(); return {"restrictions": clean}
+@app.post("/api/diet/check", tags=["Профиль и проверки"], summary="Что из списка мне нельзя", description="Сравнивает товары или рецепты с ограничениями профиля: сразу по словам (молоко — это и кефир, и сливочное масло), а нейросеть в фоне ищет неочевидные совпадения. Пока она думает, ai = pending: повторите запрос через несколько секунд. Требуется авторизация.")
+def diet_check(data: DietCheckData, authorization: str | None = Header(default=None)):
+    user = require_user(authorization); conn=db(); row=conn.execute("SELECT restrictions FROM profiles WHERE login=?",(user,)).fetchone(); conn.close()
+    names = [x["name"] for x in (json.loads(row[0]) if row else [])]
+    results, ai = diet_match.check(names, [(item.id, item.text) for item in data.items], read_ai_cache, write_ai_cache)
+    return {"restrictions": names, "results": results, "ai": ai}
 @app.get("/api/checks", tags=["Профиль и проверки"], summary="Получить историю проверок", description="Возвращает только проверки текущего авторизованного пользователя, отсортированные в порядке сохранения.")
 def get_checks(authorization: str | None = Header(default=None)):
     user = require_user(authorization); conn=db(); result=[]
@@ -394,12 +423,16 @@ def save_check(data: CheckData, authorization: str | None = Header(default=None)
 @app.get("/api/stories", tags=["Истории"], summary="Получить истории для главной", description="Возвращает подписи, изображения и ссылки историй, которые отображаются в верхнем блоке главной страницы.")
 def get_stories():
     result = rows("stories")
-    conn = db(); images = dict(conn.execute("SELECT id,image FROM recipes").fetchall()); conn.close()
+    conn = db(); recipes = {row["id"]: rowdict(row) for row in conn.execute("SELECT * FROM recipes")}; conn.close()
+    images = {key: recipe["image"] for key, recipe in recipes.items()}
     for item in result:
-        # A story about a recipe shows that recipe's photo, so the cover always matches the dish.
-        if item.get("recipe_id"):
-            item["href"] = f"/recipe.html?id={item['recipe_id']}"
-            item["image"] = images.get(item["recipe_id"], item["image"])
+        # The viewer shows a recipe story's dish right inside it, without another request.
+        recipe = recipes.get(item.get("recipe_id")) if item.get("kind") == "recipe" else None
+        item["recipe"] = {"id": recipe["id"], "title": recipe["title"], "description": recipe["description"], "ingredients": json.loads(recipe["ingredients"] or "[]"), "steps": json.loads(recipe["steps"] or "[]")} if recipe else None
+        if item.get("recipe_id"): item["href"] = f"/recipe.html?id={item['recipe_id']}"
+        # No own photo: the story shows its recipe's photo, so the cover always matches the dish.
+        item["photo_source"] = "upload" if item["image"] else "recipe"
+        if not item["image"]: item["image"] = images.get(item.get("recipe_id"), "story-01.jpg")
     return result
 @app.get("/api/recipes/{recipe_id}", tags=["Рецепты"], summary="Получить рецепт", description="Возвращает ингредиенты, шаги приготовления и рекламную маркировку рецепта.")
 def get_recipe(recipe_id: str):
@@ -446,7 +479,16 @@ def save_story(data: StoryData, authorization: str | None = Header(default=None)
     require_admin(authorization)
     if data.id in ("story-how", "story-team"):
         raise HTTPException(403, "Системные истории нельзя изменять")
-    if not re.fullmatch(r"story-\d{2}\.jpg", data.image): raise HTTPException(400, "Некорректное изображение истории")
+    data.recipe_id = data.recipe_id or None
+    data.body = data.body.strip()
+    if data.kind not in STORY_KINDS: raise HTTPException(400, "Выберите, что внутри истории: статья, рецепт или инструкция")
+    if data.kind == "recipe" and not data.recipe_id: raise HTTPException(400, "Выберите рецепт для этой истории")
+    if data.kind != "recipe" and not data.body: raise HTTPException(400, "Напишите текст статьи или шаги инструкции")
+    if data.kind != "recipe": data.recipe_id = None
+    if not data.image and not data.recipe_id: raise HTTPException(400, "Загрузите фото или выберите рецепт, чтобы взять фото из него")
+    uploaded = re.fullmatch(r"uploads/[0-9a-f]{16}\.(jpg|png|webp)", data.image)
+    if data.image and not (re.fullmatch(r"story-\d{2}\.jpg", data.image) or (uploaded and (UPLOADS / data.image[8:]).is_file())):
+        raise HTTPException(400, "Некорректное изображение истории")
     if data.recipe_id:
         conn = db(); recipe_exists = conn.execute("SELECT 1 FROM recipes WHERE id=?", (data.recipe_id,)).fetchone(); conn.close()
         if not recipe_exists: raise HTTPException(404, "Выбранный рецепт не найден")
@@ -455,9 +497,20 @@ def save_story(data: StoryData, authorization: str | None = Header(default=None)
         conn=db(); item=rowdict(conn.execute("SELECT * FROM stories WHERE id=?",(data.id,)).fetchone()); conn.close()
         if not item: raise HTTPException(404, "История не найдена")
         changes = data.model_dump(); changes["href"] = story_href
-        if changes["recipe_id"] is None: changes["recipe_id"] = item.get("recipe_id")
-        item.update(changes); conn=db(); conn.execute("UPDATE stories SET title=?,subtitle=?,image=?,href=?,recipe_id=? WHERE id=?",(item["title"],item["subtitle"],item["image"],item["href"],item["recipe_id"],data.id)); conn.commit(); conn.close(); return item
-    item = {"id": f"story-{secrets.token_hex(3)}", **data.model_dump(exclude={"id"})}; item["href"] = story_href; conn=db(); conn.execute("INSERT INTO stories(id,title,subtitle,image,href,recipe_id) VALUES (?,?,?,?,?,?)",tuple(item.values())); conn.commit(); conn.close(); return item
+        item.update(changes); conn=db(); conn.execute("UPDATE stories SET title=?,subtitle=?,image=?,href=?,recipe_id=?,kind=?,body=? WHERE id=?",(item["title"],item["subtitle"],item["image"],item["href"],item["recipe_id"],item["kind"],item["body"],data.id)); conn.commit(); conn.close(); return item
+    item = {"id": f"story-{secrets.token_hex(3)}", **data.model_dump(exclude={"id"})}; item["href"] = story_href
+    conn=db(); conn.execute("INSERT INTO stories(id,title,subtitle,image,href,recipe_id,kind,body) VALUES (:id,:title,:subtitle,:image,:href,:recipe_id,:kind,:body)", item); conn.commit(); conn.close(); return item
+@app.post("/api/admin/uploads", tags=["Администрирование"], summary="Загрузить фото", description="Принимает изображение JPEG, PNG или WebP до 5 МБ в теле запроса и возвращает путь для поля image истории.")
+async def upload_image(request: FastAPIRequest, authorization: str | None = Header(default=None)):
+    require_admin(authorization)
+    data = await request.body()
+    if not data: raise HTTPException(400, "Файл пустой")
+    if len(data) > UPLOAD_MAX_BYTES: raise HTTPException(413, "Фото больше 5 МБ")
+    ext = next((e for magic, e in UPLOAD_TYPES if data.startswith(magic) and (e != "webp" or data[8:12] == b"WEBP")), None)
+    if not ext: raise HTTPException(415, "Подходят только фото JPEG, PNG или WebP")
+    name = f"{secrets.token_hex(8)}.{ext}"
+    (UPLOADS / name).write_bytes(data)
+    return {"image": f"uploads/{name}"}
 @app.delete("/api/admin/stories/{story_id}", tags=["Администрирование"], summary="Удалить историю", description="Удаляет историю главной страницы по идентификатору. Доступно только администратору.")
 def delete_story(story_id: str, authorization: str | None = Header(default=None)):
     require_admin(authorization)
@@ -925,6 +978,7 @@ def page(page: str):
     target = PAGES / f"{page}.html"
     if not target.is_file(): raise HTTPException(404, "Страница не найдена")
     return FileResponse(target, headers=PAGE_HEADERS)
+app.mount("/assets/images/uploads", StaticFiles(directory=UPLOADS), name="uploads")
 app.mount("/assets", StaticFiles(directory=ASSETS), name="assets")
 
 if __name__ == "__main__":

@@ -144,7 +144,9 @@ function renderStories(stories) {
     const title = document.createElement('h3');
     title.textContent = story.title;
     const detail = document.createElement('p');
-    detail.textContent = `${story.subtitle || 'Без подписи'} · ${story.href}`;
+    const kindName = { article: 'статья', recipe: 'рецепт', guide: 'инструкция' }[story.kind] || 'статья';
+    const empty = story.kind !== 'recipe' && !story.body ? ' · пока без текста' : '';
+    detail.textContent = `${story.subtitle || 'Без подписи'} · ${kindName}${empty} · ${story.photo_source === 'recipe' ? 'фото из рецепта' : 'своё фото'}`;
     info.append(title, detail);
     const actions = document.createElement('div');
     actions.className = 'admin-story-row-actions';
@@ -156,7 +158,6 @@ function renderStories(stories) {
       storyForm.elements.id.value = story.id;
       storyForm.elements.title.value = story.title;
       storyForm.elements.subtitle.value = story.subtitle;
-      storyForm.elements.image.value = story.image;
       openStoryModal(story);
     });
     const remove = document.createElement('button');
@@ -191,13 +192,73 @@ async function loadStories() {
   }
 }
 
+const storyRecipeImages = new Map();
+const storyFile = document.querySelector('#admin-story-file');
+const storyPreview = document.querySelector('#admin-story-preview');
+const storyPhotoHint = document.querySelector('#admin-story-photo-hint');
+const storyFileLabel = document.querySelector('#admin-story-file-label');
+
 async function loadStoryRecipeOptions(selectedId = '') {
   const select = document.querySelector('#admin-story-recipe');
   const recipes = await YaVizhuAPI.request('/api/admin/recipes');
   select.replaceChildren(new Option('Информационная история без рецепта', ''));
-  recipes.forEach((recipe) => select.add(new Option(recipe.title, recipe.id)));
+  storyRecipeImages.clear();
+  recipes.forEach((recipe) => { select.add(new Option(recipe.title, recipe.id)); storyRecipeImages.set(recipe.id, recipe.image); });
   select.value = selectedId || '';
+  updateStoryPhoto();
 }
+
+const STORY_BODY_TEXT = {
+  article: ['Текст статьи', 'Абзацы отделяйте пустой строкой. Пишите коротко и простыми словами.'],
+  guide: ['Шаги инструкции', 'Каждый шаг — с новой строки, они будут пронумерованы.'],
+};
+
+// What is inside the story decides which fields make sense: a recipe or text.
+function updateStoryKind() {
+  const kind = storyForm.elements.kind.value;
+  const isRecipe = kind === 'recipe';
+  document.querySelector('#admin-story-recipe-field').hidden = !isRecipe;
+  document.querySelector('#admin-story-body-field').hidden = isRecipe;
+  document.querySelector('#admin-story-photo-recipe').hidden = !isRecipe;
+  if (!isRecipe) {
+    storyForm.elements.recipe_id.value = '';
+    storyForm.elements.photo_source.value = 'upload';
+    const [label, hint] = STORY_BODY_TEXT[kind];
+    document.querySelector('#admin-story-body-label').textContent = label;
+    document.querySelector('#admin-story-body-hint').textContent = hint;
+  }
+  updateStoryPhoto();
+}
+
+// The photo is either uploaded by the admin or taken live from the chosen recipe.
+function updateStoryPhoto() {
+  const fromRecipe = storyForm.elements.photo_source.value === 'recipe';
+  const recipeImage = storyRecipeImages.get(storyForm.elements.recipe_id.value);
+  const image = fromRecipe ? recipeImage : storyForm.elements.image.value;
+  storyFileLabel.hidden = fromRecipe;
+  storyPreview.hidden = !image;
+  if (image) storyPreview.src = `/assets/images/${image}`;
+  if (fromRecipe) storyPhotoHint.textContent = recipeImage ? 'Фото подставится из рецепта и будет меняться вместе с ним.' : 'Выберите рецепт выше — фото возьмётся из него.';
+  else storyPhotoHint.textContent = image ? 'Можно выбрать другой файл, чтобы заменить фото.' : 'JPEG, PNG или WebP до 5 МБ.';
+}
+
+storyForm.elements.photo_source.forEach((radio) => radio.addEventListener('change', updateStoryPhoto));
+storyForm.elements.kind.forEach((radio) => radio.addEventListener('change', updateStoryKind));
+storyForm.elements.recipe_id.addEventListener('change', updateStoryPhoto);
+storyFile.addEventListener('change', async () => {
+  const file = storyFile.files[0];
+  if (!file) return;
+  storyPhotoHint.textContent = 'Загружаем фото…';
+  try {
+    const { image } = await YaVizhuAPI.request('/api/admin/uploads', { method: 'POST', body: file, headers: { 'Content-Type': file.type || 'application/octet-stream' } });
+    storyForm.elements.image.value = image;
+    updateStoryPhoto();
+  } catch (error) {
+    storyPhotoHint.textContent = error.message;
+  } finally {
+    storyFile.value = '';
+  }
+});
 
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -224,11 +285,17 @@ async function openStoryModal(story = null) {
   storyForm.elements.id.value = story?.id || '';
   storyForm.elements.title.value = story?.title || '';
   storyForm.elements.subtitle.value = story?.subtitle || '';
-  storyForm.elements.image.value = story?.image || 'story-01.jpg';
+  const fromRecipe = story?.photo_source === 'recipe';
+  storyForm.elements.photo_source.value = fromRecipe ? 'recipe' : 'upload';
+  storyForm.elements.image.value = story && !fromRecipe ? story.image : '';
   storyForm.elements.recipe_id.value = story?.recipe_id || '';
+  storyForm.elements.kind.value = story?.kind || 'article';
+  storyForm.elements.body.value = story?.body || '';
+  updateStoryKind();
   storyModalTitle.textContent = story ? 'Изменить историю' : 'Новая история';
   storyModal.hidden = false;
   try { await loadStoryRecipeOptions(story?.recipe_id || ''); } catch (error) { storyStatus.textContent = error.message; }
+  updateStoryKind();
   storyForm.elements.title.focus();
 }
 
@@ -248,7 +315,13 @@ storyModal.querySelectorAll('[data-admin-story-modal-close]').forEach((element) 
 
 storyForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const data = Object.fromEntries(new FormData(storyForm));
+  const { photo_source: photoSource, ...data } = Object.fromEntries(new FormData(storyForm));
+  if (data.kind === 'recipe' && !data.recipe_id) { storyPhotoHint.textContent = 'Выберите рецепт для этой истории.'; storyForm.elements.recipe_id.focus(); return; }
+  if (data.kind !== 'recipe' && !data.body.trim()) { storyForm.elements.body.focus(); document.querySelector('#admin-story-body-hint').textContent = 'Напишите текст — без него история будет пустой.'; return; }
+  if (data.kind !== 'recipe') data.recipe_id = '';
+  if (photoSource === 'recipe') data.image = '';
+  if (photoSource === 'recipe' && !data.recipe_id) { storyPhotoHint.textContent = 'Выберите рецепт, чтобы взять фото из него.'; return; }
+  if (photoSource === 'upload' && !data.image) { storyPhotoHint.textContent = 'Загрузите фото для истории.'; return; }
   try {
     await YaVizhuAPI.request('/api/admin/stories', { method: 'POST', body: JSON.stringify(data) });
     resetStoryForm();

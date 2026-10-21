@@ -1,19 +1,16 @@
 const storageKey = 'ya-vizhu-medical-card-v1';
 const onboardingStorageKey = 'ya-vizhu-onboarding-restrictions';
+const fontSizeKey = 'ya-vizhu-font-size';
 const form = document.querySelector('#medical-form');
 const foodName = document.querySelector('#food-name');
-const foodType = document.querySelector('#food-type');
 const list = document.querySelector('#medical-list');
 const status = document.querySelector('#medical-status');
-const loginForm = document.querySelector('#login-form');
-const loginStatus = document.querySelector('#login-status');
-const loginName = document.querySelector('#login-name');
-const loginPassword = document.querySelector('#login-password');
 const accountName = document.querySelector('#account-name');
 const accountPhone = document.querySelector('#account-phone');
+const accountInitial = document.querySelector('#account-initial');
 const logoutButton = document.querySelector('#logout-button');
-const historyList = document.querySelector('#check-history');
-const historyStatus = document.querySelector('#history-status');
+const sizeButtons = document.querySelectorAll('.profile-size [data-font-size]');
+const loginUrl = '/login.html?next=/medical-card.html';
 
 function normalizeItems(value) {
   if (!Array.isArray(value)) return [];
@@ -47,107 +44,72 @@ let items = readItems();
 function saveItems() {
   try {
     localStorage.setItem(storageKey, JSON.stringify(items));
-    if (YaVizhuAPI.hasToken()) {
-      YaVizhuAPI.request('/api/profile', { method: 'POST', body: JSON.stringify({ restrictions: items }) })
-        .catch(() => { status.textContent = 'Список сохранён на устройстве, но не удалось синхронизировать его с сервером.'; });
-    }
+    YaVizhuAPI.request('/api/profile', { method: 'POST', body: JSON.stringify({ restrictions: items }) })
+      .catch(() => { status.textContent = 'Список сохранён на телефоне, но не отправился на сервер. Проверьте интернет.'; });
     return true;
   } catch {
-    status.textContent = 'Не удалось сохранить список на этом устройстве.';
+    status.textContent = 'Не получилось сохранить список на этом телефоне.';
     return false;
   }
 }
 
-async function loadHistory() {
-  if (!YaVizhuAPI.hasToken()) {
-    historyStatus.textContent = 'Войдите, чтобы увидеть историю проверок.';
-    historyList.replaceChildren();
-    return;
-  }
-  try {
-    const history = await YaVizhuAPI.request('/api/checks');
-    historyList.replaceChildren();
-    if (!history.length) {
-      historyStatus.textContent = 'Сохранённых проверок пока нет. Отсканируйте продукт и нажмите «Сохранить проверку». ';
-      return;
-    }
-    historyStatus.textContent = `Сохранено проверок: ${history.length}.`;
-    [...history].reverse().forEach((entry) => {
-      const row = document.createElement('li'); row.className = 'medical-item';
-      const text = document.createElement('span');
-      const title = document.createElement('strong'); title.textContent = entry.product_name;
-      const detail = document.createElement('small');
-      const date = new Date(entry.checked_at).toLocaleString('ru-RU');
-      const outcome = entry.result === 'warning' ? `Есть совпадение: ${entry.matches.join(', ')}` : entry.result === 'clear' ? 'Совпадений с карточкой нет' : entry.reason === 'no_restrictions' ? 'Добавьте ограничения для сравнения' : 'Недостаточно данных о составе';
-      detail.textContent = `${date} · ${outcome}`;
-      text.append(title, document.createElement('br'), detail);
-      row.append(text); historyList.append(row);
-    });
-  } catch (error) { historyStatus.textContent = error.message; }
+function formatPhone(phone) {
+  const digits = String(phone || '').replace(/\D/g, '');
+  if (digits.length !== 11) return phone || '';
+  return `+7 ${digits.slice(1, 4)} ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9)}`;
 }
 
 function updateAccount() {
-  const user = YaVizhuAPI.getUser();
-  if (accountName) accountName.textContent = user ? user.name : '';
-  if (accountPhone) accountPhone.textContent = user ? (user.phone || '') : '';
-  logoutButton.hidden = !user;
-  loginForm.hidden = Boolean(user);
-  loadHistory();
+  const user = YaVizhuAPI.getUser() || {};
+  const name = (user.name || '').trim() || 'Ваш профиль';
+  accountName.textContent = user.name ? `Здравствуйте, ${name}!` : name;
+  accountInitial.textContent = name.charAt(0).toLocaleUpperCase('ru');
+  accountPhone.textContent = formatPhone(user.phone);
+  accountPhone.hidden = !user.phone;
 }
 
-loginForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  loginStatus.textContent = 'Выполняется вход…';
+// For a signed-in user the server list is the source of truth; this also catches an expired session.
+async function syncFromServer() {
   try {
-    const localItems = items;
-    const user = await YaVizhuAPI.login(loginName.value.trim(), loginPassword.value);
-    // A returning user on a new device should not be sent back to onboarding.
-    localStorage.setItem('ya-vizhu-onboarding-done-v1', '1');
-    let result = await YaVizhuAPI.request('/api/profile');
-    if (!result.restrictions.length && localItems.length) {
-      result = await YaVizhuAPI.request('/api/profile', { method: 'POST', body: JSON.stringify({ restrictions: localItems }) });
-    }
-    items = result.restrictions;
+    const result = await YaVizhuAPI.request('/api/profile');
+    items = normalizeItems(result.restrictions);
     localStorage.setItem(storageKey, JSON.stringify(items));
     renderItems();
-    loginStatus.textContent = `Здравствуйте, ${user.name}. Вход выполнен.`;
-    loginPassword.value = '';
-    updateAccount();
-  } catch (error) { loginStatus.textContent = error.message; }
-});
+  } catch {
+    if (!YaVizhuAPI.hasToken()) window.location.replace(`${loginUrl}&expired=1`);
+  }
+}
 
 logoutButton.addEventListener('click', () => {
   YaVizhuAPI.logout();
-  loginStatus.textContent = 'Вы вышли из профиля.';
-  updateAccount();
+  window.location.assign('/');
 });
 
 function renderItems() {
   list.replaceChildren();
   if (!items.length) {
     const empty = document.createElement('li');
-    empty.className = 'medical-empty';
-    empty.textContent = 'Пока список пуст. Добавьте продукт, если хотите.';
+    empty.className = 'profile-empty';
+    empty.textContent = 'Список пока пуст.';
     list.append(empty);
     return;
   }
-
   items.forEach((item, index) => {
     const row = document.createElement('li');
-    row.className = 'medical-item';
+    row.className = `profile-item is-${item.type}`;
     const description = document.createElement('span');
-    const category = document.createElement('strong');
-    category.textContent = item.type === 'allergy' ? 'Аллергия: ' : 'Не ем: ';
+    const category = document.createElement('small');
+    category.textContent = item.type === 'allergy' ? 'Аллергия' : 'Не ем';
     description.append(category, document.createTextNode(item.name));
     const remove = document.createElement('button');
-    remove.className = 'medical-remove';
+    remove.className = 'ui-btn ui-btn--danger ui-btn--sm';
     remove.type = 'button';
     remove.textContent = 'Убрать';
-    remove.setAttribute('aria-label', `Убрать ${item.name} из карточки`);
+    remove.setAttribute('aria-label', `Убрать «${item.name}» из списка`);
     remove.addEventListener('click', () => {
       items.splice(index, 1);
       saveItems();
-      status.textContent = `Запись «${item.name}» удалена.`;
+      status.textContent = `«${item.name}» убран из списка.`;
       renderItems();
     });
     row.append(description, remove);
@@ -155,26 +117,44 @@ function renderItems() {
   });
 }
 
+// Two submit buttons answer "why" in one tap instead of a separate dropdown.
 form.addEventListener('submit', (event) => {
   event.preventDefault();
+  const type = event.submitter?.value === 'avoid' ? 'avoid' : 'allergy';
   const name = foodName.value.trim();
   if (!name) {
+    status.textContent = 'Сначала напишите название продукта.';
     foodName.focus();
-    status.textContent = 'Введите название продукта.';
     return;
   }
-  const duplicate = items.some((item) => item.name.toLocaleLowerCase('ru') === name.toLocaleLowerCase('ru') && item.type === foodType.value);
-  if (duplicate) {
+  if (items.some((item) => item.name.toLocaleLowerCase('ru') === name.toLocaleLowerCase('ru') && item.type === type)) {
     status.textContent = `«${name}» уже есть в списке.`;
     foodName.focus();
     return;
   }
-  items.push({ name, type: foodType.value });
-  if (saveItems()) status.textContent = `«${name}» добавлен в карточку.`;
+  items.push({ name, type });
+  if (saveItems()) status.textContent = `«${name}» добавлен в список.`;
   renderItems();
   foodName.value = '';
   foodName.focus();
 });
 
-renderItems();
-updateAccount();
+function applyFontSize(size) {
+  document.documentElement.dataset.fontSize = size;
+  sizeButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.fontSize === size)));
+}
+
+sizeButtons.forEach((button) => button.addEventListener('click', () => {
+  try { localStorage.setItem(fontSizeKey, button.dataset.fontSize); } catch { /* the size still applies to this visit */ }
+  applyFontSize(button.dataset.fontSize);
+}));
+
+// The profile is for signed-in people only; guests sign in on their own page.
+if (!YaVizhuAPI.hasToken()) {
+  window.location.replace(loginUrl);
+} else {
+  applyFontSize(localStorage.getItem(fontSizeKey) === 'large' ? 'large' : 'normal');
+  renderItems();
+  updateAccount();
+  syncFromServer();
+}

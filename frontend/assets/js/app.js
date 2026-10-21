@@ -430,16 +430,84 @@ function initScanner() {
   }
 }
 
+const STORY_KINDS = { article: "Статья", recipe: "Рецепт", guide: "Инструкция" };
+
+function storyContent(story) {
+  const nodes = [];
+  const el = (tag, text, className) => { const node = document.createElement(tag); if (text) node.textContent = text; if (className) node.className = className; return node; };
+  const list = (items, className) => { const node = el(className === "sv-steps" ? "ol" : "ul", "", className); items.forEach((item) => node.append(el("li", item))); return node; };
+  if (story.kind === "recipe" && story.recipe) {
+    if (story.recipe.description) nodes.push(el("p", story.recipe.description));
+    if (story.recipe.ingredients.length) nodes.push(el("h3", "Что понадобится"), list(story.recipe.ingredients, "sv-ingredients"));
+    if (story.recipe.steps.length) nodes.push(el("h3", "Как готовить"), list(story.recipe.steps, "sv-steps"));
+    const open = el("a", "", "ui-btn ui-btn--ghost ui-btn--block");
+    open.href = `/recipe.html?id=${encodeURIComponent(story.recipe.id)}`;
+    open.append(el("span", "Открыть рецепт целиком"));
+    nodes.push(open);
+  } else if (story.kind === "guide" && story.body) {
+    nodes.push(list(story.body.split("\n").map((line) => line.trim()).filter(Boolean), "sv-steps"));
+  } else if (story.body) {
+    story.body.split(/\n\s*\n/).map((part) => part.trim()).filter(Boolean).forEach((part) => nodes.push(el("p", part)));
+  }
+  if (!nodes.length) nodes.push(el("p", "Скоро здесь появится рассказ. Загляните чуть позже.", "sv-empty"));
+  return nodes;
+}
+
+function initStoryViewer(stories) {
+  const viewer = document.getElementById("story-viewer");
+  if (!viewer) return () => {};
+  const $ = (id) => document.getElementById(id);
+  let current = 0;
+  let opener = null;
+
+  function show(index) {
+    current = index;
+    const story = stories[index];
+    $("sv-image").src = `/assets/images/${story.image}`;
+    $("sv-kind").textContent = STORY_KINDS[story.kind] || STORY_KINDS.article;
+    $("sv-title").textContent = story.title;
+    $("sv-subtitle").textContent = story.subtitle || "";
+    $("sv-bars").replaceChildren(...stories.map((_, i) => { const bar = document.createElement("i"); if (i <= index) bar.className = "is-seen"; return bar; }));
+    $("sv-body").replaceChildren(...storyContent(story));
+    $("sv-body").scrollTop = 0;
+    $("sv-prev").hidden = index === 0;
+    $("sv-next").querySelector("span").textContent = index === stories.length - 1 ? "Закрыть" : "Дальше";
+  }
+
+  function close() { if (viewer.open) viewer.close(); }
+  $("sv-close").addEventListener("click", close);
+  $("sv-prev").addEventListener("click", () => { if (current > 0) show(current - 1); });
+  $("sv-next").addEventListener("click", () => { if (current < stories.length - 1) show(current + 1); else close(); });
+  viewer.addEventListener("click", (event) => { if (event.target === viewer) close(); });
+  viewer.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowRight" && current < stories.length - 1) show(current + 1);
+    if (event.key === "ArrowLeft" && current > 0) show(current - 1);
+  });
+  // Focus returns to the story the person opened, so the keyboard does not lose its place.
+  viewer.addEventListener("close", () => { document.body.style.overflow = ""; opener?.focus(); });
+
+  return (index, button) => {
+    opener = button;
+    show(index);
+    document.body.style.overflow = "hidden";
+    viewer.showModal();
+    $("sv-next").focus();
+  };
+}
+
 async function initStories() {
   const container = document.querySelector('.quick-links');
   if (!container || !window.YaVizhuAPI) return;
   try {
     const stories = await YaVizhuAPI.request('/api/stories');
-    const links = stories.map((story, index) => {
-      const link = document.createElement('a');
-      link.className = 'recipe-story';
-      link.dataset.storyId = story.id;
-      link.href = story.href;
+    const open = initStoryViewer(stories);
+    const buttons = stories.map((story, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'recipe-story';
+      button.dataset.storyId = story.id;
+      button.setAttribute('aria-label', `${STORY_KINDS[story.kind] || STORY_KINDS.article}: ${story.title}`);
+      button.addEventListener('click', () => open(index, button));
 
       const imageWrap = document.createElement('span');
       imageWrap.className = 'story-image';
@@ -457,12 +525,12 @@ async function initStories() {
       const subtitle = document.createElement('small');
       subtitle.textContent = story.subtitle || '';
       caption.append(title, subtitle);
-      link.append(imageWrap, caption);
-      return link;
+      button.append(imageWrap, caption);
+      return button;
     });
-    container.replaceChildren(...links);
+    container.replaceChildren(...buttons);
   } catch {
-    // Оставляем встроенные истории на случай, если API временно недоступно.
+    // Без историй главная страница работает как обычно.
   }
 }
 

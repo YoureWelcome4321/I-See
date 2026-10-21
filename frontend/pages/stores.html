@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/ui.css?v=2" />
+  <link rel="stylesheet" href="/assets/css/ui.css?v=5" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
@@ -123,9 +123,6 @@
     .store-map-marker { width: 34px; height: 34px; display: grid; place-items: center; border: 3px solid #fff; border-radius: 50% 50% 50% 8px; transform: rotate(-45deg); background: var(--lime); color: var(--deep); box-shadow: 0 3px 10px rgb(23 61 34 / 38%); font: 900 12px Manrope, sans-serif; }
     .store-map-marker > span { display: block; transform: rotate(45deg); }
 
-    .note { margin-top: 20px; padding: 15px 17px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 19px; background: #fff; }
-    .note span { width: 26px; height: 26px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #e7f3dc; color: #286f37; font: 800 14px Georgia, serif; }
-    .note p { color: #59685b; font-size: 12.5px; line-height: 1.5; }
 
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 
@@ -159,7 +156,6 @@
         <h1 id="stores-heading">Магазины поблизости</h1>
         <p class="hm-sub">Продуктовые магазины в радиусе 2 км — на карте и списком по расстоянию.</p>
       </div>
-      <div class="hm-head-aside"><span class="ui-count" id="stores-shown" aria-label="Показано магазинов">—</span></div>
     </div>
   </header>
 
@@ -205,10 +201,6 @@
         </div>
       </div>
 
-      <div class="note">
-        <span aria-hidden="true">i</span>
-        <p>Данные о магазинах предоставлены OpenStreetMap и могут быть неполными. Перед поездкой проверьте часы работы.</p>
-      </div>
     </section>
     </div>
   </main>
@@ -249,7 +241,7 @@
           el.style.display = ok ? "" : "none";
           if (ok) n++;
         });
-        shown.textContent = all.length ? n : "—";
+        if (shown) shown.textContent = all.length ? n : "—";
         var old = list.querySelector(".stores-nomatch");
         if (all.length && !n) {
           if (!old) { old = document.createElement("p"); old.className = "stores-nomatch"; old.textContent = "Ничего не найдено. Измените запрос или тип магазина."; list.appendChild(old); }

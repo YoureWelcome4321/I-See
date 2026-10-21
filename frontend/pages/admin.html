@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/assets/css/admin.css" />
-    <link rel="stylesheet" href="/assets/css/ui.css?v=2" />
+    <link rel="stylesheet" href="/assets/css/ui.css?v=5" />
     <style>
       /* Админка в общей стилистике: белые карточки, поля и кнопки-пилюли из ui.css. */
       .admin-page .hm-wrap { gap: 18px; }
@@ -45,6 +45,21 @@
       .admin-page .admin-product-row h3 { font-size: 1rem; }
       .admin-page .admin-product-row p { margin: 4px 0 0; color: var(--muted); font-size: .85rem; }
       .admin-page .admin-product-row-actions, .admin-page .admin-story-row-actions { display: flex; flex: none; flex-wrap: wrap; gap: 8px; }
+      .admin-page textarea { width: 100%; min-height: 9rem; padding: .75rem 1rem; border: 1.5px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); font: 500 1rem/1.5 inherit; resize: vertical; }
+      .admin-page textarea:focus { border-color: var(--bright); outline: 0; box-shadow: 0 0 0 4px rgb(217 240 91 / 60%); }
+      .admin-page .admin-story-body-hint { color: var(--muted); font-size: .85rem; font-weight: 500; }
+      .admin-page .admin-photo { margin: 0; padding: 0; border: 0; display: grid; gap: 10px; }
+      .admin-page .admin-photo legend { margin-bottom: 7px; padding: 0; color: #34473a; font-size: .92rem; font-weight: 800; }
+      .admin-page .admin-photo-source { display: flex; flex-wrap: wrap; gap: 8px; }
+      .admin-page .admin-photo-source label { padding: .55rem .9rem; display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; cursor: pointer; }
+      .admin-page .admin-photo-source label:has(input:checked) { border-color: var(--bright); background: var(--tint); }
+      .admin-page .admin-photo-source input { width: auto; min-height: 0; margin: 0; accent-color: var(--green); }
+      .admin-page .admin-photo-body { display: flex; align-items: center; gap: 14px; }
+      .admin-page .admin-photo-preview { width: 88px; height: 88px; flex: none; border-radius: 18px; object-fit: cover; background: var(--soft); }
+      .admin-page .admin-photo-controls { min-width: 0; display: grid; gap: 6px; justify-items: start; }
+      .admin-page .admin-photo-pick { position: relative; cursor: pointer; }
+      .admin-page .admin-photo-pick input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+      .admin-page .admin-photo-hint { margin: 0; color: var(--muted); font-size: .85rem; }
       .admin-page .admin-story-row { padding: 12px 14px; display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); }
       .admin-page .admin-story-row img { width: 56px; height: 56px; flex: none; border-radius: 14px; object-fit: cover; }
       .admin-page .admin-story-row-copy { min-width: 0; flex: 1; }
@@ -121,7 +136,7 @@
 
         <section class="admin-section" id="admin-section-stories" aria-labelledby="admin-stories-title" hidden>
           <div class="admin-section-heading"><div><p class="catalog-section-eyebrow">ГЛАВНАЯ СТРАНИЦА</p><h3 id="admin-stories-title">Истории</h3></div><span class="admin-section-mark" aria-hidden="true">03</span></div>
-          <p class="admin-section-hint">Обновляйте подписи, ссылки и изображения историй. Изображения нужно предварительно загрузить в папку сайта.</p>
+          <p class="admin-section-hint">Внутри истории может быть статья, рецепт или пошаговая инструкция. Фото можно загрузить своё, а для рецепта — взять из него.</p>
           <button class="ui-btn ui-btn--sm admin-add-button" id="admin-story-add" type="button"><span>Добавить историю</span><i aria-hidden="true">+</i></button>
           <p class="admin-status" id="admin-story-status" aria-live="polite"></p>
           <div class="admin-product-list" id="admin-story-list" aria-live="polite"></div>
@@ -157,14 +172,37 @@
             <input name="id" type="hidden" />
             <label>Заголовок<input name="title" maxlength="60" placeholder="Короткое название" required /></label>
             <label>Подпись<input name="subtitle" maxlength="80" placeholder="Дополнительная строка" /></label>
-            <label>Фото<select name="image"><option value="story-01.jpg">Фото 1</option><option value="story-02.jpg">Фото 2</option><option value="story-03.jpg">Фото 3</option><option value="story-04.jpg">Фото 4</option><option value="story-05.jpg">Фото 5</option><option value="story-06.jpg">Фото 6</option><option value="story-07.jpg">Фото 7</option></select></label>
-            <label class="admin-form-wide">Рецепт (необязательно)<select name="recipe_id" id="admin-story-recipe"><option value="">Информационная история без рецепта</option></select></label>
+            <fieldset class="admin-form-wide admin-photo">
+              <legend>Что внутри истории</legend>
+              <div class="admin-photo-source">
+                <label><input type="radio" name="kind" value="article" checked /> Статья</label>
+                <label><input type="radio" name="kind" value="recipe" /> Рецепт</label>
+                <label><input type="radio" name="kind" value="guide" /> Инструкция</label>
+              </div>
+            </fieldset>
+            <label class="admin-form-wide" id="admin-story-recipe-field" hidden>Рецепт<select name="recipe_id" id="admin-story-recipe"><option value="">Выберите рецепт</option></select></label>
+            <label class="admin-form-wide" id="admin-story-body-field"><span id="admin-story-body-label">Текст статьи</span><textarea name="body" id="admin-story-body" rows="7" maxlength="6000"></textarea><small class="admin-story-body-hint" id="admin-story-body-hint"></small></label>
+            <fieldset class="admin-form-wide admin-photo">
+              <legend>Фото</legend>
+              <div class="admin-photo-source">
+                <label><input type="radio" name="photo_source" value="upload" checked /> Загрузить своё</label>
+                <label id="admin-story-photo-recipe"><input type="radio" name="photo_source" value="recipe" /> Взять из рецепта</label>
+              </div>
+              <input name="image" type="hidden" />
+              <div class="admin-photo-body">
+                <img class="admin-photo-preview" id="admin-story-preview" alt="" hidden />
+                <div class="admin-photo-controls">
+                  <label class="ui-btn ui-btn--ghost ui-btn--sm admin-photo-pick" id="admin-story-file-label"><input type="file" id="admin-story-file" accept="image/jpeg,image/png,image/webp" /><span>Выбрать файл</span></label>
+                  <p class="admin-photo-hint" id="admin-story-photo-hint" aria-live="polite"></p>
+                </div>
+              </div>
+            </fieldset>
             <div class="admin-modal-actions"><button class="ui-btn ui-btn--ghost admin-cancel" id="admin-story-cancel" type="button">Отмена</button><button class="ui-btn" type="submit"><span>Сохранить</span><i aria-hidden="true">✓</i></button></div>
           </form>
         </section>
       </div>
     </main>
     <script src="/assets/js/api.js" defer></script>
-    <script src="/assets/js/admin.js?v=3" defer></script>
+    <script src="/assets/js/admin.js?v=5" defer></script>
   </body>
 </html>

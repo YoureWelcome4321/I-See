@@ -1,17 +1,19 @@
 (() => {
-  const steps = [
-    { kicker: "ПЕРВОЕ ЗНАКОМСТВО", title: "Покупки спокойнее", text: "Я Вижу! помогает разобраться в составе продуктов, аллергенах и добавках простыми словами." },
-    { kicker: "НАСТРОЙТЕ ПОД СЕБЯ", title: "Читайте как удобно", text: "Выберите размер текста. Его можно изменить позже в настройках профиля." },
-    { kicker: "ВАШ ПРОФИЛЬ", title: "Сохраним важное", text: "Укажите имя, телефон и продукты, которые важно учитывать при проверке." },
-  ];
+  const STEP_COUNT = 4;
+  const COMMON_FOODS = ["молоко", "яйца", "орехи", "арахис", "глютен", "рыба", "соя", "сахар"];
   const storageKey = "ya-vizhu-medical-card-v1";
   const legacyStorageKey = "ya-vizhu-onboarding-restrictions";
+  const doneKey = "ya-vizhu-onboarding-done-v1";
+  const fontSizeKey = "ya-vizhu-font-size";
   let phoneCheckTimer;
   let phoneCheckInFlight;
   let phoneCheckValue = "";
   let phoneCheckSequence = 0;
   let step = 0;
+  let fontSize = localStorage.getItem(fontSizeKey) === "large" ? "large" : "normal";
   const $ = (id) => document.getElementById(id);
+  const stepNodes = [...document.querySelectorAll(".onboarding-step[data-step]")];
+  const dots = [...document.querySelectorAll(".onboarding-dots i")];
 
   function normalizeRestrictions(value) {
     if (!Array.isArray(value)) return [];
@@ -38,63 +40,88 @@
     }
   }
 
+  // Chosen foods, keyed by lower-case name so "Мёд" and "мёд" are one button.
+  const chosen = new Map(readSavedRestrictions().map((item) => [item.name.toLocaleLowerCase("ru"), item]));
+
   function render() {
-    const data = steps[step];
-    $("onboarding-kicker").textContent = data.kicker;
-    $("onboarding-title").textContent = data.title;
-    $("onboarding-description").textContent = data.text;
-    document.querySelectorAll("[data-step-art]").forEach((node) => { node.hidden = Number(node.dataset.stepArt) !== step; });
-    document.querySelectorAll(".onboarding-step[data-step]").forEach((node) => { node.hidden = Number(node.dataset.step) !== step; });
-    $("onboarding-back").hidden = step === 0;
-    $("onboarding-next").querySelector("span").textContent = step === steps.length - 1 ? "Создать профиль" : "Далее";
-    $("onboarding-counter").textContent = `${step + 1} из ${steps.length}`;
-    const progress = ((step + 1) / steps.length) * 100;
-    $("onboarding-progress-fill").style.width = `${progress}%`;
-    $("onboarding-progress").setAttribute("aria-valuenow", String(step + 1));
-    $("onboarding-progress").setAttribute("aria-valuetext", `Шаг ${step + 1} из ${steps.length}`);
-    document.querySelector(".onboarding-card").dataset.step = String(step);
+    stepNodes.forEach((node) => { node.hidden = Number(node.dataset.step) !== step; });
+    dots.forEach((dot, index) => dot.classList.toggle("is-done", index <= step));
+    // The greeting has nothing to go back to, so its top row would be empty space.
+    document.querySelector(".onboarding-top").hidden = step === 0;
+    $("onboarding-counter").textContent = step === 0 ? "" : `Шаг ${step + 1} из ${STEP_COUNT}`;
     $("onboarding-status").textContent = "";
+    const heading = stepNodes[step].querySelector("h1, h2");
+    if (step > 0) heading.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function hydrateRestrictions() {
-    const saved = readSavedRestrictions();
-    const restriction = saved[0];
-    $("onboarding-restriction").value = restriction?.name || "";
+  function go(next) {
+    step = Math.min(STEP_COUNT - 1, Math.max(0, next));
+    render();
   }
 
-  function getRestrictions() {
-    const value = $("onboarding-restriction").value.trim();
-    return value ? [{ type: "avoid", name: value.slice(0, 80) }] : [];
+  function applyFontSize(size) {
+    fontSize = size;
+    document.documentElement.dataset.fontSize = size;
+    document.querySelectorAll(".onboarding-sizes [data-size]").forEach((button) => button.setAttribute("aria-checked", String(button.dataset.size === size)));
+  }
+
+  function renderFoods() {
+    const box = $("onboarding-foods");
+    const names = [...COMMON_FOODS];
+    chosen.forEach((item, key) => { if (!names.includes(key)) names.push(item.name); });
+    box.replaceChildren(...names.map((name) => {
+      const key = name.toLocaleLowerCase("ru");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = name.charAt(0).toLocaleUpperCase("ru") + name.slice(1);
+      button.setAttribute("aria-pressed", String(chosen.has(key)));
+      button.addEventListener("click", () => {
+        if (chosen.has(key)) chosen.delete(key); else chosen.set(key, { type: "allergy", name });
+        renderFoods();
+      });
+      return button;
+    }));
+    $("onboarding-foods-next").textContent = chosen.size ? "Дальше" : "Ничего из этого — дальше";
+  }
+
+  function restrictions() {
+    return [...chosen.values()];
+  }
+
+  // Font size and foods chosen during onboarding stay on the device as well as in the account.
+  function rememberChoices() {
+    localStorage.setItem(doneKey, "1");
+    localStorage.setItem(fontSizeKey, fontSize);
+    localStorage.setItem(storageKey, JSON.stringify(restrictions()));
+    localStorage.removeItem(legacyStorageKey);
   }
 
   function setFieldError(id, message) {
     const input = $(id);
-    const error = $(`${id}-error`);
-    input.classList.toggle("invalid", Boolean(message));
     input.setAttribute("aria-invalid", message ? "true" : "false");
-    if (error) error.textContent = message || "";
+    $(`${id}-error`).textContent = message || "";
   }
 
   function validateName() {
     const value = $("onboarding-name").value.trim();
     const valid = value.length >= 2 && value.length <= 80 && !/[\d<>]/.test(value);
-    setFieldError("onboarding-name", valid || !value ? "" : "Введите корректное имя (минимум 2 символа).");
+    setFieldError("onboarding-name", valid || !value ? "" : "Напишите имя буквами, хотя бы 2 буквы.");
     return valid;
   }
 
   function validatePhoneFormat() {
-    const input = $("onboarding-phone");
-    const raw = input.value.trim();
+    const raw = $("onboarding-phone").value.trim();
     const digits = raw.replace(/\D/g, "");
     const valid = /^\+?[\d\s().-]+$/.test(raw) && digits.length >= 10 && digits.length <= 15;
-    setFieldError("onboarding-phone", valid || !digits ? "" : "Введите номер от 10 до 15 цифр.");
+    setFieldError("onboarding-phone", valid || !digits ? "" : "Проверьте номер: в нём должно быть 11 цифр.");
     return valid;
   }
 
   function validatePassword() {
     const value = $("onboarding-password").value;
     const valid = value.length >= 6 && value.length <= 128;
-    setFieldError("onboarding-password", valid || !value ? "" : "Пароль должен быть не короче 6 символов.");
+    setFieldError("onboarding-password", valid || !value ? "" : "Пароль слишком короткий — нужно хотя бы 6 знаков.");
     return valid;
   }
 
@@ -106,67 +133,62 @@
     phoneCheckValue = phone;
     phoneCheckInFlight = window.YaVizhuAPI.checkPhone(phone).then((result) => {
       if (sequence !== phoneCheckSequence || $("onboarding-phone").value.trim() !== phone) return false;
-      if (!result.available) setFieldError("onboarding-phone", "Этот номер уже зарегистрирован.");
-      else setFieldError("onboarding-phone", "");
+      setFieldError("onboarding-phone", result.available ? "" : "С этим номером профиль уже есть — нажмите «Войти» ниже.");
       return result.available;
     }).catch((error) => {
       if (sequence !== phoneCheckSequence || $("onboarding-phone").value.trim() !== phone) return false;
-      setFieldError("onboarding-phone", error.message || "Не удалось проверить номер.");
+      setFieldError("onboarding-phone", error.message || "Не получилось проверить номер.");
       return false;
     });
     return phoneCheckInFlight;
   }
 
-  async function finish() {
-    const name = $("onboarding-name").value.trim();
-    const phone = $("onboarding-phone").value.trim();
+  async function finish(event) {
+    event.preventDefault();
     const status = $("onboarding-status");
-    if (!validateName()) {
-      status.textContent = "Проверьте имя.";
-      $("onboarding-name").focus();
+    const checks = [
+      [validateName, "onboarding-name", "Напишите, как вас зовут."],
+      [validatePhoneFormat, "onboarding-phone", "Напишите номер телефона."],
+      [validatePassword, "onboarding-password", "Придумайте пароль из 6 знаков или больше."],
+    ];
+    for (const [validate, id, emptyMessage] of checks) {
+      if (validate()) continue;
+      if (!$(id).value.trim()) setFieldError(id, emptyMessage);
+      $(id).focus();
       return;
     }
-    if (!validatePhoneFormat()) {
-      status.textContent = "Проверьте номер телефона.";
-      $("onboarding-phone").focus();
-      return;
-    }
-    if (!validatePassword()) {
-      status.textContent = "Придумайте пароль не короче 6 символов.";
-      $("onboarding-password").focus();
-      return;
-    }
+    const phone = $("onboarding-phone").value.trim();
     const phoneAvailable = await (phoneCheckValue === phone && phoneCheckInFlight ? phoneCheckInFlight : checkPhoneAvailability());
     if (!phoneAvailable) { $("onboarding-phone").focus(); return; }
 
-    const nextButton = $("onboarding-next");
-    nextButton.disabled = true;
-    nextButton.setAttribute("aria-busy", "true");
-    status.textContent = "Создаём профиль…";
+    const submit = $("onboarding-submit");
+    submit.disabled = true;
+    submit.setAttribute("aria-busy", "true");
+    status.textContent = "Сохраняем профиль…";
     try {
-      const restrictions = getRestrictions();
-      await window.YaVizhuAPI.register(name, phone, $("onboarding-password").value, restrictions);
-      const fontSize = document.querySelector('input[name="font-size"]:checked')?.value || "normal";
-      localStorage.setItem("ya-vizhu-onboarding-done-v1", "1");
-      localStorage.setItem("ya-vizhu-font-size", fontSize);
-      localStorage.setItem(storageKey, JSON.stringify(restrictions));
-      localStorage.removeItem(legacyStorageKey);
-      document.documentElement.dataset.fontSize = fontSize;
-      // The onboarding page is served at /onboarding.html; always return to
-      // the site root after account creation, regardless of the current URL.
+      await window.YaVizhuAPI.register($("onboarding-name").value.trim(), phone, $("onboarding-password").value, restrictions());
+      rememberChoices();
       window.location.assign("/");
     } catch (error) {
-      status.textContent = error.message || "Не удалось создать профиль. Попробуйте ещё раз.";
-      nextButton.disabled = false;
-      nextButton.removeAttribute("aria-busy");
+      status.textContent = error.message || "Не получилось сохранить профиль. Попробуйте ещё раз.";
+      submit.disabled = false;
+      submit.removeAttribute("aria-busy");
     }
   }
 
-  $("onboarding-next").addEventListener("click", () => {
-    if (step === steps.length - 1) finish();
-    else { step += 1; render(); }
+  document.querySelectorAll("[data-next]").forEach((button) => button.addEventListener("click", () => go(step + 1)));
+  $("onboarding-back").addEventListener("click", () => go(step - 1));
+  document.querySelectorAll(".onboarding-sizes [data-size]").forEach((button) => button.addEventListener("click", () => applyFontSize(button.dataset.size)));
+  $("onboarding-other").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const input = $("onboarding-other-input");
+    const name = input.value.trim().slice(0, 80);
+    if (name) chosen.set(name.toLocaleLowerCase("ru"), { type: "allergy", name });
+    input.value = "";
+    renderFoods();
+    input.focus();
   });
-  $("onboarding-back").addEventListener("click", () => { step = Math.max(0, step - 1); render(); });
+  $("onboarding-form").addEventListener("submit", finish);
   $("onboarding-name").addEventListener("blur", validateName);
   $("onboarding-phone").addEventListener("blur", checkPhoneAvailability);
   $("onboarding-password").addEventListener("blur", validatePassword);
@@ -178,6 +200,8 @@
     phoneCheckSequence += 1;
     phoneCheckTimer = setTimeout(checkPhoneAvailability, 450);
   });
-  hydrateRestrictions();
+
+  applyFontSize(fontSize);
+  renderFoods();
   render();
 })();

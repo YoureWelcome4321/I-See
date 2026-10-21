@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f4d27" />
+  <meta name="description" content="Вход в профиль Я Вижу! по номеру телефона." />
+  <title>Вход — Я Вижу!</title>
+  <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/ui.css?v=5" />
+  <link rel="stylesheet" href="/assets/css/onboarding.css?v=onboarding-14" />
+</head>
+<body class="onboarding-body">
+  <main class="onboarding-shell">
+    <header class="onboarding-topbar">
+      <a class="hm-brand" href="/" aria-label="Я Вижу! — главная"><img class="hm-mark" src="/assets/images/logo.png" alt="" aria-hidden="true" /><span>Я Вижу!</span></a>
+    </header>
+
+    <section class="onboarding-card" aria-labelledby="login-title">
+      <div class="onboarding-step">
+        <h1 id="login-title">Вход в профиль</h1>
+        <p class="onboarding-lead">Введите номер телефона и пароль, которые вы указали при знакомстве.</p>
+        <form class="ui-form" id="login-form" novalidate>
+          <label class="ui-field" for="login-phone">Номер телефона<input id="login-phone" name="login" type="tel" autocomplete="username" inputmode="tel" placeholder="+7 900 000-00-00" maxlength="32" /></label>
+          <label class="ui-field" for="login-password">Пароль<input id="login-password" name="password" type="password" autocomplete="current-password" maxlength="128" /></label>
+          <p class="onboarding-error" id="login-error" role="alert"></p>
+          <div class="onboarding-actions">
+            <button class="ui-btn ui-btn--block" id="login-submit" type="submit"><span>Войти</span><i aria-hidden="true">→</i></button>
+            <a class="onboarding-link" href="onboarding.html">Впервые здесь? Создать профиль</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script src="/assets/js/api.js?v=4" defer></script>
+  <script src="/assets/js/login.js?v=3" defer></script>
+</body>
+</html>

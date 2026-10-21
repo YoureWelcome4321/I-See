@@ -4,113 +4,90 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f4d27" />
-  <meta name="description" content="Создайте личный профиль в сервисе Я Вижу!" />
-  <title>Создадим профиль — Я Вижу!</title>
+  <meta name="description" content="Я Вижу! прочитает мелкий шрифт на упаковке и объяснит состав простыми словами." />
+  <title>Знакомство — Я Вижу!</title>
   <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
   <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/ui.css?v=2" />
-  <link rel="stylesheet" href="../assets/css/onboarding.css?v=onboarding-9" />
+  <link rel="stylesheet" href="/assets/css/ui.css?v=5" />
+  <link rel="stylesheet" href="../assets/css/onboarding.css?v=onboarding-14" />
 </head>
 <body class="onboarding-body">
   <main class="onboarding-shell">
     <header class="onboarding-topbar">
       <a class="hm-brand" href="/" aria-label="Я Вижу! — главная"><img class="hm-mark" src="/assets/images/logo.png" alt="" aria-hidden="true" /><span>Я Вижу!</span></a>
-      <a class="hm-profile" href="/medical-card.html"><i aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><circle cx="16" cy="10" r="5.5" /><path d="M5.5 27c.8-6.1 4.7-9.3 10.5-9.3s9.7 3.2 10.5 9.3" /></svg></i><span>Профиль</span><span aria-hidden="true">›</span></a>
     </header>
 
-    <div class="onboarding-progress" id="onboarding-progress" role="progressbar" aria-label="Прогресс создания профиля" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" aria-valuetext="Шаг 1 из 3">
-      <span class="onboarding-progress-fill" id="onboarding-progress-fill"></span>
-    </div>
+    <section class="onboarding-card" aria-labelledby="onboarding-title">
+      <div class="onboarding-top" hidden>
+        <button class="onboarding-back" id="onboarding-back" type="button"><span aria-hidden="true">←</span> Назад</button>
+        <p class="onboarding-counter" id="onboarding-counter" aria-live="polite"></p>
+      </div>
+      <div class="onboarding-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
-    <section class="onboarding-card" aria-live="polite" aria-labelledby="onboarding-title">
-      <div class="onboarding-visual" aria-hidden="true">
-        <div class="onboarding-glow"></div>
-        <div class="onboarding-art onboarding-art-welcome" data-step-art="0">
-          <span class="onboarding-art-spark">✦</span>
-          <img class="onboarding-art-mark" src="/assets/images/logo.png" alt="" />
-          <span class="onboarding-art-copy">Я Вижу!<small>состав проще</small></span>
+      <!-- 1. Знакомство -->
+      <div class="onboarding-step" data-step="0">
+        <img class="onboarding-mascot" src="/assets/images/logo.png" alt="" />
+        <h1 id="onboarding-title" tabindex="-1">Здравствуйте!</h1>
+        <p class="onboarding-lead">Мелкий шрифт на упаковке трудно разглядеть, а слова в составе бывают непонятными. «Я Вижу!» прочитает упаковку за вас и объяснит всё простым языком.</p>
+        <ol class="onboarding-how">
+          <li><span aria-hidden="true">1</span>Наведите камеру телефона на штрихкод</li>
+          <li><span aria-hidden="true">2</span>Состав с упаковки появится крупными буквами</li>
+          <li><span aria-hidden="true">3</span>Сложные слова и добавки вроде Е330 объясним по-простому</li>
+        </ol>
+        <div class="onboarding-actions">
+          <button class="ui-btn ui-btn--block" type="button" data-next><span>Давайте познакомимся</span><i aria-hidden="true">→</i></button>
         </div>
-        <div class="onboarding-art onboarding-art-type" data-step-art="1" hidden>
-          <span class="onboarding-type-sample">Aa</span>
-          <span class="onboarding-type-label">Читается<br />как удобно</span>
-        </div>
-        <div class="onboarding-art onboarding-art-account" data-step-art="2" hidden>
-          <span class="onboarding-account-avatar">И</span>
-          <span class="onboarding-account-lines"><i></i><i></i><i></i></span>
-          <span class="onboarding-account-phone" aria-hidden="true">+7 900 000-00-00</span>
-        </div>
-        <div class="onboarding-visual-note">Состав · аллергены · добавки</div>
       </div>
 
-      <div class="onboarding-content">
-        <div class="onboarding-meta">
-          <p class="onboarding-kicker" id="onboarding-kicker">ПЕРВОЕ ЗНАКОМСТВО</p>
-          <p class="onboarding-counter" id="onboarding-counter">1 из 4</p>
+      <!-- 2. Размер текста -->
+      <div class="onboarding-step" data-step="1" hidden>
+        <h2 tabindex="-1">Так удобно читать?</h2>
+        <p class="onboarding-lead">Нажмите на вариант, который лучше видно.</p>
+        <div class="onboarding-sizes" role="radiogroup" aria-label="Размер текста">
+          <button type="button" role="radio" data-size="normal" aria-checked="true"><b>Обычный текст</b><span>Молоко, сахар, мука</span></button>
+          <button type="button" role="radio" data-size="large" aria-checked="false"><b>Крупный текст</b><span>Молоко, сахар, мука</span></button>
         </div>
-        <h1 id="onboarding-title">Покупки спокойнее</h1>
-        <p class="onboarding-description" id="onboarding-description">Я Вижу! помогает разобраться в составе продуктов, аллергенах и добавках простыми словами.</p>
-
-        <div class="onboarding-step onboarding-welcome-copy" data-step="0">
-          <ul class="onboarding-benefits" aria-label="Возможности сервиса">
-            <li><span aria-hidden="true">✓</span><span>Сканировать штрихкод и быстро читать состав</span></li>
-            <li><span aria-hidden="true">✓</span><span>Записать важные ограничения для себя</span></li>
-          </ul>
-        </div>
-
-        <div class="onboarding-step" data-step="1" hidden>
-          <label class="onboarding-question" for="font-size-choice">Как вам удобнее читать?</label>
-          <div class="font-size-options">
-            <label>
-              <input id="font-size-choice" type="radio" name="font-size" value="normal" checked />
-              <span class="font-option normal"><b>Обычный</b><small>Удобно для большинства</small></span>
-            </label>
-            <label>
-              <input type="radio" name="font-size" value="large" />
-              <span class="font-option large"><b>Крупный</b><small>Больше воздуха и контраста</small></span>
-            </label>
-          </div>
-          <p class="onboarding-hint">Размер текста можно изменить позже в профиле.</p>
-        </div>
-
-        <div class="onboarding-step" data-step="2" hidden>
-          <p class="onboarding-question">Как к вам обращаться?</p>
-          <p class="onboarding-hint onboarding-form-note">Имя, телефон и пароль нужны, чтобы сохранить вашу карточку и историю проверок и войти с другого устройства. Уже есть профиль? <a href="medical-card.html#login-form">Войти</a></p>
-          <div class="onboarding-fields">
-            <label class="onboarding-field" for="onboarding-name">
-              <span>Ваше имя</span>
-              <input id="onboarding-name" name="name" type="text" autocomplete="name" placeholder="Например, Ирина" maxlength="80" required />
-              <small class="field-error" id="onboarding-name-error" aria-live="polite"></small>
-            </label>
-            <label class="onboarding-field" for="onboarding-phone">
-              <span>Номер телефона</span>
-              <input id="onboarding-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 900 000-00-00" maxlength="32" required />
-              <small class="field-error" id="onboarding-phone-error" aria-live="polite"></small>
-            </label>
-            <label class="onboarding-field" for="onboarding-password">
-              <span>Придумайте пароль</span>
-              <input id="onboarding-password" name="password" type="password" autocomplete="new-password" placeholder="Не меньше 6 символов" minlength="6" maxlength="128" required />
-              <small class="field-error" id="onboarding-password-error" aria-live="polite"></small>
-            </label>
-            <label class="onboarding-field" for="onboarding-restriction">
-              <span>Аллергии и продукты, которых избегаете</span>
-              <input id="onboarding-restriction" name="restriction" type="text" autocomplete="off" placeholder="Например, арахис, острое" maxlength="80" />
-            </label>
-          </div>
-        </div>
-
+        <p class="onboarding-hint">Размер можно поменять позже в профиле.</p>
         <div class="onboarding-actions">
-          <button class="button button-secondary" id="onboarding-back" type="button" hidden>Назад</button>
-          <button class="button button-primary" id="onboarding-next" type="button"><span>Далее</span><i aria-hidden="true">→</i></button>
+          <button class="ui-btn ui-btn--block" type="button" data-next><span>Дальше</span><i aria-hidden="true">→</i></button>
         </div>
-        <p class="onboarding-status" id="onboarding-status" aria-live="polite"></p>
-        <p class="onboarding-footnote"><span aria-hidden="true">↗</span> Профиль и история будут доступны сразу после завершения.</p>
+      </div>
+
+      <!-- 3. Что нельзя -->
+      <div class="onboarding-step" data-step="2" hidden>
+        <h2 tabindex="-1">Что вам нельзя есть?</h2>
+        <p class="onboarding-lead">Отметьте всё, что подходит. Мы будем предупреждать, если найдём это в составе.</p>
+        <div class="onboarding-foods" id="onboarding-foods" role="group" aria-label="Продукты, которые вам нельзя"></div>
+        <form class="onboarding-other" id="onboarding-other">
+          <label class="ui-field" for="onboarding-other-input">Другое<input id="onboarding-other-input" type="text" maxlength="80" placeholder="Например, мёд" autocomplete="off" /></label>
+          <button class="ui-btn ui-btn--ghost" type="submit">Добавить</button>
+        </form>
+        <div class="onboarding-actions">
+          <button class="ui-btn ui-btn--block" type="button" data-next><span id="onboarding-foods-next">Ничего из этого — дальше</span><i aria-hidden="true">→</i></button>
+        </div>
+      </div>
+
+      <!-- 4. Профиль -->
+      <div class="onboarding-step" data-step="3" hidden>
+        <h2 tabindex="-1">Сохраним ваш профиль</h2>
+        <p class="onboarding-lead">Тогда ваш список не потеряется, даже если вы смените телефон.</p>
+        <form class="ui-form onboarding-form" id="onboarding-form" novalidate>
+          <label class="ui-field" for="onboarding-name">Как вас зовут?<input id="onboarding-name" name="name" type="text" autocomplete="given-name" placeholder="Например, Ирина" maxlength="80" /><small class="onboarding-error" id="onboarding-name-error" aria-live="polite"></small></label>
+          <label class="ui-field" for="onboarding-phone">Номер телефона<input id="onboarding-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 900 000-00-00" maxlength="32" /><small class="onboarding-error" id="onboarding-phone-error" aria-live="polite"></small></label>
+          <label class="ui-field" for="onboarding-password">Придумайте пароль<small>Не меньше 6 букв или цифр — его нужно будет вводить при входе</small><input id="onboarding-password" name="password" type="password" autocomplete="new-password" minlength="6" maxlength="128" /><small class="onboarding-error" id="onboarding-password-error" aria-live="polite"></small></label>
+          <p class="onboarding-status" id="onboarding-status" role="status"></p>
+          <div class="onboarding-actions">
+            <button class="ui-btn ui-btn--block" id="onboarding-submit" type="submit"><span>Сохранить и начать</span><i aria-hidden="true">✓</i></button>
+            <a class="onboarding-link" href="login.html">Уже есть профиль? Войти</a>
+          </div>
+        </form>
       </div>
     </section>
   </main>
   <script src="../assets/js/api.js?v=4" defer></script>
-  <script src="../assets/js/onboarding.js?v=6" defer></script>
+  <script src="../assets/js/onboarding.js?v=9" defer></script>
 </body>
 </html>
