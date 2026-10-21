@@ -100,6 +100,40 @@ def seed_admin_password():
     print(f"Создан администратор: логин admin, пароль {password} (задайте ADMIN_PASSWORD, чтобы выбрать свой)", flush=True)
     return password
 
+# Каталог «Товары для вас»: живёт в базе, страница получает его через GET /api/products.
+CATALOG_SEED = [
+    ("Йогурт клубничный", "Молочные продукты", "4601234567890", "молоко, клубника, сахар, закваска", "молоко", 89),
+    ("Кефир 1%", "Молочные продукты", "4601234570001", "нормализованное молоко, закваска кефирных грибков", "молоко", 74),
+    ("Творог зернистый", "Молочные продукты", "4601234570002", "молоко, сливки, соль, закваска", "молоко", 119),
+    ("Сыр Российский", "Молочные продукты", "4601234570003", "молоко, соль, сычужный фермент, закваска", "молоко", 289),
+    ("Сметана 15%", "Молочные продукты", "4601234570004", "сливки, закваска", "молоко", 69),
+    ("Молоко 2,5%", "Молочные продукты", "4601234570005", "цельное молоко", "молоко", 92),
+    ("Хлеб пшеничный", "Выпечка", "4601234567891", "пшеничная мука, вода, дрожжи, соль", "пшеница, глютен", 65),
+    ("Батон нарезной", "Выпечка", "4601234570007", "пшеничная мука, вода, сахар, подсолнечное масло, дрожжи", "пшеница, глютен", 58),
+    ("Булочка с маком", "Выпечка", "4601234570008", "пшеничная мука, мак, сахар, молоко, яйца, дрожжи", "пшеница, глютен, молоко, яйца", 45),
+    ("Круассан с шоколадом", "Выпечка", "4601234570009", "пшеничная мука, сливочное масло, шоколад, сахар, дрожжи", "пшеница, глютен, молоко", 79),
+    ("Хлеб ржаной", "Выпечка", "4601234570010", "ржаная мука, пшеничная мука, вода, солод, соль", "рожь, пшеница, глютен", 62),
+    ("Шоколад с орехами", "Сладости", "4601234567892", "какао, сахар, фундук, молоко", "фундук, орехи, молоко", 149),
+    ("Печенье овсяное", "Сладости", "4601234570012", "овсяные хлопья, пшеничная мука, сахар, сливочное масло, яйца", "глютен, пшеница, яйца, молоко", 98),
+    ("Зефир ванильный", "Сладости", "4601234570013", "яблочное пюре, сахар, яичный белок, агар, ваниль", "яйца", 135),
+    ("Мармелад фруктовый", "Сладости", "4601234570014", "сахар, фруктовое пюре, пектин, лимонная кислота", "", 88),
+    ("Вафли со сгущёнкой", "Сладости", "4601234570015", "пшеничная мука, сгущённое молоко, сахар, масло", "пшеница, глютен, молоко", 76),
+    ("Гречка ядрица", "Крупы и макароны", "4601234570016", "гречневая крупа", "", 112),
+    ("Рис круглозёрный", "Крупы и макароны", "4601234570017", "рис", "", 96),
+    ("Овсяные хлопья", "Крупы и макароны", "4601234570018", "овсяные хлопья", "овёс, глютен", 84),
+    ("Спагетти", "Крупы и макароны", "4601234570019", "мука из твёрдой пшеницы, вода", "пшеница, глютен", 79),
+    ("Сок яблочный", "Напитки", "4601234570020", "яблочный сок", "", 119),
+    ("Сок апельсиновый", "Напитки", "4601234570021", "апельсиновый сок", "", 129),
+    ("Чай зелёный", "Напитки", "4601234570022", "зелёный чай, лепестки жасмина", "", 139),
+    ("Лимонад лимон-мята", "Напитки", "4601234570023", "вода, сахар, лимонный сок, мята, лимонная кислота", "", 85),
+    ("Арахис жареный", "Орехи и снеки", "4601234570024", "арахис, соль", "арахис", 109),
+    ("Чипсы картофельные", "Орехи и снеки", "4601234570025", "картофель, подсолнечное масло, соль", "", 119),
+    ("Миндаль сушёный", "Орехи и снеки", "4601234570026", "миндаль", "миндаль, орехи", 249),
+    ("Колбаса варёная", "Мясо и рыба", "4601234570027", "говядина, свинина, молоко, соль, специи", "молоко", 219),
+    ("Филе куриное", "Мясо и рыба", "4601234570028", "куриное филе", "", 299),
+    ("Горбуша консервированная", "Мясо и рыба", "4601234570029", "горбуша, масло, соль", "рыба", 135),
+]
+
 # Starter content of the two system stories.
 STORY_KINDS = ("article", "recipe", "guide")
 STORY_HOW_BODY = "Откройте главную страницу и нажмите «Сканировать».\nРазрешите сайту пользоваться камерой телефона.\nНаведите камеру на штрихкод на упаковке и подержите пару секунд.\nПрочитайте состав: он появится крупными буквами, а сложные слова мы объясним.\nЕсли в составе есть то, что вам нельзя, вы увидите предупреждение."
@@ -138,8 +172,12 @@ def init_db():
     if conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0:
         conn.executemany("INSERT INTO users(login,password,name,phone,is_admin) VALUES (?,?,?,?,?)", [("user",hash_password("qwerty"),"Пользователь","",0),("admin",hash_password(seed_admin_password()),"Администратор","",1)])
         conn.executemany("INSERT INTO profiles VALUES (?,?)", [("user","[]"),("admin","[]")])
-    if conn.execute("SELECT COUNT(*) FROM products").fetchone()[0] == 0:
-        conn.executemany("INSERT INTO products(name,category,barcode,ingredients,allergens,price) VALUES (?,?,?,?,?,?)", [("Йогурт клубничный","Молочные продукты","4601234567890","молоко, клубника, сахар","молоко",89),("Хлеб пшеничный","Выпечка","4601234567891","пшеничная мука, вода, дрожжи","пшеница, глютен",65),("Шоколад с орехами","Сладости","4601234567892","какао, сахар, фундук, молоко","фундук, орехи, молоко",149)])
+    # Once per database (user_version 0 → 1) the catalog is filled up by name: products the
+    # admin edited stay as they are, and ones the admin deletes later do not come back.
+    if conn.execute("PRAGMA user_version").fetchone()[0] < 1:
+        known = {row[0] for row in conn.execute("SELECT name FROM products")}
+        conn.executemany("INSERT INTO products(name,category,barcode,ingredients,allergens,price) VALUES (?,?,?,?,?,?)", [row for row in CATALOG_SEED if row[0] not in known])
+        conn.execute("PRAGMA user_version = 1")
     if conn.execute("SELECT COUNT(*) FROM stories").fetchone()[0] == 0:
         rows = [("story-how", "Как пользоваться сервисом", "Сканируйте продукты и проверяйте состав", "story-how.jpg", "/help.html", None), ("story-team", "Команда проекта «Я Вижу!»", "Создано с заботой о ваших покупках", "story-team.jpg", "/help.html", None)]
         conn.executemany("INSERT INTO stories(id,title,subtitle,image,href,recipe_id) VALUES (?,?,?,?,?,?)", rows)
@@ -400,8 +438,12 @@ def diet_check(data: DietCheckData, authorization: str | None = Header(default=N
 @app.get("/api/checks", tags=["Профиль и проверки"], summary="Получить историю проверок", description="Возвращает только проверки текущего авторизованного пользователя, отсортированные в порядке сохранения.")
 def get_checks(authorization: str | None = Header(default=None)):
     user = require_user(authorization); conn=db(); result=[]
-    for x in conn.execute("SELECT c.*, p.name AS product_name_joined FROM checks c LEFT JOIN products p ON p.id=c.product_id WHERE c.login=? ORDER BY c.id",(user,)):
-        item=dict(x); item["user"]=item.pop("login"); item["matches"]=json.loads(item["matches"]); item.pop("product_name_joined",None); result.append(item)
+    # JOIN: the name and category come from the current products row; the copy saved with the
+    # check is only a fallback for a product that has since been deleted (product_id is NULL).
+    for x in conn.execute("""SELECT c.id, c.login, c.product_id, COALESCE(p.name, c.product_name) AS product_name, p.category AS product_category,
+            c.barcode, c.checked_at, c.result, c.reason, c.matches
+        FROM checks c LEFT JOIN products p ON p.id = c.product_id WHERE c.login = ? ORDER BY c.id""", (user,)):
+        item=dict(x); item["user"]=item.pop("login"); item["matches"]=json.loads(item["matches"]); result.append(item)
     conn.close(); return result
 @app.post("/api/checks", status_code=201, tags=["Профиль и проверки"], summary="Проверить и сохранить товар", description="Сравнивает состав товара с ограничениями профиля, рассчитывает результат проверки и сохраняет запись в личную историю пользователя.")
 def save_check(data: CheckData, authorization: str | None = Header(default=None)):
@@ -469,7 +511,10 @@ def admin_users(authorization: str | None = Header(default=None)):
 @app.get("/api/admin/checks", tags=["Администрирование"], summary="Посмотреть все проверки", description="Возвращает общую историю проверок всех пользователей для административного просмотра.")
 def admin_checks(authorization: str | None = Header(default=None)):
     require_admin(authorization); conn=db(); result=[]
-    for x in conn.execute("SELECT * FROM checks ORDER BY id"):
+    # Two JOINs: who checked (users) and what was checked (products).
+    for x in conn.execute("""SELECT c.id, c.login, u.name AS user_name, c.product_id, COALESCE(p.name, c.product_name) AS product_name, p.category AS product_category,
+            c.barcode, c.checked_at, c.result, c.reason, c.matches
+        FROM checks c JOIN users u ON u.login = c.login LEFT JOIN products p ON p.id = c.product_id ORDER BY c.id"""):
         item=dict(x); item["matches"]=json.loads(item["matches"]); item["user"]=item.pop("login"); result.append(item)
     conn.close(); return result
 @app.get("/api/admin/stories", tags=["Администрирование"], summary="Получить истории в админке", description="Возвращает полный список историй для редактирования в панели администратора.")

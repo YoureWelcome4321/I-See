@@ -251,50 +251,13 @@
   <script src="../assets/js/api.js" defer></script>
   <script>
     (function () {
-      var PRODUCTS = [
-        { n: "Йогурт клубничный", c: "Молочные продукты", p: 89, i: ["молоко", "клубника", "сахар", "закваска"], a: ["молоко"] },
-        { n: "Кефир 1%", c: "Молочные продукты", p: 74, i: ["нормализованное молоко", "закваска кефирных грибков"], a: ["молоко"] },
-        { n: "Творог зернистый", c: "Молочные продукты", p: 119, i: ["молоко", "сливки", "соль", "закваска"], a: ["молоко"] },
-        { n: "Сыр Российский", c: "Молочные продукты", p: 289, i: ["молоко", "соль", "сычужный фермент", "закваска"], a: ["молоко"] },
-        { n: "Сметана 15%", c: "Молочные продукты", p: 69, i: ["сливки", "закваска"], a: ["молоко"] },
-        { n: "Молоко 2,5%", c: "Молочные продукты", p: 92, i: ["цельное молоко"], a: ["молоко"] },
-
-        { n: "Хлеб пшеничный", c: "Выпечка", p: 65, i: ["пшеничная мука", "вода", "дрожжи", "соль"], a: ["пшеница", "глютен"] },
-        { n: "Батон нарезной", c: "Выпечка", p: 58, i: ["пшеничная мука", "вода", "сахар", "подсолнечное масло", "дрожжи"], a: ["пшеница", "глютен"] },
-        { n: "Булочка с маком", c: "Выпечка", p: 45, i: ["пшеничная мука", "мак", "сахар", "молоко", "яйца", "дрожжи"], a: ["пшеница", "глютен", "молоко", "яйца"] },
-        { n: "Круассан с шоколадом", c: "Выпечка", p: 79, i: ["пшеничная мука", "сливочное масло", "шоколад", "сахар", "дрожжи"], a: ["пшеница", "глютен", "молоко"] },
-        { n: "Хлеб ржаной", c: "Выпечка", p: 62, i: ["ржаная мука", "пшеничная мука", "вода", "солод", "соль"], a: ["рожь", "пшеница", "глютен"] },
-
-        { n: "Шоколад с орехами", c: "Сладости", p: 149, i: ["какао", "сахар", "фундук", "молоко"], a: ["фундук", "орехи", "молоко"] },
-        { n: "Печенье овсяное", c: "Сладости", p: 98, i: ["овсяные хлопья", "пшеничная мука", "сахар", "сливочное масло", "яйца"], a: ["глютен", "пшеница", "яйца", "молоко"] },
-        { n: "Зефир ванильный", c: "Сладости", p: 135, i: ["яблочное пюре", "сахар", "яичный белок", "агар", "ваниль"], a: ["яйца"] },
-        { n: "Мармелад фруктовый", c: "Сладости", p: 88, i: ["сахар", "фруктовое пюре", "пектин", "лимонная кислота"], a: [] },
-        { n: "Вафли со сгущёнкой", c: "Сладости", p: 76, i: ["пшеничная мука", "сгущённое молоко", "сахар", "масло"], a: ["пшеница", "глютен", "молоко"] },
-
-        { n: "Гречка ядрица", c: "Крупы и макароны", p: 112, i: ["гречневая крупа"], a: [] },
-        { n: "Рис круглозёрный", c: "Крупы и макароны", p: 96, i: ["рис"], a: [] },
-        { n: "Овсяные хлопья", c: "Крупы и макароны", p: 84, i: ["овсяные хлопья"], a: ["овёс", "глютен"] },
-        { n: "Спагетти", c: "Крупы и макароны", p: 79, i: ["мука из твёрдой пшеницы", "вода"], a: ["пшеница", "глютен"] },
-
-        { n: "Сок яблочный", c: "Напитки", p: 119, i: ["яблочный сок"], a: [] },
-        { n: "Сок апельсиновый", c: "Напитки", p: 129, i: ["апельсиновый сок"], a: [] },
-        { n: "Чай зелёный", c: "Напитки", p: 139, i: ["зелёный чай", "лепестки жасмина"], a: [] },
-        { n: "Лимонад лимон-мята", c: "Напитки", p: 85, i: ["вода", "сахар", "лимонный сок", "мята", "лимонная кислота"], a: [] },
-
-        { n: "Арахис жареный", c: "Орехи и снеки", p: 109, i: ["арахис", "соль"], a: ["арахис"] },
-        { n: "Чипсы картофельные", c: "Орехи и снеки", p: 119, i: ["картофель", "подсолнечное масло", "соль"], a: [] },
-        { n: "Миндаль сушёный", c: "Орехи и снеки", p: 249, i: ["миндаль"], a: ["миндаль", "орехи"] },
-
-        { n: "Колбаса варёная", c: "Мясо и рыба", p: 219, i: ["говядина", "свинина", "молоко", "соль", "специи"], a: ["молоко"] },
-        { n: "Филе куриное", c: "Мясо и рыба", p: 299, i: ["куриное филе"], a: [] },
-        { n: "Горбуша консервированная", c: "Мясо и рыба", p: 135, i: ["горбуша", "масло", "соль"], a: ["рыба"] }
-      ];
+      // The catalog lives in the database and arrives from GET /api/products.
+      var PRODUCTS = [];
 
       var PAGE = 9;
       var state = { q: "", cat: "Все", visible: PAGE, showAll: false };
       // Products this person can't eat, by index: filled from /api/diet/check after sign-in.
       var banned = {};
-      PRODUCTS.forEach(function (p, idx) { p.id = idx; });
       var $ = function (id) { return document.getElementById(id); };
       var grid = $("grid"), search = $("search"), clearBtn = $("clear"), chips = $("chips");
       var dlg = $("dlg");
@@ -379,7 +342,7 @@
       }
 
       function openDialog(id) {
-        var p = PRODUCTS[id]; if (!p) return;
+        var p = PRODUCTS.filter(function (x) { return x.id === id; })[0]; if (!p) return;
         $("dlg-mark").textContent = p.n.charAt(0).toUpperCase();
         $("dlg-title").textContent = p.n;
         $("dlg-meta").innerHTML = "<span>" + esc(p.c) + "</span><span>" + priceText(p.p) + "</span>";
@@ -452,13 +415,22 @@
         render(false);
       });
 
-      buildChips();
-      // A signed-in person never sees, even for a moment, a product they can't eat: wait for the check.
-      var signedIn = false;
-      try { signedIn = Boolean(localStorage.getItem("ya-vizhu-demo-token-v1")); } catch (e) {}
-      if (signedIn) $("status").textContent = "Подбираем товары под ваш профиль…"; else render(false);
+      function splitList(value) {
+        return String(value || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+      }
+
       // api.js is deferred and loads after this inline script.
-      document.addEventListener("DOMContentLoaded", function () { checkDiet(0); });
+      document.addEventListener("DOMContentLoaded", function () {
+        $("status").textContent = "Загружаем товары…";
+        YaVizhuAPI.request("/api/products").then(function (rows) {
+          PRODUCTS = rows.map(function (row) {
+            return { id: row.id, n: row.name, c: row.category, p: row.price, i: splitList(row.ingredients), a: splitList(row.allergens) };
+          });
+          buildChips();
+          // A signed-in person never sees, even for a moment, a product they can't eat: wait for the check.
+          if (YaVizhuAPI.hasToken()) { $("status").textContent = "Подбираем товары под ваш профиль…"; checkDiet(0); } else render(false);
+        }).catch(function (error) { $("status").textContent = error.message || "Не удалось загрузить товары."; });
+      });
     })();
   </script>
 </body>

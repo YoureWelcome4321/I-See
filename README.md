@@ -1,75 +1,172 @@
 # Я Вижу!
 
-Swagger со всеми маршрутами - /docs
+Сайт для пожилых покупателей: сканирует штрихкод, показывает состав продукта крупно, объясняет сложные слова простым языком и предупреждает, если в продукте есть то, что человеку нельзя. Подбирает товары и рецепты под его ограничения и показывает магазины рядом.
 
-Проект разделён на frontend и backend:
+Стек: Python 3.10+, FastAPI, SQLite (модуль `sqlite3` из стандартной библиотеки), HTML/CSS/JS без сборки.
 
-- `frontend/pages/` — HTML-страницы;
-- `frontend/assets/css/` — стили;
-- `frontend/assets/js/` — клиентская логика;
-- `frontend/assets/images/` — изображения;
-- `backend/server.py` — FastAPI-сервер, статические страницы и API.
-- `backend/schema.sql` — схема SQLite;
-- `backend/backup.py` — создание и восстановление резервной копии;
-- `data/isee.sqlite3` — рабочая база (создаётся автоматически, не коммитится).
+## Структура
+
+- `backend/server.py` — FastAPI-сервер: API, создание базы, раздача страниц;
+- `backend/schema.sql` — схема базы (таблицы, ключи, индексы);
+- `backend/backup.py` — дамп базы в файл и восстановление из него;
+- `backend/benchmark_index.py` — замер скорости поиска с индексом и без;
+- `backend/diet_match.py` — подбор товаров и рецептов под ограничения (правила + нейросеть);
+- `backend/free_search.py` — поиск недостающего состава продукта;
+- `frontend/pages/`, `frontend/assets/` — страницы, стили, скрипты, картинки;
+- `tests/` — тесты (`python3 -m unittest discover -s tests`);
+- `data/isee.sqlite3` — рабочая база, создаётся сама при первом запуске и не коммитится.
 
 ## Запуск
-
-Требуется Python 3.10+ и зависимости из `requirements.txt`.
 
 ```bash
 python3 -m pip install -r requirements.txt
 python3 backend/server.py
 ```
 
-Затем откройте <http://127.0.0.1:4173>. Другой порт можно задать переменной `PORT`, адрес привязки — `HOST`. Документация Swagger доступна по адресу <http://127.0.0.1:4173/docs>, альтернативная документация ReDoc — по адресу <http://127.0.0.1:4173/redoc>.
+Откройте <http://127.0.0.1:4173>. Порт задаётся переменной `PORT`, адрес — `HOST`. Документация API: Swagger — <http://127.0.0.1:4173/docs>, ReDoc — <http://127.0.0.1:4173/redoc>.
+
+Отдельно запускать базу не нужно: SQLite — это файл `data/isee.sqlite3`. При первом старте сервер создаёт таблицы, индексы и заполняет каталог (30 товаров), рецепты и истории. Другой файл базы можно указать в `DATABASE_PATH`.
+
+Учебные аккаунты: `user / qwerty` и `admin / 12345` (на публичном сервере пароль администратора берётся из `ADMIN_PASSWORD`).
 
 ## API
 
-- `GET /api/health` — состояние сервера;
-- `GET /api/products` и `GET /api/products/{id}` — учебный каталог;
-- `POST /api/products`, `PUT /api/products/{id}` и `DELETE /api/products/{id}` — управление каталогом (только администратор);
-- `GET /api/stories` — истории для главной страницы;
-- `GET /api/admin/users` и `GET /api/admin/checks` — служебный просмотр пользователей и проверок (только администратор);
-- `GET /api/admin/users` — просмотр пользователей, а `GET /api/admin/stories`, `POST /api/admin/stories`, `DELETE /api/admin/stories/{id}` — администрирование историй (только администратор);
-- `GET /api/off/products/{barcode}` — данные от Open Food Facts для штрихкода;
-- `POST /api/ai/product-details` — поиск недостающих данных о составе через OpenRouter с веб-поиском; ответ содержит только подтверждённые значения в `fields`, а запрошенные, но не найденные после повторного поиска поля — в `missing`;
-- `POST /api/register` — создание профиля по имени, телефону, паролю (от 6 символов) и ограничениям с автоматической выдачей bearer-токена;
-- `POST /api/login` — вход по логину или номеру телефона и паролю, выдаёт bearer-токен на 30 дней;
-- `POST /api/logout` — отзыв текущего токена;
-- `GET/POST /api/profile` — ограничения питания авторизованного пользователя; (В работе)
-- `GET/POST /api/checks` — личная история проверок. При сохранении сервер связывает проверку с товаром и сравнивает состав с ограничениями профиля; (В работе)
-- `GET /api/stores?lat={latitude}&lon={longitude}` — продуктовые магазины в радиусе 2 км через Overpass/OpenStreetMap.
+| Метод и путь | Что делает | Доступ |
+|---|---|---|
+| `GET /api/health` | сервер работает | все |
+| `POST /api/register`, `GET /api/register/check` | регистрация по имени, телефону и паролю; проверка, свободен ли номер | все |
+| `POST /api/login`, `POST /api/logout` | вход по телефону или логину (выдаёт токен на 30 дней), выход | все |
+| `GET /api/products`, `GET /api/products/{id}` | каталог «Товары для вас» | все |
+| `POST /api/products`, `PUT /api/products/{id}`, `DELETE /api/products/{id}` | управление каталогом | админ |
+| `GET /api/profile`, `POST /api/profile` | список «Что мне нельзя» | пользователь |
+| `POST /api/diet/check` | какие из переданных товаров или рецептов человеку нельзя | пользователь |
+| `GET /api/checks`, `POST /api/checks` | история проверок (через JOIN с товарами); новая проверка (в транзакции) | пользователь |
+| `GET /api/recipes`, `GET /api/recipes/{id}` | рецепты | все |
+| `GET /api/stories` | истории на главной (статья, рецепт или инструкция) | все |
+| `GET /api/admin/users`, `GET /api/admin/checks` | пользователи с числом проверок; все проверки с именами пользователей и товаров (JOIN) | админ |
+| `GET/POST /api/admin/recipes`, `DELETE /api/admin/recipes/{id}` | управление рецептами | админ |
+| `GET/POST /api/admin/stories`, `DELETE /api/admin/stories/{id}`, `POST /api/admin/uploads` | управление историями и загрузка фото | админ |
+| `GET /api/off/products/{barcode}`, `POST /api/ai/product-details` | состав продукта из Open Food Facts и поиск недостающего | все |
+| `GET /api/stores?lat=…&lon=…` | продуктовые магазины в радиусе 2 км | все |
+| `POST /api/tts` | озвучка текста | все |
 
-Учебные аккаунты: `user / qwerty` и `admin / 12345`. Каталог, профили, проверки, пользователи и истории хранятся в SQLite и переживают перезапуск сервера. Проверка сохраняется транзакцией в `checks` и `check_matches`; история отдаётся через `LEFT JOIN` с товарами. Индексы созданы для штрихкода, истории пользователя и совпадений ограничений. Пароли хранятся в виде PBKDF2-SHA256, а сессии — в таблице `sessions` (хранится только SHA-256 токена, срок жизни 30 дней), поэтому вход переживает перезапуск сервера. Учебные аккаунты по-прежнему демонстрационные.
+## База данных
 
-### База, JOIN, транзакции и backup
+### Схема
 
-При первом запуске создаётся `data/isee.sqlite3`. Схема и внешние ключи описаны в `backend/schema.sql`. Для ручной проверки сохранения: войдите, сохраните профиль/проверку, перезапустите backend и повторите `GET /api/checks`.
+Полная схема — в [`backend/schema.sql`](backend/schema.sql). Внешние ключи включены для каждого соединения (`PRAGMA foreign_keys=ON`).
 
-```bash
-# дамп базы
-python3 backend/backup.py backup backup.sqlite3
-# восстановление после удаления строк/файла
-python3 backend/backup.py restore backup.sqlite3
+| Таблица | Первичный ключ | Что хранит | Связи |
+|---|---|---|---|
+| `users` | `login` | пользователи, хэш пароля (PBKDF2), телефон, роль | — |
+| `sessions` | `token_hash` | токены входа (только SHA-256) | `login → users` (удаляются вместе с пользователем) |
+| `profiles` | `login` | список «Что мне нельзя» | `login → users`, один к одному |
+| `products` | `id` | каталог: название, категория, штрихкод, состав, аллергены, цена | — |
+| `checks` | `id` | проверки товаров | `login → users`, `product_id → products` (при удалении товара — `NULL`) |
+| `check_matches` | `(check_id, restriction)` | совпадения проверки с ограничениями | `check_id → checks`, один ко многим |
+| `recipes` | `id` | рецепты: ингредиенты и шаги | — |
+| `stories` | `id` | истории на главной | `recipe_id → recipes` (для историй-рецептов) |
+| `ai_cache` | `cache_key` | кэш ответов нейросети и поиска состава | — |
+
+```
+users ──< sessions          users ──< checks >── products
+users ──  profiles                    │
+recipes ──< stories                   └──< check_matches
 ```
 
-Проверить индексы можно командой `sqlite3 data/isee.sqlite3 '.indexes'`, а план JOIN — `EXPLAIN QUERY PLAN SELECT c.*, p.name FROM checks c LEFT JOIN products p ON p.id=c.product_id;`.
+Ограничения: `NOT NULL` и значения по умолчанию у обязательных полей, уникальный телефон (`idx_users_phone`), составной первичный ключ у `check_matches`.
 
-Пример проверки через curl:
+### CRUD и сохранность после перезапуска
+
+Все ручки работают с базой: чтение — `SELECT`, создание — `INSERT`, изменение — `UPDATE`, удаление — `DELETE` (например, каталог: `GET/POST/PUT/DELETE /api/products`). Проверка: создайте товар или проверку, остановите сервер (Ctrl+C), запустите снова и запросите список — запись на месте.
 
 ```bash
-curl -X POST http://127.0.0.1:4173/api/login \
-  -H 'Content-Type: application/json' \
-  -d '{"login":"user","password":"qwerty"}'
+# вход (токен из ответа подставьте в TOKEN)
+curl -X POST http://127.0.0.1:4173/api/login -H 'Content-Type: application/json' -d '{"login":"admin","password":"12345"}'
 
-# Подставьте token из ответа на вход:
-curl -X POST http://127.0.0.1:4173/api/checks \
-  -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer token' \
-  -d '{"product_id":1}'
-curl http://127.0.0.1:4173/api/checks -H 'Authorization: Bearer token'
+# создать товар
+curl -X POST http://127.0.0.1:4173/api/products -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"name":"Ряженка 4%","category":"Молочные продукты","barcode":"4601234599999","ingredients":"молоко, сливки, закваска","allergens":"молоко","price":85}'
+
+# изменить и удалить
+curl -X PUT http://127.0.0.1:4173/api/products/31 -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"name":"Ряженка 2,5%","category":"Молочные продукты","barcode":"4601234599999","ingredients":"молоко, закваска","allergens":"молоко","price":79}'
+curl -X DELETE http://127.0.0.1:4173/api/products/31 -H "Authorization: Bearer $TOKEN"
 ```
+
+### JOIN
+
+История проверок отдаётся одним запросом сразу с названием и категорией товара — фронт получает готовые данные, а не `product_id`:
+
+```sql
+SELECT c.id, c.product_id, COALESCE(p.name, c.product_name) AS product_name, p.category AS product_category,
+       c.checked_at, c.result, c.matches
+FROM checks c LEFT JOIN products p ON p.id = c.product_id
+WHERE c.login = ? ORDER BY c.id;
+```
+
+`LEFT JOIN` — чтобы проверка удалённого товара не пропала: тогда берётся название, сохранённое при проверке. Админский `GET /api/admin/checks` дополнительно присоединяет `users` (имя проверявшего), а `GET /api/admin/users` считает проверки каждого пользователя через `LEFT JOIN … GROUP BY`.
+
+```bash
+curl -X POST http://127.0.0.1:4173/api/checks -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d '{"product_id":1}'
+curl http://127.0.0.1:4173/api/checks -H "Authorization: Bearer $TOKEN"
+```
+
+### Транзакция
+
+`POST /api/checks` пишет проверку в `checks` и её совпадения в `check_matches` внутри одной транзакции (`BEGIN … COMMIT`); при любой ошибке — `ROLLBACK`, и в базе не остаётся «полупроверки». Регистрация так же атомарно создаёт пользователя и его профиль.
+
+Как увидеть откат: сохраните в профиле «молоко» и как аллергию, и как «не ем» (`POST /api/profile` с `[{"name":"молоко","type":"allergy"},{"name":"молоко","type":"avoid"}]`), затем проверьте молочный товар (`POST /api/checks` с `{"product_id":1}`). Второй шаг — вставка двух одинаковых совпадений — нарушает первичный ключ `check_matches`; сервер ответит 500 «транзакция отменена», а `checks` останется без новой записи:
+
+```bash
+sqlite3 data/isee.sqlite3 'SELECT COUNT(*) FROM checks; SELECT COUNT(*) FROM check_matches;'
+```
+
+### Индексы
+
+| Индекс | Для чего |
+|---|---|
+| `idx_products_barcode` | поиск товара по штрихкоду |
+| `idx_checks_login_date` | история проверок пользователя по дате |
+| `idx_check_matches_restriction` | выборка совпадений по ограничению |
+| `idx_sessions_login` | сессии пользователя |
+| `idx_users_phone` (уникальный) | вход по телефону, один профиль на номер |
+
+Сравнение скорости — на отдельной временной базе (рабочая не трогается): скрипт заливает 20 000 товаров и ищет 2 000 штрихкодов без индекса и с ним.
+
+```bash
+python3 backend/benchmark_index.py                 # или --rows 100000 --lookups 5000
+```
+
+```
+Без индекса
+  план:  SCAN products
+  время: 1455 мс  (0.728 мс на поиск)
+С индексом (создан за 4 мс)
+  план:  SEARCH products USING INDEX idx_products_barcode (barcode=?)
+  время: 10 мс  (0.005 мс на поиск)
+Ускорение: ×143
+```
+
+### Бэкап и восстановление
+
+```bash
+python3 backend/backup.py backup backup.sqlite3     # копия базы в файл
+sqlite3 data/isee.sqlite3 'DELETE FROM products WHERE id IN (2, 3);'
+python3 backend/backup.py restore backup.sqlite3    # данные вернулись
+```
+
+Копия делается через `sqlite3.Connection.backup` — это согласованный снимок даже при работающем сервере.
+
+### Тесты
+
+```bash
+python3 -m unittest discover -s tests
+```
+
+`tests/test_database.py` на временной базе проверяет: каталог лежит в базе, данные переживают перезапуск, история берёт название товара через JOIN, сломанный второй шаг откатывает всю проверку, бэкап возвращает удалённые строки.
+
+## Разное
 
 Backend раздаёт страницы и ресурсы с того же origin, поэтому браузеру не нужны CORS-запросы к API продуктов и магазинов. Карта и её тайлы Leaflet/OpenStreetMap по-прежнему загружаются из внешних источников. Для камеры браузеру нужен HTTPS: в production запускайте Python backend за HTTPS reverse proxy (например, Nginx).
 
